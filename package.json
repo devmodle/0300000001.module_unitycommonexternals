@@ -1,7 +1,7 @@
 {
-  "name": "00.unitymodule.common.externals",
+  "name": "unitymodule.common.externals",
   "version": "1.0.0",
-  "displayName": "00.UnityModule.Common.Externals",
+  "displayName": "UnityModule.Common.Externals",
   "author": {
     "name": "dante",
     "email": "are2341@nate.com"
