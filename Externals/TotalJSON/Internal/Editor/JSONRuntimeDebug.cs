@@ -2,8 +2,10 @@
 
 
 using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
+using UnityEditor;
 
 namespace Leguar.TotalJSON.Internal {
 
@@ -202,3 +204,4 @@ namespace Leguar.TotalJSON.Internal {
 	}
 
 }
+#endif			// #if UNITY_EDITOR

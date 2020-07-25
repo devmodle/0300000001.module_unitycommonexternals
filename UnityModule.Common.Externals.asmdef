@@ -1,6 +1,8 @@
 {
     "name": "UnityModule.Common.Externals",
-    "references": [],
+    "references": [
+        "MessagePack"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
