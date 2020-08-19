@@ -4,7 +4,7 @@ using System.IO;
 
 namespace litefeel
 {
-#if UNITY_EDITOR
+
     public class BFMenuTool
     {
         [MenuItem("Assets/Bitmap Font/Rebuild Bitmap Font", true)]
@@ -42,5 +42,5 @@ namespace litefeel
             }
         }
     }
-#endif			// #if UNITY_EDITOR
+
 }

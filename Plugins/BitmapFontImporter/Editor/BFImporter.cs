@@ -6,7 +6,6 @@ using System.Text;
 
 namespace litefeel
 {
-#if UNITY_EDITOR
     public class BFImporter : AssetPostprocessor
     {
         static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
@@ -195,6 +194,6 @@ namespace litefeel
             EditorApplication.update += func;
         }
     }
-#endif			// #if UNITY_EDITOR
+
 }
 
