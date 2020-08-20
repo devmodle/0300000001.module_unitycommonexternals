@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.IO;
 
 #if UNITY_2018_4_OR_NEWER || (UNITY_STANDALONE_OSX && UNITY_2019_3_OR_NEWER)
@@ -138,3 +139,4 @@ public class PostProcessForSignInWithApple : IPostprocessBuildWithReport
     
 }
 #endif
+#endif			// #if UNITY_EDITOR

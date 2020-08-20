@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
@@ -196,4 +197,4 @@ namespace litefeel
     }
 
 }
-
+#endif			// #if UNITY_EDITOR
