@@ -9,10 +9,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using OmniSARTechnologies.Helper;
-
-#if UNITY_EDITOR
 using UnityEditor;
+using OmniSARTechnologies.Helper;
 
 namespace OmniSARTechnologies.LiteFPSCounter {
     [CustomEditor(typeof(LiteFPSCounter))]
@@ -199,4 +197,3 @@ namespace OmniSARTechnologies.LiteFPSCounter {
         }
     }
 }
-#endif			// #if UNITY_EDITOR

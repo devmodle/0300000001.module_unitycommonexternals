@@ -12,7 +12,6 @@ using UnityEditor;
 #endif
 using OmniSARTechnologies.Helper;
 
-#if UNITY_EDITOR
 namespace OmniSARTechnologies.Helper {
     public static class EditorGUIHelper {
         public static class Attributes {
@@ -397,4 +396,3 @@ namespace OmniSARTechnologies.Helper {
         }
     }
 }
-#endif			// #if UNITY_EDITOR
