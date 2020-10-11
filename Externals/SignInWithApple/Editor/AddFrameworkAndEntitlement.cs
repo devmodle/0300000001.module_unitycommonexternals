@@ -31,10 +31,12 @@ public class PostProcessForSignInWithApple : IPostprocessBuildWithReport
             return;
         }
 
+#if APPLE_LOGIN_ENABLE
 		if (buildTarget == BuildTarget.StandaloneOSX)
 			PostprocessForMacOS(path);
 		else
 			PostprocessFortvOSiOS(path);
+#endif			// #if APPLE_LOGIN_ENABLE
     }
 
     void PostprocessFortvOSiOS(string path)
