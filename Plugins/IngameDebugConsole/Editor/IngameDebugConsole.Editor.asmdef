@@ -1,7 +1,7 @@
 {
-    "name": "UnityModule.DebugConsole.Editor",
+    "name": "IngameDebugConsole.Editor",
     "references": [
-        "UnityModule.Common.Externals"
+        "IngameDebugConsole.Runtime"
     ],
     "includePlatforms": [
         "Editor"
