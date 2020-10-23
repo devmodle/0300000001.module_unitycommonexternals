@@ -60,8 +60,8 @@
             
 			#define TMP_SPRITE 1
 			#define UI_SHINY 1
-            #include "Assets/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
-            #include "Assets/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect-Sprite.cginc"
+            #include "Packages/.UnityModule.Common.Externals/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
+            #include "Packages/.UnityModule.Common.Externals/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect-Sprite.cginc"
 
 			fixed4 frag(v2f IN) : SV_Target
 			{
