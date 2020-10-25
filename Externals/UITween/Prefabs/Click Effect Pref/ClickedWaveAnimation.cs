@@ -45,13 +45,10 @@ public class ClickedWaveAnimation : MonoBehaviour {
 			wave.transform.SetParent( CanvasMain.transform );
 			wave.GetComponent<MaskableGraphic>().color = Parent.GetComponent<MaskableGraphic>().color - new Color(.1f, .1f, .1f);
 
-			Vector3 mousePos = Camera.main.ScreenToViewportPoint(Input.mousePosition);
+			Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			mousePos.z = Parent.transform.position.z;
 
-			mousePos.x = mousePos.x * Screen.width - Screen.width / 2f;
-			mousePos.y = mousePos.y * Screen.height - Screen.height / 2f;
-			mousePos.z = 0f;
-
-			wave.GetComponent<RectTransform>().localPosition = mousePos / CanvasMain.transform.localScale.x;
+			wave.GetComponent<RectTransform>().position = mousePos;
 			wave.transform.SetParent( Parent );
 			wave.GetComponent<EasyTween>().OpenCloseObjectAnimation();
 		}
