@@ -62,7 +62,9 @@ static UnitySignInWithApple* _unitySignInWithAppleInstance;
     ASAuthorizationAppleIDProvider* provider = [[ASAuthorizationAppleIDProvider alloc] init];
     [provider getCredentialStateForUserID:userID
                                completion:^(ASAuthorizationAppleIDProviderCredentialState credentialState, NSError * _Nullable error) {
-        self.credentialStateCallback(credentialState);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.credentialStateCallback(credentialState);
+        });
     }];
 }
 
