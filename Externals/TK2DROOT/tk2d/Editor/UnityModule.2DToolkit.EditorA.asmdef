@@ -1,7 +1,7 @@
 {
     "name": "UnityModule.2DToolkit.EditorA",
     "references": [
-        "UnityModule.2DToolkit"
+        "UnityModule.Common.Externals"
     ],
     "includePlatforms": [
         "Editor"
