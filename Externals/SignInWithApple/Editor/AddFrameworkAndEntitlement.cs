@@ -1,5 +1,6 @@
 using System.IO;
 
+#if APPLE_LOGIN_ENABLE
 #if UNITY_2018_4_OR_NEWER || (UNITY_STANDALONE_OSX && UNITY_2019_3_OR_NEWER)
 using UnityEditor;
 using UnityEditor.Build;
@@ -147,3 +148,4 @@ public class PostProcessForSignInWithApple : IPostprocessBuildWithReport
     
 }
 #endif
+#endif			// #if APPLE_LOGIN_ENABLE

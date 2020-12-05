@@ -2397,6 +2397,7 @@ MonoBehaviour:
   minHeight: 300
   narrowScreenWidth: 380
   quickLinksMaxWidthPercentage: 0.4
+  sortFilesByName: 1
   excludeExtensions:
   - .lnk
   - .tmp

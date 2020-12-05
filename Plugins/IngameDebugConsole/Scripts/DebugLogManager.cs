@@ -114,9 +114,11 @@ namespace IngameDebugConsole
 		[Tooltip( "If a log is longer than this limit, it will be truncated. This helps avoid reaching Unity's 65000 vertex limit for UI canvases" )]
 		private int maxLogLength = 10000;
 
+#if UNITY_EDITOR || UNITY_STANDALONE
 		[SerializeField]
 		[Tooltip( "If enabled, on standalone platforms, command input field will automatically be focused (start receiving keyboard input) after opening the console window" )]
 		private bool autoFocusOnCommandInputField = true;
+#endif
 
 		[Header( "Visuals" )]
 		[SerializeField]
@@ -282,6 +284,9 @@ namespace IngameDebugConsole
 		// Required in ValidateScrollPosition() function
 		private PointerEventData nullPointerEventData;
 
+		// Callbacks for log window show/hide events
+		public System.Action OnLogWindowShown, OnLogWindowHidden;
+
 #if UNITY_EDITOR
 		private bool isQuittingApplication;
 #endif
@@ -348,7 +353,9 @@ namespace IngameDebugConsole
 			if( minimumHeight < 200f )
 				minimumHeight = 200f;
 
-			if( !enableSearchbar )
+			if( enableSearchbar )
+				searchbar.GetComponent<InputField>().onValueChanged.AddListener( SearchTermChanged );
+			else
 			{
 				searchbar = null;
 				searchbarSlotTop.gameObject.SetActive( false );
@@ -362,7 +369,6 @@ namespace IngameDebugConsole
 			commandInputField.onValidateInput += OnValidateCommand;
 			commandInputField.onValueChanged.AddListener( RefreshCommandSuggestions );
 			commandInputField.onEndEdit.AddListener( OnEndEditCommand );
-			searchbar.GetComponent<InputField>().onValueChanged.AddListener( SearchTermChanged );
 			hideButton.onClick.AddListener( HideLogWindow );
 			clearButton.onClick.AddListener( ClearLogs );
 			collapseButton.GetComponent<Button>().onClick.AddListener( CollapseButtonPressed );
@@ -601,6 +607,9 @@ namespace IngameDebugConsole
 #endif
 
 			isLogWindowVisible = true;
+
+			if( OnLogWindowShown != null )
+				OnLogWindowShown();
 		}
 
 		public void HideLogWindow()
@@ -617,6 +626,9 @@ namespace IngameDebugConsole
 
 			commandHistoryIndex = -1;
 			isLogWindowVisible = false;
+
+			if( OnLogWindowHidden != null )
+				OnLogWindowHidden();
 		}
 
 		// Command field input is changed, check if command is submitted
