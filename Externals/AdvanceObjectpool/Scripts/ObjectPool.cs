@@ -150,9 +150,9 @@ public class ObjectPool
     /// Spawns a gameobject.
     /// </summary>
     /// <returns>The spawned gameobject.</returns>
-    public GameObject Spawn()
+    public GameObject Spawn(string a_oName)
     {
-        return Spawn(Vector3.zero);
+        return Spawn(a_oName, Vector3.zero);
     }
 
     /// <summary>
@@ -160,9 +160,9 @@ public class ObjectPool
     /// </summary>
     /// <param name="pos">The position to spawn the object.</param>
     /// <returns>The spawned gameobject.</returns>
-    public GameObject Spawn(Vector3 pos)
+    public GameObject Spawn(string a_oName, Vector3 pos)
     {
-        return Spawn(pos, Quaternion.identity);
+        return Spawn(a_oName, pos, Quaternion.identity);
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ public class ObjectPool
     /// <param name="pos">The position to spawn the gameobject.</param>
     /// <param name="rot">The rotation to spawn the gameobject.</param>
     /// <returns>The spawned gameobject.</returns>
-    public GameObject Spawn(Vector3 pos, Quaternion rot)
+    public GameObject Spawn(string a_oName, Vector3 pos, Quaternion rot)
     {
         GameObject com = null;
         if (DespawnedElements.Count != 0)
@@ -197,6 +197,8 @@ public class ObjectPool
         {
             OnObjectSpawn.Invoke(com, this);
         }
+
+		com.name = a_oName;
         return com;
     }
 
