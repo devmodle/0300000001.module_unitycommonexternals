@@ -1,8 +1,9 @@
 {
     "name": "UnityModule.FPSCounter.EditorB",
+    "rootNamespace": "",
     "references": [
-        "UnityModule.Common.Externals",
-        "UnityModule.FPSCounter.EditorA"
+        "UnityModule.FPSCounter.EditorA",
+        "UnityModule.Common.Externals"
     ],
     "includePlatforms": [
         "Editor"
