@@ -146,6 +146,15 @@ public class ObjectPool
         return ActiveObject.Contains(item);
     }
 
+	/// <summary>
+    /// Spawns a gameobject.
+    /// </summary>
+    /// <returns>The spawned gameobject.</returns>
+    public GameObject Spawn()
+    {
+        return Spawn(string.Empty, Vector3.zero);
+    }
+
     /// <summary>
     /// Spawns a gameobject.
     /// </summary>
@@ -153,6 +162,15 @@ public class ObjectPool
     public GameObject Spawn(string a_oName)
     {
         return Spawn(a_oName, Vector3.zero);
+    }
+
+	/// <summary>
+    /// Spawns a gameobject.
+    /// </summary>
+    /// <returns>The spawned gameobject.</returns>
+    public GameObject Spawn(Vector3 pos)
+    {
+        return Spawn(string.Empty, pos);
     }
 
     /// <summary>
@@ -197,7 +215,6 @@ public class ObjectPool
         {
             OnObjectSpawn.Invoke(com, this);
         }
-
 		com.name = a_oName;
         return com;
     }

@@ -185,7 +185,7 @@ namespace Coffee.UIParticleExtensions
 
     internal static class ParticleSystemExtensions
     {
-        public static void SortForRendering(this List<ParticleSystem> self, Transform transform)
+        public static void SortForRendering(this List<ParticleSystem> self, Transform transform, bool sortByMaterial)
         {
             self.Sort((a, b) =>
             {
@@ -194,8 +194,15 @@ namespace Coffee.UIParticleExtensions
                 var bRenderer = b.GetComponent<ParticleSystemRenderer>();
 
                 // Render queue: ascending
-                var aMat = aRenderer.sharedMaterial;
-                var bMat = bRenderer.sharedMaterial;
+                var aMat = aRenderer.sharedMaterial ?? aRenderer.trailMaterial;
+                var bMat = bRenderer.sharedMaterial ?? bRenderer.trailMaterial;
+                if (!aMat && !bMat) return 0;
+                if (!aMat) return -1;
+                if (!bMat) return 1;
+
+                if (sortByMaterial)
+                    return aMat.GetInstanceID() - bMat.GetInstanceID();
+
                 if (aMat.renderQueue != bMat.renderQueue)
                     return aMat.renderQueue - bMat.renderQueue;
 
@@ -210,10 +217,10 @@ namespace Coffee.UIParticleExtensions
                 // Z position & sortingFudge: descending
                 var aTransform = a.transform;
                 var bTransform = b.transform;
-                var aPos = tr.InverseTransformPoint(aTransform.position).z+ aRenderer.sortingFudge;
-                var bPos = tr.InverseTransformPoint(bTransform.position).z+ bRenderer.sortingFudge;
+                var aPos = tr.InverseTransformPoint(aTransform.position).z + aRenderer.sortingFudge;
+                var bPos = tr.InverseTransformPoint(bTransform.position).z + bRenderer.sortingFudge;
                 if (!Mathf.Approximately(aPos, bPos))
-                    return (int)Mathf.Sign(bPos - aPos);
+                    return (int) Mathf.Sign(bPos - aPos);
 
                 // Material instance ID: match
                 if (aMat.GetInstanceID() == bMat.GetInstanceID())

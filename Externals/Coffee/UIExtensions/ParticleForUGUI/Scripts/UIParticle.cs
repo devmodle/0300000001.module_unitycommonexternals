@@ -1,3 +1,6 @@
+#if UNITY_2019_3_11 || UNITY_2019_3_12 || UNITY_2019_3_13 || UNITY_2019_3_14 || UNITY_2019_3_15 || UNITY_2019_4_OR_NEWER
+#define SERIALIZE_FIELD_MASKABLE
+#endif
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Coffee.UIParticleExtensions;
@@ -38,9 +41,11 @@ namespace Coffee.UIExtensions
         [Tooltip("Particles")] [SerializeField]
         private List<ParticleSystem> m_Particles = new List<ParticleSystem>();
 
-#if !UNITY_2019_4_OR_NEWER
-        [SerializeField]
-        private bool m_Maskable = true;
+        [Tooltip("Shrink rendering by material on refresh.\nNOTE: Performance will be improved, but in some cases the rendering is not correct.")] [SerializeField]
+        bool m_ShrinkByMaterial = false;
+
+#if !SERIALIZE_FIELD_MASKABLE
+        [SerializeField] private bool m_Maskable = true;
 #endif
 
         private bool _shouldBeRemoved;
@@ -54,6 +59,7 @@ namespace Coffee.UIExtensions
         private static MaterialPropertyBlock s_Mpb;
         private static readonly List<Material> s_PrevMaskMaterials = new List<Material>();
         private static readonly List<Material> s_PrevModifiedMaterials = new List<Material>();
+        private static readonly List<Component> s_Components = new List<Component>();
 
 
         /// <summary>
@@ -75,6 +81,17 @@ namespace Coffee.UIExtensions
                 _tracker.Clear();
                 if (isActiveAndEnabled && m_IgnoreCanvasScaler)
                     _tracker.Add(this, rectTransform, DrivenTransformProperties.Scale);
+            }
+        }
+
+        public bool shrinkByMaterial
+        {
+            get { return m_ShrinkByMaterial; }
+            set
+            {
+                if (m_ShrinkByMaterial == value) return;
+                m_ShrinkByMaterial = value;
+                RefreshParticles();
             }
         }
 
@@ -119,6 +136,11 @@ namespace Coffee.UIExtensions
         public IEnumerable<Material> materials
         {
             get { return _modifiedMaterials; }
+        }
+
+        public override Material materialForRendering
+        {
+            get { return canvasRenderer.GetMaterial(0); }
         }
 
         public List<bool> activeMeshIndices
@@ -209,7 +231,7 @@ namespace Coffee.UIExtensions
             }
 
             particles.Exec(p => p.GetComponent<ParticleSystemRenderer>().enabled = !enabled);
-            particles.SortForRendering(transform);
+            particles.SortForRendering(transform, m_ShrinkByMaterial);
 
             SetMaterialDirty();
         }
@@ -237,16 +259,12 @@ namespace Coffee.UIExtensions
             if (count == 0 || !isActiveAndEnabled || particles.Count == 0)
             {
                 canvasRenderer.Clear();
-
-                foreach (var m in s_PrevMaskMaterials)
-                    StencilMaterial.Remove(m);
-
-                foreach (var m in s_PrevModifiedMaterials)
-                    ModifiedMaterial.Remove(m);
+                ClearPreviousMaterials();
                 return;
             }
 
             //
+            GetComponents(typeof(IMaterialModifier), s_Components);
             var materialCount = Mathf.Max(8, count);
             canvasRenderer.materialCount = materialCount;
             var j = 0;
@@ -265,6 +283,8 @@ namespace Coffee.UIExtensions
                 if (activeMeshIndices[index] && 0 < s_TempMaterials.Count)
                 {
                     var mat = GetModifiedMaterial(s_TempMaterials[0], ps.GetTextureForSprite());
+                    for (var k = 1; k < s_Components.Count; k++)
+                        mat = (s_Components[k] as IMaterialModifier).GetModifiedMaterial(mat);
                     canvasRenderer.SetMaterial(mat, j);
                     UpdateMaterialProperties(r, j);
                     j++;
@@ -276,15 +296,24 @@ namespace Coffee.UIExtensions
                 if (activeMeshIndices[index] && 1 < s_TempMaterials.Count)
                 {
                     var mat = GetModifiedMaterial(s_TempMaterials[1], null);
+                    for (var k = 1; k < s_Components.Count; k++)
+                        mat = (s_Components[k] as IMaterialModifier).GetModifiedMaterial(mat);
                     canvasRenderer.SetMaterial(mat, j++);
                 }
             }
 
+            ClearPreviousMaterials();
+        }
+
+        private void ClearPreviousMaterials()
+        {
             foreach (var m in s_PrevMaskMaterials)
                 StencilMaterial.Remove(m);
+            s_PrevMaskMaterials.Clear();
 
             foreach (var m in s_PrevModifiedMaterials)
                 ModifiedMaterial.Remove(m);
+            s_PrevModifiedMaterials.Clear();
         }
 
         private Material GetModifiedMaterial(Material baseMaterial, Texture2D texture)
@@ -355,7 +384,7 @@ namespace Coffee.UIExtensions
         /// </summary>
         protected override void OnEnable()
         {
-#if !UNITY_2019_4_OR_NEWER
+#if !SERIALIZE_FIELD_MASKABLE
             maskable = m_Maskable;
 #endif
             _cachedPosition = transform.localPosition;
@@ -448,7 +477,7 @@ namespace Coffee.UIExtensions
             SetVerticesDirty();
             m_ShouldRecalculateStencil = true;
             RecalculateClipping();
-#if !UNITY_2019_4_OR_NEWER
+#if !SERIALIZE_FIELD_MASKABLE
             maskable = m_Maskable;
 #endif
         }

@@ -17,7 +17,7 @@ namespace Coffee.UIExtensions
 	/// UIEffect.
 	/// </summary>
 	[AddComponentMenu("UI/UIEffect/UIShiny", 2)]
-	public class UIShiny : CFXBase
+	public class UIShiny : UIEffectBase
 	{
 		//################################
 		// Constant or Static Members.
@@ -95,7 +95,7 @@ namespace Coffee.UIExtensions
 		/// <summary>
 		/// Effect factor between 0(start) and 1(end).
 		/// </summary>
-		public override float effectFactor
+		public float effectFactor
 		{
 			get { return m_EffectFactor; }
 			set

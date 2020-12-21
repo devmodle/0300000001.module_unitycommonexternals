@@ -59,7 +59,7 @@ namespace Coffee.UIExtensions
 
         private static void Refresh(UIParticle particle)
         {
-            if (!particle || !particle.canvas || !particle.canvasRenderer) return;
+            if (!particle || !particle.bakedMesh || !particle.canvas || !particle.canvasRenderer) return;
 
             Profiler.BeginSample("[UIParticle] Modify scale");
             ModifyScale(particle);
@@ -164,6 +164,8 @@ namespace Coffee.UIExtensions
                 // No particle to render.
                 var currentPs = particle.particles[i];
                 if (!currentPs || !currentPs.IsAlive() || currentPs.particleCount == 0) continue;
+                var r = currentPs.GetComponent<ParticleSystemRenderer>();
+                if (!r.sharedMaterial && !r.trailMaterial) continue;
 
                 // Calc matrix.
                 Profiler.BeginSample("[UIParticle] Bake Mesh > Calc matrix");
@@ -218,7 +220,6 @@ namespace Coffee.UIExtensions
 #endif
 
                 // Bake main particles.
-                var r = currentPs.GetComponent<ParticleSystemRenderer>();
                 if (CanBakeMesh(r))
                 {
                     Profiler.BeginSample("[UIParticle] Bake Mesh > Bake Main Particles");
