@@ -50,7 +50,7 @@ TextureImporter:
   spriteBorder: {x: 21, y: 20, z: 0, w: 20}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
-  alphaIsTransparency: 1
+  alphaIsTransparency: 0
   spriteTessellationDetail: -1
   textureType: 8
   textureShape: 1
