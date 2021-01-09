@@ -1,7 +1,9 @@
 {
     "name": "UnityModule.Common.Externals",
+    "rootNamespace": "",
     "references": [
-        "MessagePack"
+        "MessagePack",
+        "MessagePack.Annotations"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
