@@ -9,7 +9,7 @@ namespace Coffee.UIExtensions
 	/// Dissolve effect for uGUI.
 	/// </summary>
 	[AddComponentMenu("UI/UIEffect/UIDissolve", 3)]
-	public class UIDissolve : UIEffectBase
+	public class UIDissolve : CFXBase
 	{
 		//################################
 		// Constant or Static Members.
@@ -87,7 +87,7 @@ namespace Coffee.UIExtensions
 		/// <summary>
 		/// Effect factor between 0(start) and 1(end).
 		/// </summary>
-		public float effectFactor
+		public override float effectFactor
 		{
 			get { return m_EffectFactor; }
 			set
