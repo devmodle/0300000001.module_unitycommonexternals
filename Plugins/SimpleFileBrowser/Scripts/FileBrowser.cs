@@ -124,6 +124,49 @@ namespace SimpleFileBrowser
 			set { m_singleClickMode = value; }
 		}
 
+#if UNITY_EDITOR || ( !UNITY_ANDROID && !UNITY_IOS && !UNITY_WSA && !UNITY_WSA_10_0 )
+		private static float m_drivesRefreshInterval = 5f;
+#else
+		private static float m_drivesRefreshInterval = -1f;
+#endif
+		public static float DrivesRefreshInterval
+		{
+			get { return m_drivesRefreshInterval; }
+			set { m_drivesRefreshInterval = value; }
+		}
+
+		public static bool ShowHiddenFiles
+		{
+			get { return Instance.showHiddenFilesToggle.isOn; }
+			set { Instance.showHiddenFilesToggle.isOn = value; }
+		}
+
+		private static bool m_displayHiddenFilesToggle = true;
+		public static bool DisplayHiddenFilesToggle
+		{
+			get { return m_displayHiddenFilesToggle; }
+			set
+			{
+				if( m_displayHiddenFilesToggle != value )
+				{
+					m_displayHiddenFilesToggle = value;
+
+					if( m_instance )
+					{
+						if( !value )
+							m_instance.showHiddenFilesToggle.gameObject.SetActive( false );
+						else if( m_instance.windowTR.sizeDelta.x >= m_instance.narrowScreenWidth )
+						{
+#if !UNITY_EDITOR && UNITY_ANDROID
+							if( !FileBrowserHelpers.ShouldUseSAF )
+#endif
+							m_instance.showHiddenFilesToggle.gameObject.SetActive( true );
+						}
+					}
+				}
+			}
+		}
+
 		private static string m_allFilesFilterText = "All Files (.*)";
 		public static string AllFilesFilterText
 		{
@@ -169,7 +212,7 @@ namespace SimpleFileBrowser
 		}
 
 
-		private static string m_pickFolderQuickLinkText = "Pick Folder";
+		private static string m_pickFolderQuickLinkText = "Browse...";
 		public static string PickFolderQuickLinkText
 		{
 			get { return m_pickFolderQuickLinkText; }
@@ -179,11 +222,11 @@ namespace SimpleFileBrowser
 				{
 					m_pickFolderQuickLinkText = value;
 
-					if( m_instance && m_instance.addedQuickLinksSet.Contains( SAF_PICK_FOLDER_QUICK_LINK_PATH ) )
+					if( m_instance )
 					{
-						for( int i = 0; i < m_instance.quickLinksContainer.childCount; i++ )
+						for( int i = 0; i < m_instance.allQuickLinks.Count; i++ )
 						{
-							FileBrowserQuickLink quickLink = m_instance.quickLinksContainer.GetChild( i ).GetComponent<FileBrowserQuickLink>();
+							FileBrowserQuickLink quickLink = m_instance.allQuickLinks[i];
 							if( quickLink && quickLink.TargetPath == SAF_PICK_FOLDER_QUICK_LINK_PATH )
 							{
 								quickLink.SetQuickLink( m_instance.driveIcon, value, SAF_PICK_FOLDER_QUICK_LINK_PATH );
@@ -249,7 +292,6 @@ namespace SimpleFileBrowser
 #pragma warning restore 0414
 
 		private readonly HashSet<string> excludedExtensionsSet = new HashSet<string>();
-		private readonly HashSet<string> addedQuickLinksSet = new HashSet<string>();
 
 		[SerializeField]
 		private bool generateQuickLinksForDrives = true;
@@ -315,6 +357,7 @@ namespace SimpleFileBrowser
 
 		[SerializeField]
 		private FileBrowserQuickLink quickLinkPrefab;
+		private readonly List<FileBrowserQuickLink> allQuickLinks = new List<FileBrowserQuickLink>( 8 );
 
 		[SerializeField]
 		private Text titleText;
@@ -419,6 +462,14 @@ namespace SimpleFileBrowser
 
 		private HashSet<char> invalidFilenameChars;
 
+		private float drivesNextRefreshTime;
+#if !UNITY_EDITOR && UNITY_ANDROID
+		private string driveQuickLinks;
+#else
+		private string[] driveQuickLinks;
+#endif
+		private int numberOfDriveQuickLinks;
+
 		private bool canvasDimensionsChanged;
 
 		// Required in RefreshFiles() function
@@ -471,7 +522,9 @@ namespace SimpleFileBrowser
 					backButton.interactable = currentPathIndex > 0;
 					forwardButton.interactable = currentPathIndex < pathsFollowed.Count - 1;
 #if !UNITY_EDITOR && UNITY_ANDROID
-					if( !FileBrowserHelpers.ShouldUseSAF )
+					if( FileBrowserHelpers.ShouldUseSAF )
+						upButton.interactable = !string.IsNullOrEmpty( FileBrowserHelpers.GetDirectoryName( m_currentPath ) );
+					else
 #endif
 					upButton.interactable = Directory.GetParent( m_currentPath ) != null;
 
@@ -486,6 +539,31 @@ namespace SimpleFileBrowser
 					{
 						filenameInputField.text = string.Empty;
 						filenameInputField.interactable = true;
+					}
+
+					// If a quick link points to this directory, highlight it
+#if !UNITY_EDITOR && UNITY_ANDROID
+					// Path strings aren't deterministic on Storage Access Framework but the paths' absolute parts usually are
+					if( FileBrowserHelpers.ShouldUseSAF )
+					{
+						int SAFAbsolutePathSeparatorIndex = m_currentPath.LastIndexOf( '/' );
+						if( SAFAbsolutePathSeparatorIndex >= 0 )
+						{
+							string absoluteSAFPath = m_currentPath.Substring( SAFAbsolutePathSeparatorIndex );
+							for( int i = 0; i < allQuickLinks.Count; i++ )
+								allQuickLinks[i].SetSelected( allQuickLinks[i].TargetPath == m_currentPath || allQuickLinks[i].TargetPath.EndsWith( absoluteSAFPath ) );
+						}
+						else
+						{
+							for( int i = 0; i < allQuickLinks.Count; i++ )
+								allQuickLinks[i].SetSelected( allQuickLinks[i].TargetPath == m_currentPath );
+						}
+					}
+					else
+#endif
+					{
+						for( int i = 0; i < allQuickLinks.Count; i++ )
+							allQuickLinks[i].SetSelected( allQuickLinks[i].TargetPath == m_currentPath );
 					}
 				}
 
@@ -620,7 +698,6 @@ namespace SimpleFileBrowser
 			if( FileBrowserHelpers.ShouldUseSAF )
 			{
 				// These UI elements have no use in Storage Access Framework mode (Android 10+)
-				upButton.gameObject.SetActive( false );
 				pathInputField.gameObject.SetActive( false );
 				showHiddenFilesToggle.gameObject.SetActive( false );
 			}
@@ -714,6 +791,18 @@ namespace SimpleFileBrowser
 				c.a = 0f;
 				filenameInputField.textComponent.color = c;
 			}
+
+			// Refresh drive quick links
+#if UNITY_EDITOR || ( !UNITY_IOS && !UNITY_WSA && !UNITY_WSA_10_0 )
+#if !UNITY_EDITOR && UNITY_ANDROID
+			if( !FileBrowserHelpers.ShouldUseSAF )
+#endif
+			if( quickLinksInitialized && generateQuickLinksForDrives && m_drivesRefreshInterval >= 0f && Time.realtimeSinceStartup >= drivesNextRefreshTime )
+			{
+				drivesNextRefreshTime = Time.realtimeSinceStartup + m_drivesRefreshInterval;
+				RefreshDriveQuickLinks();
+			}
+#endif
 		}
 
 		private void OnApplicationFocus( bool focus )
@@ -764,88 +853,40 @@ namespace SimpleFileBrowser
 
 		private void InitializeQuickLinks()
 		{
-			Vector2 anchoredPos = new Vector2( 0f, -quickLinksContainer.sizeDelta.y );
+			quickLinksInitialized = true;
+			drivesNextRefreshTime = Time.realtimeSinceStartup + m_drivesRefreshInterval;
 
 #if !UNITY_EDITOR && UNITY_ANDROID
-			if( !FileBrowserHelpers.ShouldUseSAF )
+			if( FileBrowserHelpers.ShouldUseSAF )
 			{
+				AddQuickLink( driveIcon, PickFolderQuickLinkText, SAF_PICK_FOLDER_QUICK_LINK_PATH );
+				
+				try
+				{
+					FetchPersistedSAFQuickLinks();
+				}
+				catch( Exception e )
+				{
+					Debug.LogException( e );
+				}
+
+				return;
+			}
 #endif
+
 			if( generateQuickLinksForDrives )
 			{
-#if !UNITY_EDITOR && UNITY_ANDROID
-				string drivesList = FileBrowserHelpers.AJC.CallStatic<string>( "GetExternalDrives" );
-				if( drivesList != null && drivesList.Length > 0 )
-				{
-					bool defaultPathInitialized = false;
-					int driveIndex = 1;
-					string[] drives = drivesList.Split( ':' );
-					for( int i = 0; i < drives.Length; i++ )
-					{
-						try
-						{
-							//string driveName = new DirectoryInfo( drives[i] ).Name;
-							//if( driveName.Length <= 1 )
-							//{
-							//	try
-							//	{
-							//		driveName = Directory.GetParent( drives[i] ).Name + "/" + driveName;
-							//	}
-							//	catch
-							//	{
-							//		driveName = "Drive " + driveIndex++;
-							//	}
-							//}	
-
-							string driveName;
-							if( !defaultPathInitialized )
-							{
-								defaultInitialPath = drives[i];
-								defaultPathInitialized = true;
-
-								driveName = "Primary Drive";
-							}
-							else
-							{
-								if( driveIndex == 1 )
-									driveName = "External Drive";
-								else
-									driveName = "External Drive " + driveIndex;
-
-								driveIndex++;
-							}
-
-							AddQuickLink( driveIcon, driveName, drives[i], ref anchoredPos );
-						}
-						catch { }
-					}
-				}
-#elif !UNITY_EDITOR && ( UNITY_IOS || UNITY_WSA || UNITY_WSA_10_0 )
-				AddQuickLink( driveIcon, "Files", Application.persistentDataPath, ref anchoredPos );
+#if UNITY_EDITOR || ( !UNITY_IOS && !UNITY_WSA && !UNITY_WSA_10_0 )
+				RefreshDriveQuickLinks();
 #else
-				string[] drives = Directory.GetLogicalDrives();
-
-				for( int i = 0; i < drives.Length; i++ )
-				{
-					if( string.IsNullOrEmpty( drives[i] ) )
-						continue;
-
-#if UNITY_STANDALONE_OSX
-					// There are a number of useless drives listed on Mac OS, filter them
-					if( drives[i] == "/" )
-						AddQuickLink( driveIcon, "Root", drives[i], ref anchoredPos );
-					else if( drives[i].StartsWith( "/Volumes/" ) && drives[i] != "/Volumes/Recovery" )
-						AddQuickLink( driveIcon, drives[i].Substring( drives[i].LastIndexOf( '/' ) + 1 ), drives[i], ref anchoredPos );
-#else
-					AddQuickLink( driveIcon, drives[i], drives[i], ref anchoredPos );
+				AddQuickLink( driveIcon, "Files", Application.persistentDataPath );
 #endif
-				}
 
 #if UNITY_STANDALONE_OSX
 				// Add a quick link for user directory on Mac OS
 				string userDirectory = Environment.GetFolderPath( Environment.SpecialFolder.MyDocuments );
 				if( !string.IsNullOrEmpty( userDirectory ) )
-					AddQuickLink( driveIcon, userDirectory.Substring( userDirectory.LastIndexOf( '/' ) + 1 ), userDirectory, ref anchoredPos );
-#endif
+					AddQuickLink( driveIcon, userDirectory.Substring( userDirectory.LastIndexOf( '/' ) + 1 ), userDirectory );
 #endif
 			}
 
@@ -860,29 +901,157 @@ namespace SimpleFileBrowser
 					quickLinkPath = Path.Combine( quickLinkPath, "Documents" );
 #endif
 
-				AddQuickLink( quickLink.icon, quickLink.name, quickLinkPath, ref anchoredPos );
+				AddQuickLink( quickLink.icon, quickLink.name, quickLinkPath );
 			}
 
 			quickLinks = null;
 #endif
+		}
+
+		private void RefreshDriveQuickLinks()
+		{
+			// Check if drives has changed since the last refresh
 #if !UNITY_EDITOR && UNITY_ANDROID
-			}
-			else
+			string drivesList = FileBrowserHelpers.AJC.CallStatic<string>( "GetExternalDrives" );
+			if( drivesList == driveQuickLinks || ( string.IsNullOrEmpty( drivesList ) && string.IsNullOrEmpty( driveQuickLinks ) ) )
+				return;
+
+			driveQuickLinks = drivesList;
+#else
+			string[] drives = Directory.GetLogicalDrives();
+
+			if( driveQuickLinks != null && drives.Length == driveQuickLinks.Length )
 			{
-				AddQuickLink( driveIcon, PickFolderQuickLinkText, SAF_PICK_FOLDER_QUICK_LINK_PATH, ref anchoredPos );
-				
-				try
+				bool drivesListHasntChanged = true;
+				for( int i = 0; i < drives.Length; i++ )
 				{
-					FetchPersistedSAFQuickLinks( ref anchoredPos );
+					if( drives[i] != driveQuickLinks[i] )
+					{
+						drivesListHasntChanged = false;
+						break;
+					}
 				}
-				catch( Exception e )
+
+				if( drivesListHasntChanged )
+					return;
+			}
+
+			driveQuickLinks = drives;
+#endif
+
+			// Drives has changed, remove previous drive quick links
+			for( ; numberOfDriveQuickLinks > 0; numberOfDriveQuickLinks-- )
+			{
+				Destroy( allQuickLinks[numberOfDriveQuickLinks - 1].gameObject );
+				allQuickLinks.RemoveAt( numberOfDriveQuickLinks - 1 );
+			}
+
+			FileBrowserQuickLink[] customQuickLinks = allQuickLinks.Count > 0 ? allQuickLinks.ToArray() : null;
+			allQuickLinks.Clear();
+
+			quickLinksContainer.sizeDelta = Vector2.zero;
+
+			// Create drive quick links
+#if !UNITY_EDITOR && UNITY_ANDROID
+			if( drivesList != null && drivesList.Length > 0 )
+			{
+				bool defaultPathInitialized = false;
+				int driveIndex = 1;
+				string[] drives = drivesList.Split( ':' );
+				for( int i = 0; i < drives.Length; i++ )
 				{
-					Debug.LogException( e );
+					try
+					{
+						//string driveName = new DirectoryInfo( drives[i] ).Name;
+						//if( driveName.Length <= 1 )
+						//{
+						//	try
+						//	{
+						//		driveName = Directory.GetParent( drives[i] ).Name + "/" + driveName;
+						//	}
+						//	catch
+						//	{
+						//		driveName = "Drive " + driveIndex++;
+						//	}
+						//}	
+
+						string driveName;
+						if( !defaultPathInitialized )
+						{
+							defaultInitialPath = drives[i];
+							defaultPathInitialized = true;
+
+							driveName = "Primary Drive";
+						}
+						else
+						{
+							if( driveIndex == 1 )
+								driveName = "External Drive";
+							else
+								driveName = "External Drive " + driveIndex;
+
+							driveIndex++;
+						}
+
+						if( AddQuickLink( driveIcon, driveName, drives[i] ) )
+							numberOfDriveQuickLinks++;
+					}
+					catch { }
 				}
+			}
+#else
+			for( int i = 0; i < drives.Length; i++ )
+			{
+				if( string.IsNullOrEmpty( drives[i] ) )
+					continue;
+
+#if UNITY_STANDALONE_OSX
+				// There are a number of useless drives listed on Mac OS, filter them
+				if( drives[i] == "/" )
+				{
+					if( AddQuickLink( driveIcon, "Root", drives[i] ) )
+						numberOfDriveQuickLinks++;
+				}
+				else if( drives[i].StartsWith( "/Volumes/" ) && drives[i] != "/Volumes/Recovery" )
+				{
+					if( AddQuickLink( driveIcon, drives[i].Substring( drives[i].LastIndexOf( '/' ) + 1 ), drives[i] ) )
+						numberOfDriveQuickLinks++;
+				}
+#else
+				if( AddQuickLink( driveIcon, drives[i], drives[i] ) )
+					numberOfDriveQuickLinks++;
+#endif
 			}
 #endif
 
-			quickLinksContainer.sizeDelta = new Vector2( 0f, -anchoredPos.y );
+			// Reposition custom quick links
+			if( customQuickLinks != null )
+			{
+				Vector2 anchoredPos = new Vector2( 0f, -quickLinksContainer.sizeDelta.y );
+				for( int i = 0; i < customQuickLinks.Length; i++ )
+				{
+					customQuickLinks[i].TransformComponent.anchoredPosition = anchoredPos;
+					anchoredPos.y -= itemHeight;
+
+					allQuickLinks.Add( customQuickLinks[i] );
+				}
+
+				quickLinksContainer.sizeDelta = new Vector2( 0f, -anchoredPos.y );
+			}
+
+			// Verify that current directory still exists
+			try
+			{
+				if( !string.IsNullOrEmpty( m_currentPath ) && !Directory.Exists( m_currentPath ) )
+				{
+					string currentPathRoot = Path.GetPathRoot( m_currentPath );
+					if( !string.IsNullOrEmpty( currentPathRoot ) && Directory.Exists( currentPathRoot ) )
+						CurrentPath = currentPathRoot;
+					else if( allQuickLinks.Count > 0 )
+						CurrentPath = allQuickLinks[0].TargetPath;
+				}
+			}
+			catch { }
 		}
 		#endregion
 
@@ -903,12 +1072,18 @@ namespace SimpleFileBrowser
 		{
 #if !UNITY_EDITOR && UNITY_ANDROID
 			if( FileBrowserHelpers.ShouldUseSAF )
-				return;
+			{
+				string parentPath = FileBrowserHelpers.GetDirectoryName( m_currentPath );
+				if( !string.IsNullOrEmpty( parentPath ) )
+					CurrentPath = parentPath;
+			}
+			else
 #endif
-			DirectoryInfo parentPath = Directory.GetParent( m_currentPath );
-
-			if( parentPath != null )
-				CurrentPath = parentPath.FullName;
+			{
+				DirectoryInfo parentPath = Directory.GetParent( m_currentPath );
+				if( parentPath != null )
+					CurrentPath = parentPath.FullName;
+			}
 		}
 
 		public void OnMoreOptionsButtonClicked()
@@ -1134,23 +1309,37 @@ namespace SimpleFileBrowser
 
 		public void OnPathChanged( string newPath )
 		{
+			// Fixes harmless NullReferenceException that occurs when Play button is clicked while SimpleFileBrowserCanvas prefab is open in prefab mode
+			// https://github.com/yasirkula/UnitySimpleFileBrowser/issues/30
+			if( !canvas )
+				return;
+
 			CurrentPath = newPath;
 		}
 
 		public void OnSearchStringChanged( string newSearchString )
 		{
+			if( !canvas ) // Same as OnPathChanged
+				return;
+
 			PersistFileEntrySelection();
 			SearchString = newSearchString;
 		}
 
 		public void OnFilterChanged()
 		{
+			if( !canvas ) // Same as OnPathChanged
+				return;
+
 			PersistFileEntrySelection();
 			RefreshFiles( false );
 		}
 
 		public void OnShowHiddenFilesToggleChanged()
 		{
+			if( !canvas ) // Same as OnPathChanged
+				return;
+
 			PersistFileEntrySelection();
 			RefreshFiles( false );
 		}
@@ -1274,17 +1463,12 @@ namespace SimpleFileBrowser
 		{
 			if( !string.IsNullOrEmpty( rawUri ) )
 			{
-				Vector2 anchoredPos = new Vector2( 0f, -quickLinksContainer.sizeDelta.y );
-
-				if( AddQuickLink( folderIcon, name, rawUri, ref anchoredPos ) )
-				{
-					quickLinksContainer.sizeDelta = new Vector2( 0f, -anchoredPos.y );
+				if( AddQuickLink( folderIcon, name, rawUri ) )
 					CurrentPath = rawUri;
-				}
 			}
 		}
 
-		private void FetchPersistedSAFQuickLinks( ref Vector2 anchoredPos )
+		private void FetchPersistedSAFQuickLinks()
 		{
 			string resultRaw = FileBrowserHelpers.AJC.CallStatic<string>( "FetchSAFQuickLinks", FileBrowserHelpers.Context );
 			if( resultRaw == "0" )
@@ -1306,13 +1490,13 @@ namespace SimpleFileBrowser
 					Debug.LogError( "Couldn't parse entry count" );
 					return;
 				}
-					
+
 				entryCount = entryCount * 10 + ( ch - '0' );
 			}
 
 			if( entryCount <= 0 )
 				return;
-		
+
 			bool defaultPathInitialized = false;
 
 			separatorIndex = 0;
@@ -1339,7 +1523,7 @@ namespace SimpleFileBrowser
 
 				separatorIndex = nextSeparatorIndex + 2;
 
-				if( AddQuickLink( folderIcon, entryName, rawUri, ref anchoredPos ) && !defaultPathInitialized )
+				if( AddQuickLink( folderIcon, entryName, rawUri ) && !defaultPathInitialized )
 				{
 					defaultInitialPath = rawUri;
 					defaultPathInitialized = true;
@@ -1373,10 +1557,7 @@ namespace SimpleFileBrowser
 				RequestPermission();
 
 			if( !quickLinksInitialized )
-			{
-				quickLinksInitialized = true;
 				InitializeQuickLinks();
-			}
 
 			selectedFileEntries.Clear();
 			m_multiSelectionToggleSelectionMode = false;
@@ -1716,7 +1897,7 @@ namespace SimpleFileBrowser
 				pendingFileEntrySelection.Add( validFileEntries[selectedFileEntries[i]].Name );
 		}
 
-		private bool AddQuickLink( Sprite icon, string name, string path, ref Vector2 anchoredPos )
+		private bool AddQuickLink( Sprite icon, string name, string path )
 		{
 			if( string.IsNullOrEmpty( path ) )
 				return false;
@@ -1724,12 +1905,19 @@ namespace SimpleFileBrowser
 #if !UNITY_EDITOR && UNITY_ANDROID
 			if( !FileBrowserHelpers.ShouldUseSAF )
 #endif
-			if( !Directory.Exists( path ) )
-				return false;
+			{
+				if( !Directory.Exists( path ) )
+					return false;
+
+				path = GetPathWithoutTrailingDirectorySeparator( path.Trim() );
+			}
 
 			// Don't add quick link if it already exists
-			if( addedQuickLinksSet.Contains( path ) )
-				return false;
+			for( int i = 0; i < allQuickLinks.Count; i++ )
+			{
+				if( allQuickLinks[i].TargetPath == path )
+					return false;
+			}
 
 			FileBrowserQuickLink quickLink = (FileBrowserQuickLink) Instantiate( quickLinkPrefab, quickLinksContainer, false );
 			quickLink.SetFileBrowser( this );
@@ -1739,10 +1927,14 @@ namespace SimpleFileBrowser
 			else
 				quickLink.SetQuickLink( folderIcon, name, path );
 
+			Vector2 anchoredPos = new Vector2( 0f, -quickLinksContainer.sizeDelta.y );
+
 			quickLink.TransformComponent.anchoredPosition = anchoredPos;
 			anchoredPos.y -= itemHeight;
 
-			addedQuickLinksSet.Add( path );
+			quickLinksContainer.sizeDelta = new Vector2( 0f, -anchoredPos.y );
+
+			allQuickLinks.Add( quickLink );
 
 			return true;
 		}
@@ -1811,7 +2003,7 @@ namespace SimpleFileBrowser
 					middleView.anchoredPosition = middleViewOriginalPosition;
 					middleView.sizeDelta = middleViewOriginalSize;
 
-					showHiddenFilesToggle.gameObject.SetActive( true );
+					showHiddenFilesToggle.gameObject.SetActive( m_displayHiddenFilesToggle );
 
 					listView.OnViewportDimensionsChanged();
 					filesScrollRect.OnScroll( nullPointerEventData );
@@ -1865,7 +2057,6 @@ namespace SimpleFileBrowser
 			}
 			catch
 			{
-				return null;
 			}
 
 			return path;
@@ -2135,8 +2326,6 @@ namespace SimpleFileBrowser
 
 			if( !quickLinksInitialized )
 			{
-				quickLinksInitialized = true;
-
 				// Fetching the list of external drives is only possible with the READ_EXTERNAL_STORAGE permission granted on Android
 				if( AskPermissions )
 					RequestPermission();
@@ -2144,15 +2333,7 @@ namespace SimpleFileBrowser
 				Instance.InitializeQuickLinks();
 			}
 
-			Vector2 anchoredPos = new Vector2( 0f, -Instance.quickLinksContainer.sizeDelta.y );
-
-			if( Instance.AddQuickLink( icon, name, path, ref anchoredPos ) )
-			{
-				Instance.quickLinksContainer.sizeDelta = new Vector2( 0f, -anchoredPos.y );
-				return true;
-			}
-
-			return false;
+			return Instance.AddQuickLink( icon, name, path );
 		}
 
 		public static void SetExcludedExtensions( params string[] excludedExtensions )

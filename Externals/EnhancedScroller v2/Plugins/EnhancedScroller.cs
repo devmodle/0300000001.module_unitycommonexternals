@@ -333,7 +333,7 @@ namespace EnhancedUI.EnhancedScroller
 				else
 				{
 					// make sure the position is in the bounds of the current set of views
-	                value = Mathf.Clamp(value, 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.Before));
+	                value = Mathf.Clamp(value, 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.After));
 				}
 
                 // only if the value has changed
@@ -968,7 +968,7 @@ namespace EnhancedUI.EnhancedScroller
                 newScrollPosition = GetScrollPositionForDataIndex(dataIndex, CellViewPositionEnum.Before) + offset;
 
 				// clamp the scroll position to a valid location
-	            newScrollPosition = Mathf.Clamp(newScrollPosition - (useSpacing ? spacing : 0), 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.Before));
+	            newScrollPosition = Mathf.Clamp(newScrollPosition - (useSpacing ? spacing : 0), 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.After));
             }
 
             // ignore the jump if the scroll position hasn't changed
@@ -1981,7 +1981,7 @@ namespace EnhancedUI.EnhancedScroller
             else
                 _scrollPosition = val.x * ScrollSize;
             //_refreshActive = true;
-            _scrollPosition = Mathf.Clamp(_scrollPosition, 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.Before));
+            _scrollPosition = Mathf.Clamp(_scrollPosition, 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.After));
 
             // call the handler if it exists
             if (scrollerScrolled != null) scrollerScrolled(this, val, _scrollPosition);

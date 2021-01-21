@@ -2,6 +2,15 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+Version 2.27.0
+20 January 2021
+Requires Unity 2019.4.4f1+
+
+    Fixes:
+        - Changed clamping of scroll position to after the cell instead of before to accommodate scrollers with a single cell.
+
+
+
 Version 2.26.0
 6 October 2020
 Requires Unity 2019.4.4f1+
@@ -9,6 +18,7 @@ Requires Unity 2019.4.4f1+
     Features:
         - Removed uneeded camera components in all scenes to avoid warnings
         - Released for Unity 2019.4.4f1
+        - Reformatted Main Menu to fit cells correctly
 
     Fixes:
         - Commented out _RefreshActive(); call at the end of TweenPosition to avoid active cell range miscalculation when jumping to the end of the scroller

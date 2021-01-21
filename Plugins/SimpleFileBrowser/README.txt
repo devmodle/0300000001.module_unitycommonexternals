@@ -12,6 +12,9 @@ The file browser can be shown either as a save dialog or a load dialog. In load 
 
 
 3. FAQ
+- Android build fails, it says "error: attribute android:requestLegacyExternalStorage not found" in Console
+"android:requestLegacyExternalStorage" attribute in AndroidManifest.xml grants full access to device's storage on Android 10 but requires you to update your Android SDK to at least SDK 29. If this isn't possible for you, you should open SimpleFileBrowser.aar with WinRAR or 7-Zip and then remove the "<application ... />" tag from AndroidManifest.xml.
+
 - Can't show the file browser on Android, it says "java.lang.ClassNotFoundException: com.yasirkula.unity.FileBrowserPermissionReceiver" in Logcat
 If your project uses ProGuard, try adding the following line to ProGuard filters: -keep class com.yasirkula.unity.* { *; }
 
@@ -34,7 +37,7 @@ using SimpleFileBrowser;
 public enum Permission { Denied = 0, Granted = 1, ShouldAsk = 2 };
 public enum PickMode { Files = 0, Folders = 1, FilesAndFolders = 2 };
 
-public delegate void OnSuccess( string path );
+public delegate void OnSuccess( string[] paths );
 public delegate void OnCancel();
 
 // Showing dialog
@@ -68,18 +71,20 @@ FileBrowser.Permission RequestPermission();
 bool FileBrowserHelpers.FileExists( string path );
 bool FileBrowserHelpers.DirectoryExists( string path );
 bool FileBrowserHelpers.IsDirectory( string path );
+string FileBrowserHelpers.GetDirectoryName( string path );
 FileSystemEntry[] FileBrowserHelpers.GetEntriesInDirectory( string path ); // Returns all files and folders in a directory
 string FileBrowserHelpers.CreateFileInDirectory( string directoryPath, string filename ); // Returns the created file's path
 string FileBrowserHelpers.CreateFolderInDirectory( string directoryPath, string folderName ); // Returns the created folder's path
 void FileBrowserHelpers.WriteBytesToFile( string targetPath, byte[] bytes );
 void FileBrowserHelpers.WriteTextToFile( string targetPath, string text );
-void FileBrowserHelpers.WriteCopyToFile( string targetPath, string sourceFile ); // Copies the contents of sourceFile to target file. Here, sourceFile must be a file path (i.e. don't use a SAF path as sourceFile)
 void FileBrowserHelpers.AppendBytesToFile( string targetPath, byte[] bytes );
 void FileBrowserHelpers.AppendTextToFile( string targetPath, string text );
-void FileBrowserHelpers.AppendCopyToFile( string targetPath, string sourceFile ); // Appends the contents of sourceFile to target file. Here, sourceFile must be a file path
 byte[] FileBrowserHelpers.ReadBytesFromFile( string sourcePath );
 string FileBrowserHelpers.ReadTextFromFile( string sourcePath );
-void FileBrowserHelpers.ReadCopyFromFile( string sourcePath, string destinationFile ); // Copies the contents of source to destinationFile. Here, destinationFile must be a file path
+void FileBrowserHelpers.CopyFile( string sourcePath, string destinationPath );
+void FileBrowserHelpers.CopyDirectory( string sourcePath, string destinationPath );
+void FileBrowserHelpers.MoveFile( string sourcePath, string destinationPath );
+void FileBrowserHelpers.MoveDirectory( string sourcePath, string destinationPath );
 string FileBrowserHelpers.RenameFile( string path, string newName ); // Returns the new path of the file
 string FileBrowserHelpers.RenameDirectory( string path, string newName ); // Returns the new path of the directory
 void FileBrowserHelpers.DeleteFile( string path );
