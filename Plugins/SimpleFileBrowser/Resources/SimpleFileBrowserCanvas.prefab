@@ -2279,6 +2279,7 @@ MonoBehaviour:
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
+  m_ShouldActivateOnSelect: 1
 --- !u!1 &1000011817404238
 GameObject:
   m_ObjectHideFlags: 0
@@ -4152,6 +4153,7 @@ MonoBehaviour:
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
+  m_ShouldActivateOnSelect: 1
 --- !u!1 &1000012821827198
 GameObject:
   m_ObjectHideFlags: 0
@@ -4456,6 +4458,7 @@ MonoBehaviour:
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
+  m_ShouldActivateOnSelect: 1
 --- !u!1 &1000013226046060
 GameObject:
   m_ObjectHideFlags: 0
@@ -6683,6 +6686,7 @@ MonoBehaviour:
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
+  m_ShouldActivateOnSelect: 1
 --- !u!1 &1206614593168194
 GameObject:
   m_ObjectHideFlags: 0
