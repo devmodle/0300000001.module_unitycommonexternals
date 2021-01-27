@@ -1,36 +1,30 @@
 ﻿using UnityEngine;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component stores information about a 3D plane. By default this plane lays on the XY axis, or faces the Z axis.</summary>
-	[HelpURL(LeanTouch.HelpUrlPrefix + "LeanPlane")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Plane")]
+	[HelpURL(LeanHelper.HelpUrlPrefix + "LeanPlane")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Plane")]
 	public class LeanPlane : MonoBehaviour
 	{
 		/// <summary>Should the plane be clamped on the x axis?</summary>
-		[Tooltip("Should the plane be clamped on the x axis?")]
 		public bool ClampX;
 
 		public float MinX;
 
 		public float MaxX;
 
-		[Space]
 		/// <summary>Should the plane be clamped on the y axis?</summary>
-		[Tooltip("Should the plane be clamped on the y axis?")]
 		public bool ClampY;
 
 		public float MinY;
 
 		public float MaxY;
 
-		[Space]
 		/// <summary>The distance between each position snap on the x axis.</summary>
-		[Tooltip("The distance between each position snap on the x axis.")]
 		public float SnapX;
 
 		/// <summary>The distance between each position snap on the x axis.</summary>
-		[Tooltip("The distance between each position snap on the x axis.")]
 		public float SnapY;
 
 		public Vector3 GetClosest(Vector3 position, float offset = 0.0f)
@@ -158,3 +152,45 @@ namespace Lean.Touch
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Inspector
+{
+	using UnityEditor;
+
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanPlane), true)]
+	public class LeanPlane_Inspector : LeanInspector<LeanPlane>
+	{
+		protected override void DrawInspector()
+		{
+			Draw("ClampX", "Should the plane be clamped on the x axis?");
+
+			if (Any(t => t.ClampX == true))
+			{
+				EditorGUI.indentLevel++;
+					Draw("MinX", "", "Min");
+					Draw("MaxX", "", "Max");
+				EditorGUI.indentLevel--;
+
+				EditorGUILayout.Separator();
+			}
+
+			Draw("ClampY", "Should the plane be clamped on the y axis?");
+
+			if (Any(t => t.ClampX == true))
+			{
+				EditorGUI.indentLevel++;
+					Draw("MinY", "", "Min");
+					Draw("MaxY", "", "Max");
+				EditorGUI.indentLevel--;
+
+				EditorGUILayout.Separator();
+			}
+
+			Draw("SnapX", "The distance between each position snap on the x axis.");
+			Draw("SnapY", "The distance between each position snap on the y axis.");
+		}
+	}
+}
+#endif

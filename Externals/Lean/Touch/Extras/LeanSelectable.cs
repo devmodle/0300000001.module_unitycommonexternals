@@ -20,6 +20,10 @@ namespace Lean.Touch
 
 		public static LinkedList<LeanSelectable> Instances = new LinkedList<LeanSelectable>();
 
+		public static event System.Action<LeanSelectable> OnEnableGlobal;
+
+		public static event System.Action<LeanSelectable> OnDisableGlobal;
+
 		public static event System.Action<LeanSelectable, LeanFinger> OnSelectGlobal;
 
 		public static event System.Action<LeanSelectable, LeanFinger> OnSelectSetGlobal;
@@ -107,6 +111,25 @@ namespace Lean.Touch
 				foreach (var selectable in Instances)
 				{
 					if (selectable.IsSelected == true)
+					{
+						count += 1;
+					}
+				}
+
+				return count;
+			}
+		}
+
+		/// <summary>This tells you how many LeanSelectable objects in your scene are currently selected.</summary>
+		public static int IsSelectedRawCount
+		{
+			get
+			{
+				var count = 0;
+
+				foreach (var selectable in Instances)
+				{
+					if (selectable.IsSelectedRaw == true)
 					{
 						count += 1;
 					}
@@ -383,6 +406,11 @@ namespace Lean.Touch
 				LeanTouch.OnFingerUp       += HandleFingerUp;
 				LeanTouch.OnFingerInactive += HandleFingerInactive;
 			}
+
+			if (OnEnableGlobal != null)
+			{
+				OnEnableGlobal.Invoke(this);
+			}
 		}
 
 		protected virtual void OnDisable()
@@ -399,6 +427,11 @@ namespace Lean.Touch
 			if (isSelected == true)
 			{
 				Deselect();
+			}
+
+			if (OnDisableGlobal != null)
+			{
+				OnDisableGlobal.Invoke(this);
 			}
 		}
 

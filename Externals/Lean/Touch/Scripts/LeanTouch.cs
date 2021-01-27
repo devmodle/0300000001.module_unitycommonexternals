@@ -131,8 +131,8 @@ namespace Lean.Touch
 			}
 		}
 
-		/// <summary>Should each fnger record snapshots of their screen positions?</summary>
-		[Tooltip("Should each fnger record snapshots of their screen positions?")]
+		/// <summary>Should each finger record snapshots of their screen positions?</summary>
+		[Tooltip("Should each finger record snapshots of their screen positions?")]
 		public bool RecordFingers = true;
 
 		/// <summary>This allows you to set the amount of pixels a finger must move for another snapshot to be stored.</summary>
@@ -220,7 +220,7 @@ namespace Lean.Touch
 					return 1.0f;
 				}
 
-				// Return recpirocal for easy multiplication
+				// Return reciprocal for easy multiplication
 				return 1.0f / size;
 			}
 		}
@@ -247,41 +247,6 @@ namespace Lean.Touch
 
 				return false;
 			}
-		}
-
-		// If currentCamera is null, this will return the camera attached to gameObject, or return Camera.main
-		public static Camera GetCamera(Camera currentCamera, GameObject gameObject = null)
-		{
-			if (currentCamera == null)
-			{
-				if (gameObject != null)
-				{
-					currentCamera = gameObject.GetComponent<Camera>();
-				}
-
-				if (currentCamera == null)
-				{
-					currentCamera = Camera.main;
-				}
-			}
-
-			return currentCamera;
-		}
-
-		// Return the framerate independent damping factor (-1 = instant)
-		public static float GetDampenFactor(float damping, float deltaTime)
-		{
-			if (damping < 0.0f)
-			{
-				return 1.0f;
-			}
-
-			if (Application.isPlaying == false)
-			{
-				return 1.0f;
-			}
-
-			return 1.0f - Mathf.Exp(-damping * deltaTime);
 		}
 
 		/// <summary>This will return true if the specified screen point is over any GUI elements.</summary>
@@ -357,7 +322,7 @@ namespace Lean.Touch
 
 		/// <summary>This allows you to filter all the fingers based on the specified requirements.
 		/// NOTE: If ignoreGuiFingers is set, Fingers will be filtered to remove any with StartedOverGui.
-		/// NOTE: If requiredFingerCount is greather than 0, this method will return null if the finger count doesn't match.
+		/// NOTE: If requiredFingerCount is greater than 0, this method will return null if the finger count doesn't match.
 		/// NOTE: If requiredSelectable is set, and its SelectingFinger isn't null, it will return just that finger.</summary>
 		public static List<LeanFinger> GetFingers(bool ignoreIfStartedOverGui, bool ignoreIfOverGui, int requiredFingerCount = 0)
 		{
@@ -424,6 +389,13 @@ namespace Lean.Touch
 			}
 		}
 
+		/// <summary>You can call this method if you want to stop all finger events. You can then disable this component to prevent new ones from updating.</summary>
+		public void Clear()
+		{
+			UpdateFingers(0.001f, false);
+			UpdateFingers(1.0f, false);
+		}
+
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
@@ -464,18 +436,26 @@ namespace Lean.Touch
 			// Only run the update methods if this is the first instance (i.e. if your scene has more than one LeanTouch component, only use the first)
 			if (Instances[0] == this)
 			{
-				// Prepare old finger data for new information
-				BeginFingers();
-
-				// Poll current touch + mouse data and convert it to fingers
-				PollFingers();
-
-				// Process any no longer used fingers
-				EndFingers();
-
-				// Update events based on new finger data
-				UpdateEvents();
+				UpdateFingers(Time.unscaledDeltaTime, true);
 			}
+		}
+
+		private void UpdateFingers(float deltaTime, bool poll)
+		{
+			// Prepare old finger data for new information
+			BeginFingers(deltaTime);
+
+			// Poll current touch + mouse data and convert it to fingers
+			if (poll == true)
+			{
+				PollFingers();
+			}
+
+			// Process any no longer used fingers
+			EndFingers(deltaTime);
+
+			// Update events based on new finger data
+			UpdateEvents();
 		}
 
 		protected virtual void OnGUI()
@@ -502,14 +482,14 @@ namespace Lean.Touch
 		}
 
 		// Update all Fingers and InactiveFingers so they're ready for the new frame
-		private void BeginFingers()
+		private void BeginFingers(float deltaTime)
 		{
 			// Age inactive fingers
 			for (var i = InactiveFingers.Count - 1; i >= 0; i--)
 			{
 				var inactiveFinger = InactiveFingers[i];
 
-				inactiveFinger.Age += Time.unscaledDeltaTime;
+				inactiveFinger.Age += deltaTime;
 
 				// Just expired?
 				if (inactiveFinger.Expired == false && inactiveFinger.Age > TapThreshold)
@@ -553,7 +533,7 @@ namespace Lean.Touch
 		}
 
 		// Update all Fingers based on the new finger data
-		private void EndFingers()
+		private void EndFingers(float deltaTime)
 		{
 			for (var i = Fingers.Count - 1; i >= 0; i--)
 			{
@@ -585,7 +565,7 @@ namespace Lean.Touch
 				else if (finger.Down == false)
 				{
 					// Age it
-					finger.Age += Time.unscaledDeltaTime;
+					finger.Age += deltaTime;
 
 					// Too old?
 					if (finger.Age > TapThreshold && finger.Old == false)

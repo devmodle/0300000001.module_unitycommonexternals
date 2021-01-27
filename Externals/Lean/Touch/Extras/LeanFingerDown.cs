@@ -11,6 +11,7 @@ namespace Lean.Touch
 	{
 		[System.Serializable] public class LeanFingerEvent : UnityEvent<LeanFinger> {}
 		[System.Serializable] public class Vector3Event : UnityEvent<Vector3> {}
+		[System.Serializable] public class Vector2Event : UnityEvent<Vector2> {}
 
 		/// <summary>Ignore fingers with StartedOverGui?</summary>
 		public bool IgnoreStartedOverGui = true;
@@ -18,15 +19,19 @@ namespace Lean.Touch
 		/// <summary>Do nothing if this LeanSelectable isn't selected?</summary>
 		public LeanSelectable RequiredSelectable;
 
-		/// <summary>Called on the first frame the conditions are met.</summary>
+		/// <summary>This event will be called if the above conditions are met when your finger begins touching the screen.</summary>
 		public LeanFingerEvent OnFinger { get { if (onFinger == null) onFinger = new LeanFingerEvent(); return onFinger; } } [FSA("onDown")] [FSA("OnDown")] [SerializeField] private LeanFingerEvent onFinger;
 
 		/// <summary>The method used to find world coordinates from a finger. See LeanScreenDepth documentation for more information.</summary>
 		public LeanScreenDepth ScreenDepth = new LeanScreenDepth(LeanScreenDepth.ConversionType.DepthIntercept);
 
-		/// <summary>Called on the first frame the conditions are met.
+		/// <summary>This event will be called if the above conditions are met when your finger begins touching the screen.
 		/// Vector3 = Start point based on the ScreenDepth settings.</summary>
 		public Vector3Event OnWorld { get { if (onWorld == null) onWorld = new Vector3Event(); return onWorld; } } [FSA("onPosition")] [SerializeField] private Vector3Event onWorld;
+
+		/// <summary>This event will be called if the above conditions are met when your finger begins touching the screen.
+		/// Vector2 = Finger position in screen space.</summary>
+		public Vector2Event OnScreen { get { if (onScreen == null) onScreen = new Vector2Event(); return onScreen; } } [SerializeField] private Vector2Event onScreen;
 
 #if UNITY_EDITOR
 		protected virtual void Reset()
@@ -76,6 +81,11 @@ namespace Lean.Touch
 
 				onWorld.Invoke(position);
 			}
+
+			if (onScreen != null)
+			{
+				onScreen.Invoke(finger.ScreenPosition);
+			}
 		}
 	}
 }
@@ -100,8 +110,9 @@ namespace Lean.Touch.Inspector
 
 			var usedA = Any(t => t.OnFinger.GetPersistentEventCount() > 0);
 			var usedB = Any(t => t.OnWorld.GetPersistentEventCount() > 0);
+			var usedC = Any(t => t.OnScreen.GetPersistentEventCount() > 0);
 
-			EditorGUI.BeginDisabledGroup(usedA && usedB);
+			EditorGUI.BeginDisabledGroup(usedA && usedB && usedC);
 				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
 			EditorGUI.EndDisabledGroup();
 
@@ -116,6 +127,11 @@ namespace Lean.Touch.Inspector
 			{
 				Draw("ScreenDepth");
 				Draw("onWorld");
+			}
+
+			if (usedC == true || showUnusedEvents == true)
+			{
+				Draw("onScreen");
 			}
 		}
 	}

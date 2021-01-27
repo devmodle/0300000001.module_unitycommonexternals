@@ -1,4 +1,5 @@
 using UnityEngine;
+using Lean.Common;
 
 namespace Lean.Touch
 {
@@ -99,19 +100,22 @@ namespace Lean.Touch
 				case SelectType.Raycast3D:
 				{
 					// Make sure the camera exists
-					var camera = LeanTouch.GetCamera(Camera, gameObject);
+					var camera = LeanHelper.GetCamera(Camera, gameObject);
 
-					if (camera != null && camera.pixelRect.Contains(screenPosition) == true)
+					if (camera != null)
 					{
-						var ray   = camera.ScreenPointToRay(screenPosition);
-						var count = Physics.RaycastNonAlloc(ray, raycastHits, float.PositiveInfinity, LayerMask);
-
-						if (count > 0)
+						if (camera.pixelRect.Contains(screenPosition) == true)
 						{
-							var closestHit = raycastHits[GetClosestRaycastHitsIndex(count)];
+							var ray   = camera.ScreenPointToRay(screenPosition);
+							var count = Physics.RaycastNonAlloc(ray, raycastHits, float.PositiveInfinity, LayerMask);
 
-							component     = closestHit.transform;
-							worldPosition = closestHit.point;
+							if (count > 0)
+							{
+								var closestHit = raycastHits[GetClosestRaycastHitsIndex(count)];
+
+								component     = closestHit.transform;
+								worldPosition = closestHit.point;
+							}
 						}
 					}
 					else
@@ -124,22 +128,25 @@ namespace Lean.Touch
 				case SelectType.Overlap2D:
 				{
 					// Make sure the camera exists
-					var camera = LeanTouch.GetCamera(Camera, gameObject);
+					var camera = LeanHelper.GetCamera(Camera, gameObject);
 
-					if (camera != null && camera.pixelRect.Contains(screenPosition) == true)
+					if (camera != null)
 					{
-						var ray   = camera.ScreenPointToRay(screenPosition);
-						var slope = -ray.direction.z;
-
-						if (slope != 0.0f)
+						if (camera.pixelRect.Contains(screenPosition) == true)
 						{
-							var point = ray.GetPoint(ray.origin.z / slope);
+							var ray   = camera.ScreenPointToRay(screenPosition);
+							var slope = -ray.direction.z;
 
-							component = Physics2D.OverlapPoint(point, LayerMask);
-
-							if (component != null)
+							if (slope != 0.0f)
 							{
-								worldPosition = component.transform.position;
+								var point = ray.GetPoint(ray.origin.z / slope);
+
+								component = Physics2D.OverlapPoint(point, LayerMask);
+
+								if (component != null)
+								{
+									worldPosition = component.transform.position;
+								}
 							}
 						}
 					}
@@ -171,21 +178,28 @@ namespace Lean.Touch
 					bestDistance *= bestDistance;
 
 					// Make sure the camera exists
-					var camera = LeanTouch.GetCamera(Camera, gameObject);
+					var camera = LeanHelper.GetCamera(Camera, gameObject);
 
-					if (camera != null && camera.pixelRect.Contains(screenPosition) == true)
+					if (camera != null)
 					{
-						foreach (var selectable in LeanSelectable.Instances)
+						if (camera.pixelRect.Contains(screenPosition) == true)
 						{
-							var distance = Vector2.SqrMagnitude(GetScreenPoint(camera, selectable.transform) - screenPosition);
-
-							if (distance <= bestDistance)
+							foreach (var selectable in LeanSelectable.Instances)
 							{
-								bestDistance  = distance;
-								component     = selectable;
-								worldPosition = selectable.transform.position;
+								var distance = Vector2.SqrMagnitude(GetScreenPoint(camera, selectable.transform) - screenPosition);
+
+								if (distance <= bestDistance)
+								{
+									bestDistance  = distance;
+									component     = selectable;
+									worldPosition = selectable.transform.position;
+								}
 							}
 						}
+					}
+					else
+					{
+						Debug.LogError("Failed to find camera. Either tag your cameras MainCamera, or set one in this component.", this);
 					}
 				}
 				break;
@@ -193,19 +207,22 @@ namespace Lean.Touch
 				case SelectType.Intersect2D:
 				{
 					// Make sure the camera exists
-					var camera = LeanTouch.GetCamera(Camera, gameObject);
+					var camera = LeanHelper.GetCamera(Camera, gameObject);
 
-					if (camera != null && camera.pixelRect.Contains(screenPosition) == true)
+					if (camera != null)
 					{
-						var ray   = camera.ScreenPointToRay(screenPosition);
-						var count = Physics2D.GetRayIntersectionNonAlloc(ray, raycastHit2Ds, float.PositiveInfinity, LayerMask);
-
-						if (count > 0)
+						if (camera.pixelRect.Contains(screenPosition) == true)
 						{
-							var firstHit = raycastHit2Ds[0];
+							var ray   = camera.ScreenPointToRay(screenPosition);
+							var count = Physics2D.GetRayIntersectionNonAlloc(ray, raycastHit2Ds, float.PositiveInfinity, LayerMask);
 
-							component     = firstHit.transform;
-							worldPosition = firstHit.point;
+							if (count > 0)
+							{
+								var firstHit = raycastHit2Ds[0];
+
+								component     = firstHit.transform;
+								worldPosition = firstHit.point;
+							}
 						}
 					}
 					else

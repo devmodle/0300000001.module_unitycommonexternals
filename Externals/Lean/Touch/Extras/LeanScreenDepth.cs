@@ -1,4 +1,5 @@
 using UnityEngine;
+using Lean.Common;
 
 namespace Lean.Touch
 {
@@ -76,7 +77,7 @@ namespace Lean.Touch
 		// This will do the actual conversion
 		public bool TryConvert(ref Vector3 position, Vector2 screenPoint, GameObject gameObject = null, Transform ignore = null)
 		{
-			var camera = LeanTouch.GetCamera(Camera, gameObject);
+			var camera = LeanHelper.GetCamera(Camera, gameObject);
 
 			if (camera != null)
 			{
@@ -282,7 +283,7 @@ namespace Lean.Touch
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch
+namespace Lean.Touch.Inspector
 {
 	using UnityEditor;
 

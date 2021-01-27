@@ -1,4 +1,6 @@
 using UnityEngine;
+using Lean.Common;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
 namespace Lean.Touch
 {
@@ -24,7 +26,7 @@ namespace Lean.Touch
 		/// 1 = Slowly change.
 		/// 10 = Quickly change.</summary>
 		[Tooltip("If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.")]
-		public float Dampening = -1.0f;
+		[FSA("Dampening")] public float Damping = -1.0f;
 
 		[HideInInspector]
 		[SerializeField]
@@ -111,7 +113,7 @@ namespace Lean.Touch
 			remainingRotation    *= Quaternion.Inverse(oldRotation) * transform.localRotation;
 
 			// Get t value
-			var factor = LeanTouch.GetDampenFactor(Dampening, Time.deltaTime);
+			var factor = LeanHelper.GetDampenFactor(Damping, Time.deltaTime);
 
 			// Dampen remainingDelta
 			var newRemainingTranslation = Vector3.Lerp(remainingTranslation, Vector3.zero, factor);
@@ -162,7 +164,7 @@ namespace Lean.Touch
 		protected virtual void Translate(float twistDegrees, Vector2 twistScreenCenter)
 		{
 			// Make sure the camera exists
-			var camera = LeanTouch.GetCamera(Camera, gameObject);
+			var camera = LeanHelper.GetCamera(Camera, gameObject);
 
 			if (camera != null)
 			{
@@ -193,7 +195,7 @@ namespace Lean.Touch
 		protected virtual void Rotate(float twistDegrees)
 		{
 			// Make sure the camera exists
-			var camera = LeanTouch.GetCamera(Camera, gameObject);
+			var camera = LeanHelper.GetCamera(Camera, gameObject);
 
 			if (camera != null)
 			{
