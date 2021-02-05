@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace EnhancedUI
 {
     /// <summary>
-    /// This is a super light implementation of an array that 
+    /// This is a super light implementation of an array that
     /// behaves like a list, automatically allocating new memory
     /// when needed, but not releasing it to garbage collection.
     /// </summary>
@@ -28,7 +28,18 @@ namespace EnhancedUI
         /// <returns></returns>
         public T this[int i]
         {
-            get { return data[i]; }
+            get
+            {
+                if (data is null)
+                {
+                    return default(T);
+                }
+                else
+                {
+                    return data[i];
+                }
+            }
+
             set { data[i] = value; }
         }
 
@@ -51,7 +62,7 @@ namespace EnhancedUI
         }
 
         /// <summary>
-        /// Instead of releasing the memory to garbage collection, 
+        /// Instead of releasing the memory to garbage collection,
         /// the list size is set back to zero
         /// </summary>
         public void Clear()
