@@ -2,6 +2,23 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+Version 2.28.1
+11 March 2021
+Requires Unity 2019.4.4f1+
+
+    Fixes:
+        - Updated Demo #16 Chat.cs to zero out the spacer after the initial cells scroll off screen. This allows you to scroll back to the top without going off screen.
+        - Fixed MyTextCellView prefab in Demo #16 to center the text better.
+
+
+Version 2.28.0
+5 March 2021
+Requires Unity 2019.4.4f1+
+
+    Features:
+        - Added demo #16 for chat simulation
+
+
 Version 2.27.1
 5 February 2021
 Requires Unity 2019.4.4f1+
