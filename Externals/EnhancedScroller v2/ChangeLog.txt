@@ -2,6 +2,14 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+Version 2.28.2
+13 March 2021
+Requires Unity 2019.4.4f1+
+
+    Fixes:
+        - Updated Demo #16 Chat.cs to continually update the size of the spacer so that there is no dead space at the top of the scroller.
+
+
 Version 2.28.1
 11 March 2021
 Requires Unity 2019.4.4f1+

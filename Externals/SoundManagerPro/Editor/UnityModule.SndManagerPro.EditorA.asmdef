@@ -1,0 +1,19 @@
+{
+    "name": "UnityModule.SndManagerPro.EditorA",
+    "rootNamespace": "",
+    "references": [
+        "UnityModule.Common.Externals",
+        "UnityModule.SndManagerPro.EditorB"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

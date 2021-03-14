@@ -18,19 +18,24 @@ namespace EnhancedScrollerDemos.Chat
         private List<Data> _data;
 
         /// <summary>
-        /// Flag to tell the spacer to render or not.
-        /// Making the spacer not show allows you to scroll back
-        /// to the top of the scroller without losing the first cells off screen.
-        /// </summary>
-        private bool _zeroSpacer;
-
-        /// <summary>
         /// This member tells the scroller that we need
         /// the cell views to figure out how much space to use.
         /// This is only set to true on the first pass to reduce
         /// processing required.
         /// </summary>
         private bool _calculateLayout;
+
+        /// <summary>
+        /// This stores the total size of all the cells,
+        /// plus the scroller's top and bottom padding.
+        /// This will be used to calculate the spacer required
+        /// </summary>
+        private float _totalCellSize = 0;
+
+        /// <summary>
+        /// Stores the scroller's position before jumping to the new chat cell
+        /// </summary>
+        private float _oldScrollPosition = 0;
 
         /// <summary>
         /// This is our scroller we will be a delegate for
@@ -106,6 +111,8 @@ namespace EnhancedScrollerDemos.Chat
             // first, clear out the cells in the scroller so the new text transforms will be reset
             scroller.ClearAll();
 
+            _oldScrollPosition = scroller.ScrollPosition;
+
             // reset the scroller's position so that it is not outside of the new bounds
             scroller.ScrollPosition = 0;
 
@@ -125,12 +132,13 @@ namespace EnhancedScrollerDemos.Chat
 
             ResizeScroller();
 
-            // optional: jump to the end of the scroller to see the new content
-            scroller.JumpToDataIndex(_data.Count - 1, 1f, 1f, tweenType: EnhancedScroller.TweenType.easeInOutSine, tweenTime: 0.5f);
+            // jump to the end of the scroller to see the new content.
+            // once the jump is completed, reset the spacer's size
+            scroller.JumpToDataIndex(_data.Count - 1, 1f, 1f, tweenType: EnhancedScroller.TweenType.easeInOutSine, tweenTime: 0.5f, jumpComplete: ResetSpacer);
         }
 
         /// <summary>
-        /// This function will exand the scroller to accommodate the cells, reload the data to calculate the cell sizes,
+        /// This function will expand the scroller to accommodate the cells, reload the data to calculate the cell sizes,
         /// reset the scroller's size back, then reload the data once more to display the cells.
         /// </summary>
         private void ResizeScroller()
@@ -138,6 +146,9 @@ namespace EnhancedScrollerDemos.Chat
             // capture the scroll rect size.
             // this will be used at the end of this method to determine the final scroll position
             var scrollRectSize = scroller.ScrollRectSize;
+
+            // capture the scroller's position so we can smoothly scroll from it to the new cell
+            var offset = _oldScrollPosition - scroller.ScrollSize;
 
             // capture the scroller dimensions so that we can reset them when we are done
             var rectTransform = scroller.GetComponent<RectTransform>();
@@ -153,18 +164,15 @@ namespace EnhancedScrollerDemos.Chat
 
             // calculate the total size required by all cells. This will be used when we determine
             // where to end up at after we reload the data on the second pass.
-            float totalSize = scroller.padding.top + scroller.padding.bottom;
-            for (var i = 0; i < _data.Count; i++)
+            _totalCellSize = scroller.padding.top + scroller.padding.bottom;
+            for (var i = 1; i < _data.Count; i++)
             {
-                totalSize += _data[i].cellSize + (i < _data.Count - 1 ? scroller.spacing : 0);
+                _totalCellSize += _data[i].cellSize + (i < _data.Count - 1 ? scroller.spacing : 0);
             }
 
-            // check to see if the cells have scrolled off screen
-            if (totalSize >= scrollRectSize && !_zeroSpacer)
-            {
-                // they have, so we no longer need the spacer
-                _zeroSpacer = true;
-            }
+            // set the spacer to the entire scroller size.
+            // this is necessary because we need some space to actually do a jump
+            _data[0].cellSize = scrollRectSize;
 
             // reset the scroller size back to what it was originally
             rectTransform.sizeDelta = size;
@@ -173,10 +181,24 @@ namespace EnhancedScrollerDemos.Chat
             _calculateLayout = false;
             scroller.ReloadData();
 
-            // set the scroll position to the previous cell so that we can jump to the new cell.
-            // this position is complicated by the fact that sometimes the spacer is visible (before the first cells scroll off screen)
-            // and sometimes not (after the first cells scroll off screen).
-            scroller.ScrollPosition = (totalSize - scroller.padding.bottom - _data[_data.Count - 1].cellSize - (_zeroSpacer ? scrollRectSize : 0));
+            // set the scroll position to the previous cell (plus the offset of where the scroller currently is) so that we can jump to the new cell.
+            scroller.ScrollPosition = (_totalCellSize - _data[_data.Count - 1].cellSize) + offset;
+        }
+
+        /// <summary>
+        /// This method is called when the new cell has been jumpped to.
+        /// It will reset the spacer's cell size to the remainder of the scroller's size minus the
+        /// total cell size calculated in ResizeScroller. Finally, it will reload the
+        /// scroller to set the new cell sizes.
+        /// </summary>
+        private void ResetSpacer()
+        {
+            // reset the spacer's cell size to the scroller's size minus the rest of the cell sizes
+            // (or zero if the spacer is no longer needed)
+            _data[0].cellSize = Mathf.Max(scroller.ScrollRectSize - _totalCellSize, 0);
+
+            // reload the data to set the new cell size
+            scroller.ReloadData(1.0f);
         }
 
         #region UI Handlers
@@ -194,6 +216,9 @@ namespace EnhancedScrollerDemos.Chat
             myInputField.ActivateInputField();
         }
 
+        /// <summary>
+        /// Button handler sending other person's message
+        /// </summary>
         public void OtherSendButton_Click()
         {
             // add a chat row from another person
@@ -227,26 +252,8 @@ namespace EnhancedScrollerDemos.Chat
         /// <returns></returns>
         public float GetCellViewSize(EnhancedScroller scroller, int dataIndex)
         {
-            if (dataIndex == 0 && !_calculateLayout)
-            {
-                if (_zeroSpacer)
-                {
-                    // spacer is no longer needed, so we just send back zero for the spacer's cell size
-                    return 0;
-                }
-                else
-                {
-                    // this is the first spacer cell.
-                    // If we are not calculating layout, then pass back the entire size of the scroller's rect (minus the padding).
-                    return scroller.ScrollRectSize - scroller.padding.top - scroller.padding.bottom;
-                }
-            }
-            else
-            {
-                // these are the chat cells or we are calculating the layout, so pass back the size
-
-                return _data[dataIndex].cellSize;
-            }
+            // return the cell size for each cell
+            return _data[dataIndex].cellSize;
         }
 
         /// <summary>

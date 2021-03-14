@@ -84,7 +84,7 @@ namespace EnhancedScrollerDemos.ViewDrivenCellSizes
         }
 
         /// <summary>
-        /// This function will exand the scroller to accommodate the cells, reload the data to calculate the cell sizes,
+        /// This function will expand the scroller to accommodate the cells, reload the data to calculate the cell sizes,
         /// reset the scroller's size back, then reload the data once more to display the cells.
         /// </summary>
         private void ResizeScroller()
