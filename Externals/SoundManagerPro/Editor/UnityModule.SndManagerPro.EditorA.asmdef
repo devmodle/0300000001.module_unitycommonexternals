@@ -2,8 +2,8 @@
     "name": "UnityModule.SndManagerPro.EditorA",
     "rootNamespace": "",
     "references": [
-        "UnityModule.Common.Externals",
-        "UnityModule.SndManagerPro.EditorB"
+        "GUID:7400a08b05518448aa67ea7cd77d2cc3",
+        "GUID:b32cf1cbd1bd54285a284fd51a2e8a73"
     ],
     "includePlatforms": [
         "Editor"
