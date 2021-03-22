@@ -1,7 +1,7 @@
 {
-    "name": "UnityModule.BezierSolution.Editor",
+    "name": "BezierSolution.Editor",
     "references": [
-        "UnityModule.Common.Externals"
+        "BezierSolution.Runtime"
     ],
     "includePlatforms": [
         "Editor"

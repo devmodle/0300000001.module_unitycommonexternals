@@ -10,27 +10,28 @@ namespace EnhancedScrollerDemos.ExpandingCells
     /// </summary>
 	public class Controller : MonoBehaviour, IEnhancedScrollerDelegate
     {
-
         /// <summary>
-        /// Internal representation of our data. Note that the scroller will never see
-        /// this, so it separates the data from the layout using MVC principles.
+        /// The data to store for our cells
         /// </summary>
         private SmallList<Data> _data;
 
         /// <summary>
-        /// Whether the first or last padder is being adjusted to fit the cell size change
+        /// The last padder's active state before our expansion / collapse
         /// </summary>
-        private bool _tweeningFirstPadder;
+        private bool _lastPadderActive;
 
         /// <summary>
-        /// This is our scroller we will be a delegate for
+        /// The last padder's size before our expansion / collapse
+        /// </summary>
+        private float _lastPadderSize;
+
+        /// <summary>
+        /// The scroller that will be showing the cells
         /// </summary>
         public EnhancedScroller scroller;
 
-
         /// <summary>
-        /// This will be the prefab of each cell in our scroller. Note that you can use more
-        /// than one kind of cell, but this example just has the one type.
+        /// The cell prefab to use in the scroller
         /// </summary>
         public EnhancedScrollerCellView cellViewPrefab;
 
@@ -48,10 +49,14 @@ namespace EnhancedScrollerDemos.ExpandingCells
             // tell the scroller that this script will be its delegate
             scroller.Delegate = this;
 
+            // set some space to look for cells before and after the scroll rect.
+            // this is useful for when the cells are expanding, we don't want to see empty space.
+            scroller.lookAheadBefore = 1000f;
+            scroller.lookAheadAfter = 1000f;
+
             // load in a large set of data
             LoadData();
         }
-
 
         /// <summary>
         /// Populates the data with a lot of records
@@ -62,29 +67,29 @@ namespace EnhancedScrollerDemos.ExpandingCells
             _data = new SmallList<Data>();
             for (var i = 0; i < 50; i++)
             {
-                if (i % 2 == 0)
+                if (i % 3 == 0)
                 {
                     _data.Add(new Data()
                     {
                         headerText = "Multiple Expand",
                         descriptionText = "Expanding this cell will not collapse other cells. This allows you to have multiple cells expanded at once.\n\nClick the cell again to collapse.",
                         isExpanded = false,
-                        expandedSize = 200f,
-                        collapsedSize = 20f * ((i % 3) + 3),
+                        expandedSize = 300f,
+                        collapsedSize = 60f,
                         tweenType = Tween.TweenType.immediate,
                         tweenTimeExpand = 0,
                         tweenTimeCollapse = 0
                     });
                 }
-                else if (i % 3 == 0)
+                else if ((i + 1) % 3 == 0)
                 {
                     _data.Add(new Data()
                     {
                         headerText = "Tween Expand",
                         descriptionText = "This cell will animate its size when clicked.\n\nClick the cell again to collapse.",
                         isExpanded = false,
-                        expandedSize = 200f,
-                        collapsedSize = 20f * ((i % 3) + 3),
+                        expandedSize = 300f,
+                        collapsedSize = 60f,
                         tweenType = Tween.TweenType.easeInOutSine,
                         tweenTimeExpand = 0.5f,
                         tweenTimeCollapse = 0.5f
@@ -97,8 +102,8 @@ namespace EnhancedScrollerDemos.ExpandingCells
                         headerText = "Single Expand",
                         descriptionText = "Expanding this cell will collapse other cells.\n\nClick the cell again to collapse.",
                         isExpanded = false,
-                        expandedSize = 200f,
-                        collapsedSize = 30f * ((i % 3) + 3),
+                        expandedSize = 300f,
+                        collapsedSize = 60f,
                         tweenType = Tween.TweenType.immediate,
                         tweenTimeExpand = 0,
                         tweenTimeCollapse = 0
@@ -110,110 +115,119 @@ namespace EnhancedScrollerDemos.ExpandingCells
             scroller.ReloadData();
         }
 
-        private void TweenStart(int dataIndex, bool isExpanding)
-        {
-            // reset the flag for if the first padder is being tweened to accommodate the cell view size change
-            _tweeningFirstPadder = false;
-        }
-
-        private void TweenUpdated(float newValue, float delta)
-        {
-            if (delta < 0)
-            {
-                // only adjust padders when collapsing
-
-                if (scroller.LastPadder.IsActive())
-                {
-                    scroller.LastPadder.minHeight -= delta;
-                }
-                else
-                {
-                    // adjusting the first padder due to the scroller being
-                    // near the bottom
-                    _tweeningFirstPadder = true;
-                    scroller.FirstPadder.minHeight -= delta;
-                }
-            }
-        }
-
         /// <summary>
-        /// This is called when a cell is clicked
+        /// This method is called by the cell view when the cell is clicked.
+        /// It will set all the expansion properties of the cells, reload the scroller,
+        /// set the position correctly, and kick off the tweening of the cell size
         /// </summary>
-        /// <param name="dataIndex"></param>
-        private void TweenEnd(int dataIndex)
+        /// <param name="dataIndex">The data index of the cell</param>
+        /// <param name="cellViewIndex">The cell view index of the cell</param>
+        private void InitializeTween(int dataIndex, int cellViewIndex)
         {
-            // toggle the expanded value
+            // toggle the cell's expansion
             _data[dataIndex].isExpanded = !_data[dataIndex].isExpanded;
 
-            if (dataIndex % 2 == 1)
+            // set all the other cells' expansion properties
+            for (var i = 0; i < _data.Count; i++)
             {
-                // single expanded cell. collapse others
-                for (var i = 0; i < _data.Count; i++)
+                // if not this cell
+                if (i != dataIndex)
                 {
-                    if (i != dataIndex)
+                    // if the clicked cell is a single cell or if this iteration is a single cell
+                    // collapse other cells
+                    if (((dataIndex + 2) % 3 == 0) || ((i + 2) % 3 == 0))
                     {
                         _data[i].isExpanded = false;
                     }
                 }
             }
 
-            // Since the size of the scroller will be changing, we can't simply pass in the normalized
-            // scroll position to the ReloadData method. Instead we will do some math to get the current offset
-            // of the first or last visible cell and use that in the JumpToDataIndex call after the ReloadData call.
-            // This can accommodate any changes in the sizes of multiple cell views.
+            // get the cell's position (using the cell view index in case of looping)
+            var cellPosition = scroller.GetScrollPositionForCellViewIndex(cellViewIndex, EnhancedScroller.CellViewPositionEnum.Before);
 
-            var jumpDataIndex = 0;
-            var jumpPosition = 0f;
-            var jumpCellSize = 0f;
-            var cellOffset = 0f;
+            // get the offset of the cell from the top of the scroll rect
+            var tweenCellOffset = cellPosition - scroller.ScrollPosition;
 
-            if (_tweeningFirstPadder)
-            {
-                // get the end data index so that we can jump to this after the reload
-                jumpDataIndex = scroller.EndDataIndex;
-                // the actual start position of this end data index so we can calculate a cell offset when we jump
-                jumpPosition = scroller.GetScrollPositionForDataIndex(jumpDataIndex, EnhancedScroller.CellViewPositionEnum.Before);
-                // get the size of the cell at the end data index
-                jumpCellSize = _data[jumpDataIndex].isExpanded ? _data[jumpDataIndex].expandedSize : _data[jumpDataIndex].collapsedSize;
-                // get the cell offset by taking the difference of the bottom of the scroller and cell view start position (minus the bottom padding) and dividing it by the size of the cell
-                cellOffset = (scroller.ScrollPosition + scroller.ScrollRectSize - jumpPosition - scroller.padding.bottom) / jumpCellSize;
-            }
-            else
-            {
-                // get the start data index so that we can jump to this after the reload
-                jumpDataIndex = scroller.StartDataIndex;
-                // the actual start position of this start data index so we can calculate a cell offset when we jump
-                jumpPosition = scroller.GetScrollPositionForDataIndex(jumpDataIndex, EnhancedScroller.CellViewPositionEnum.Before);
-                // get the size of the cell at the start data index
-                jumpCellSize = _data[jumpDataIndex].isExpanded ? _data[jumpDataIndex].expandedSize : _data[jumpDataIndex].collapsedSize;
-                // get the cell offset by taking the difference of the scroll position and cell view start position and dividing it by the size of the cell
-                cellOffset = (scroller.ScrollPosition - jumpPosition) / jumpCellSize;
-            }
+            // turn off loop jumping so that the scroller will not try to jump to a new location as the cell is expanding / collapsing
+            scroller.IgnoreLoopJump(true);
 
-            // if we are expanding the cell view, add a look ahead to the beginning and end of the
-            // scroller so that it loads in extra cells. This is necessary because when we
-            // start to collapse, we will need these extra cells so that the others do
-            // not get stretched by the layout element of the ScrollRect container.
-            scroller.lookAheadBefore = _data[dataIndex].isExpanded ? 200.0f : 0.0f;
-            scroller.lookAheadAfter = _data[dataIndex].isExpanded ? 200.0f : 0.0f;
-
-            // reload the scroller to set the new positions and sizes
+            // reload the scroller to accommodate the new cell sizes
             scroller.ReloadData();
 
-            if (_tweeningFirstPadder)
+            // get the new position of the cell (using the cell view index in case of looping)
+            cellPosition = scroller.GetScrollPositionForCellViewIndex(cellViewIndex, EnhancedScroller.CellViewPositionEnum.Before);
+
+            // set the scroller's position to focus on the cell, using the offset calculated above
+            scroller.SetScrollPositionImmediately(cellPosition - tweenCellOffset);
+
+            // turn loop jumping back on
+            scroller.IgnoreLoopJump(false);
+
+            // if this cell has an immediate tween type, then we can just exit the
+            // method and not worry about adjusting padder sizes or calling
+            // the tweening on the cell
+            if (_data[dataIndex].tweenType == Tween.TweenType.immediate)
             {
-                // jump back to the original end data index that we cached above to make it
-                // appear the scroller did not reset.
-                // we use the cell offset calculated above and ignore the spacing. scroller offset is at the bottom
-                scroller.JumpToDataIndex(jumpDataIndex, scrollerOffset: 1f, cellOffset: cellOffset, useSpacing: false);
+                return;
+            }
+
+            // cache the last padder's active state and size for after the tween
+            _lastPadderActive = scroller.LastPadder.IsActive();
+            _lastPadderSize = scroller.LastPadder.minHeight;
+
+            // manually set the last padder's size so that we can tween the cell
+            // size without distorting all the cells' sizes
+            if (_data[dataIndex].isExpanded)
+            {
+                scroller.LastPadder.minHeight += _data[dataIndex].SizeDifference;
             }
             else
             {
-                // jump back to the original start data index that we cached above to make it
-                // appear the scroller did not reset.
-                // we use the cell offset calculated above and ignore the spacing
-                scroller.JumpToDataIndex(jumpDataIndex, scrollerOffset: 0f, cellOffset: cellOffset, useSpacing: false);
+                scroller.LastPadder.minHeight -= _data[dataIndex].SizeDifference;
             }
+
+            // make sure the last padder is active so that we can tween its size
+            scroller.LastPadder.gameObject.SetActive(true);
+
+            // grab the cell that was clicked so that we can start tweening.
+            // note that we cannot just pass in the cell to this method since we
+            // are calling ReloadData, which destroys that cell. Grabbing it
+            // here is the only way to get an active cell after the reload.
+            var cellViewTween = scroller.GetCellViewAtDataIndex(dataIndex) as CellView;
+
+            // start the cell's tweening process
+            cellViewTween.BeginTween();
+        }
+
+        /// <summary>
+        /// This method is called by the cell that is changing size. As the cell changes size,
+        /// we need to adjust the last padder's size to accommodate. Otherwise all the cell's
+        /// would distort in size as the tween occurs.
+        /// </summary>
+        /// <param name="dataIndex">The data index of the cell that is tweening</param>
+        /// <param name="cellViewIndex">The cell view index of the cell that is tweening</param>
+        /// <param name="newValue">The new value of the cell's size</param>
+        /// <param name="delta">The change in the cell's size</param>
+        private void TweenUpdated(int dataIndex, int cellViewIndex, float newValue, float delta)
+        {
+            // set the last padder's height by adjusting it by the cell's size delta
+            // to offset the change
+            scroller.LastPadder.minHeight -= delta;
+        }
+
+        /// <summary>
+        /// This method is called when the cell has stopped changing size. We just
+        /// need to set the last padder's properties back
+        /// </summary>
+        /// <param name="dataIndex">The data index of the cell that is tweening</param>
+        /// <param name="cellViewIndex">The cell view index of the cell that is tweening</param>
+        private void TweenEnd(int dataIndex, int cellViewIndex)
+        {
+            // set the last padder's active state back to what we captured before the tween
+            scroller.LastPadder.gameObject.SetActive(_lastPadderActive);
+
+            // set the last padder's size back to what we captured before the tween
+            scroller.LastPadder.minHeight = _lastPadderSize;
         }
 
         #region EnhancedScroller Handlers
@@ -240,7 +254,7 @@ namespace EnhancedScrollerDemos.ExpandingCells
         public float GetCellViewSize(EnhancedScroller scroller, int dataIndex)
         {
             // pass the expanded size if the cell is expanded, else pass the collapsed size
-            return _data[dataIndex].isExpanded ? _data[dataIndex].expandedSize : _data[dataIndex].collapsedSize;
+            return _data[dataIndex].Size;
         }
 
         /// <summary>
@@ -261,7 +275,7 @@ namespace EnhancedScrollerDemos.ExpandingCells
             cellView.name = "Cell " + dataIndex.ToString();
 
             // pass in a reference to our data 
-            cellView.SetData(_data[dataIndex], dataIndex, _data[dataIndex].collapsedSize, _data[dataIndex].expandedSize, TweenStart, TweenUpdated, TweenEnd);
+            cellView.SetData(_data[dataIndex], dataIndex, _data[dataIndex].collapsedSize, _data[dataIndex].expandedSize, InitializeTween, TweenUpdated, TweenEnd);
 
             // return the cell to the scroller
             return cellView;

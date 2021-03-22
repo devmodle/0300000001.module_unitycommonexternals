@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿//#define IMMEDIATE_TRANSFORM_CHANGED_CHECKS // Less performant method but updates spline values immediately (rather than in LateUpdate)
+
+using UnityEngine;
 
 namespace BezierSolution
 {
@@ -86,9 +88,10 @@ namespace BezierSolution
 		{
 			get
 			{
+#if IMMEDIATE_TRANSFORM_CHANGED_CHECKS
 				if( transform.hasChanged )
-					Revalidate();
-
+					Refresh();
+#endif
 				return m_position;
 			}
 			set
@@ -186,9 +189,10 @@ namespace BezierSolution
 		{
 			get
 			{
+#if IMMEDIATE_TRANSFORM_CHANGED_CHECKS
 				if( transform.hasChanged )
-					Revalidate();
-
+					Refresh();
+#endif
 				return m_precedingControlPointPosition;
 			}
 			set
@@ -199,6 +203,8 @@ namespace BezierSolution
 				if( transform.hasChanged )
 				{
 					m_position = transform.position;
+					m_followingControlPointPosition = transform.TransformPoint( m_followingControlPointLocalPosition );
+
 					transform.hasChanged = false;
 				}
 
@@ -254,9 +260,10 @@ namespace BezierSolution
 		{
 			get
 			{
+#if IMMEDIATE_TRANSFORM_CHANGED_CHECKS
 				if( transform.hasChanged )
-					Revalidate();
-
+					Refresh();
+#endif
 				return m_followingControlPointPosition;
 			}
 			set
@@ -267,6 +274,8 @@ namespace BezierSolution
 				if( transform.hasChanged )
 				{
 					m_position = transform.position;
+					m_precedingControlPointPosition = transform.TransformPoint( m_precedingControlPointLocalPosition );
+
 					transform.hasChanged = false;
 				}
 
@@ -307,14 +316,19 @@ namespace BezierSolution
 		}
 
 		[HideInInspector]
+		public Vector3 normal = Vector3.up;
+		[HideInInspector]
+		public float autoCalculatedNormalAngleOffset = 0f;
+
+		[HideInInspector]
 		public ExtraData extraData;
 #pragma warning restore 0649
 
 #if UNITY_EDITOR
 		[System.NonSerialized]
-		public BezierSpline Internal_Spline;
+		internal BezierSpline Internal_Spline;
 		[System.NonSerialized]
-		public int Internal_Index;
+		internal int Internal_Index;
 #endif
 
 		private void Awake()
@@ -334,13 +348,21 @@ namespace BezierSolution
 			other.m_followingControlPointLocalPosition = m_followingControlPointLocalPosition;
 		}
 
-		private void Revalidate()
+		public void Refresh()
 		{
 			m_position = transform.position;
 			m_precedingControlPointPosition = transform.TransformPoint( m_precedingControlPointLocalPosition );
 			m_followingControlPointPosition = transform.TransformPoint( m_followingControlPointLocalPosition );
 
 			transform.hasChanged = false;
+		}
+
+		internal void RefreshIfChanged()
+		{
+#if !IMMEDIATE_TRANSFORM_CHANGED_CHECKS
+			if( transform.hasChanged )
+				Refresh();
+#endif
 		}
 
 		[System.Diagnostics.Conditional( "UNITY_EDITOR" )]

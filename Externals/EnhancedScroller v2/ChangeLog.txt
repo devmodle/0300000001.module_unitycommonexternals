@@ -2,6 +2,30 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+Version 2.29.1
+18 March 2021
+Requires Unity 2019.4.4f1+
+
+    Fixes:
+        - Modified the clamping when setting the scroll position internally so that it does not exceed the ScrollSize
+
+
+Version 2.29.0
+18 March 2021
+Requires Unity 2019.4.4f1+
+
+    Fixes:
+        - Fixed Tween.cs to calculate the last position after assigning the new position so that the first instance of last position is correct
+        - Re-worked Demo #15 to accommodate looping
+        - Fixed Demo #13 Controller.cs LoadData method to jump back to the previous ScrollPosition after reload. This gives a smoother transition than the jump did
+
+    Features:
+        - Added SetScrollPositionImmediately to EnhancedScroller.cs to refresh the active cells immediately after setting the scroll position (normally this would occur when ScrollRect triggers the change in position on the next frame). This is useful if you need to manually change a cell's height after setting the position.
+        - Added IgnoreLoopJump to EnhancedScroller.cs to allow you to shut off the loop jumping that gives the illusion of a continous stream of cells. This is usefull if you are manually changing the cell's size around the jump trigger boundaries.
+        - Modified Data.cs in Demo #15 to have some properties that calculate the cell's size based on its expansion state
+        - Added preloadData flag to Demo #5 to show how to buffer cells before they are visible to cut down on the download visibility of remote resources
+
+
 Version 2.28.2
 13 March 2021
 Requires Unity 2019.4.4f1+

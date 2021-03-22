@@ -88,11 +88,14 @@ namespace EnhancedScrollerDemos.Pagination
                 _data.Add(new Data() { someText = "Cell Data Index " + i.ToString() });
             }
 
+            // cache the scroller's position so that we can set it back after the reload
+            var scrollPosition = scroller.ScrollPosition;
+
             // tell the scroller to reload now that we have the data.
             scroller.ReloadData();
 
-            // jump to the previous last index to make it look like the scroller did not move
-            scroller.JumpToDataIndex(previousLastIndex, 1, 1);
+            // set the scroller's position back to the cached position
+            scroller.ScrollPosition = scrollPosition;
 
             // toggle off loading new so that we can load again at the bottom of the scroller
             _loadingNew = false;

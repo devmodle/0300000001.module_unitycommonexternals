@@ -332,8 +332,8 @@ namespace EnhancedUI.EnhancedScroller
 				}
 				else
 				{
-					// make sure the position is in the bounds of the current set of views
-	                value = Mathf.Clamp(value, 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.After));
+                    // make sure the position is in the bounds of the current set of views
+                    value = Mathf.Clamp(value, 0, ScrollSize); 
 				}
 
                 // only if the value has changed
@@ -696,7 +696,7 @@ namespace EnhancedUI.EnhancedScroller
                 return;
             }
 
-            _scrollPosition = Mathf.Clamp(scrollPositionFactor * ScrollSize, 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.Before));
+            _scrollPosition = Mathf.Clamp(scrollPositionFactor * ScrollSize, 0, ScrollSize);
             if (scrollDirection == ScrollDirectionEnum.Vertical)
             {
                 // set the vertical position
@@ -772,6 +772,35 @@ namespace EnhancedUI.EnhancedScroller
         public void ToggleLoop()
         {
             Loop = !loop;
+        }
+
+        /// <summary>
+        /// Toggle whether the loop jump calculation is used. Loop jumps
+        /// give the appearance of a continuous stream of cells, when in
+        /// reality it is just a set of three groups of cells.
+        /// Loop jumps can cause issues if you are trying to change the size of
+        /// a cell manually (like for expanding / collapsing) around the
+        /// borders of the cell groups where the jump occurs.
+        /// </summary>
+        /// <param name="ignore"></param>
+        public void IgnoreLoopJump(bool ignore)
+        {
+            _ignoreLoopJump = ignore;
+        }
+
+        /// <summary>
+        /// Sets the scroll position and refresh the active cells.
+        /// Normally the refreshing would occur the next frame as Unity
+        /// picks up the change in the ScrollRect's position.
+        /// If you need to handle active cells immediately after setting
+        /// the scroll position, use this method instead of setting
+        /// the ScrollPosition property directly.
+        /// </summary>
+        /// <param name="scrollPosition"></param>
+        public void SetScrollPositionImmediately(float scrollPosition)
+        {
+            ScrollPosition = scrollPosition;
+            _RefreshActive();
         }
 
         public enum LoopJumpDirectionEnum
@@ -967,8 +996,8 @@ namespace EnhancedUI.EnhancedScroller
 				// not looping, so just get the scroll position from the dataIndex
                 newScrollPosition = GetScrollPositionForDataIndex(dataIndex, CellViewPositionEnum.Before) + offset;
 
-				// clamp the scroll position to a valid location
-	            newScrollPosition = Mathf.Clamp(newScrollPosition - (useSpacing ? spacing : 0), 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.After));
+                // clamp the scroll position to a valid location
+                newScrollPosition = Mathf.Clamp(newScrollPosition - (useSpacing ? spacing : 0), 0, ScrollSize);
             }
 
             // ignore the jump if the scroll position hasn't changed
@@ -1299,6 +1328,12 @@ namespace EnhancedUI.EnhancedScroller
 		/// The loop value to store before the user begins dragging.
         /// </summary>
 		private bool _loopBeforeDrag;
+
+        /// <summary>
+        /// Flag to ignore the jump loop that gives the illusion
+        /// of a continuous stream of cells
+        /// </summary>
+        private bool _ignoreLoopJump;
 
         /// <summary>
         /// Where in the list we are
@@ -1679,7 +1714,7 @@ namespace EnhancedUI.EnhancedScroller
             var velocity = Vector2.zero;
 
             // if looping, check to see if we scrolled past a trigger
-            if (loop)
+            if (loop && !_ignoreLoopJump)
             {
                 if (_scrollPosition < _loopFirstJumpTrigger)
                 {
@@ -1981,7 +2016,7 @@ namespace EnhancedUI.EnhancedScroller
             else
                 _scrollPosition = val.x * ScrollSize;
             //_refreshActive = true;
-            _scrollPosition = Mathf.Clamp(_scrollPosition, 0, GetScrollPositionForCellViewIndex(_cellViewSizeArray.Count - 1, CellViewPositionEnum.After));
+            _scrollPosition = Mathf.Clamp(_scrollPosition, 0, ScrollSize);
 
             // call the handler if it exists
             if (scrollerScrolled != null) scrollerScrolled(this, val, _scrollPosition);

@@ -72,8 +72,6 @@ namespace EnhancedUI.EnhancedScroller
                 // while the tween has time left, use an easing function
                 while (_tweenTimeLeft < time)
                 {
-                    lastPosition = newPosition;
-
                     switch (tweenType)
                     {
                         case TweenType.linear: newPosition = linear(start, end, (_tweenTimeLeft / time)); break;
@@ -111,6 +109,8 @@ namespace EnhancedUI.EnhancedScroller
                     }
 
                     if (tweenUpdated != null) tweenUpdated(newPosition, newPosition - lastPosition);
+
+                    lastPosition = newPosition;
 
                     // increase the time elapsed
                     _tweenTimeLeft += Time.unscaledDeltaTime;

@@ -20,5 +20,27 @@
         public float tweenTimeExpand;
 
         public float tweenTimeCollapse;
+
+        /// <summary>
+        /// Calculates the size of the cell based on its expansion state
+        /// </summary>
+        public float Size
+        {
+            get
+            {
+                return isExpanded ? expandedSize : collapsedSize;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the difference in the expanded and collapsed sizes
+        /// </summary>
+        public float SizeDifference
+        {
+            get
+            {
+                return expandedSize - collapsedSize;
+            }
+        }
     }
 }

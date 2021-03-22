@@ -30,6 +30,13 @@ namespace EnhancedScrollerDemos.RemoteResourcesDemo
         public EnhancedScrollerCellView cellViewPrefab;
 
         /// <summary>
+        /// If true, this will load cells before they are visible,
+        /// buffering the data if you have a lookAhead value high enough
+        /// to meet the download times
+        /// </summary>
+        public bool preloadCells;
+
+        /// <summary>
         /// An array of image urls to load
         /// </summary>
         public string[] imageURLList;
@@ -39,6 +46,13 @@ namespace EnhancedScrollerDemos.RemoteResourcesDemo
             // set the scroller's cell view visbility changed delegate to a method in this controller
             scroller.cellViewVisibilityChanged = CellViewVisibilityChanged;
             scroller.cellViewWillRecycle = CellViewWillRecycle;
+
+            // preload the cells by looking ahead (both behind and after)
+            if (preloadCells)
+            {
+                scroller.lookAheadBefore = 1000f;
+                scroller.lookAheadAfter = 1000f;
+            }
 
             // set up some simple data
             _data = new SmallList<Data>();

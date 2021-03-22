@@ -429,8 +429,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 489691821}
   m_HandleRect: {fileID: 489691820}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.6107056
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1577,6 +1577,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scroller: {fileID: 1443501608}
   cellViewPrefab: {fileID: 11418118, guid: f38a78cc768ad68458de5de4bc9db9e6, type: 3}
+  preloadCells: 0
   imageURLList:
   - https://static.wixstatic.com/media/4a0a97_1f69f9ec04654e3aa23fd1546e907c5d~mv2.jpg/v1/fill/w_200,h_200,al_c,q_80/4a0a97_1f69f9ec04654e3aa23fd1546e907c5d~mv2.jpg
   - https://static.wixstatic.com/media/4a0a97_7636649a1ff9458aa8e3da3894c21c30~mv2.jpg/v1/fill/w_200,h_200,al_c,q_80/4a0a97_7636649a1ff9458aa8e3da3894c21c30~mv2.jpg
@@ -1690,7 +1691,12 @@ MonoBehaviour:
     make sure you clear out any resources when the cell is hidden so that they are
     not visible when the cell is recycled back to an active state. That way old data
     doesn''t appear briefly while the new data is loading. In this example, we replace
-    the animal image with a "Loading" image.'
+    the animal image with a "Loading" image.
+
+
+    If you want the cells to be buffered,
+    toggle on the PreloadCells field in the Demo script. This will load cells before
+    they are visible to cut down on the buffering times.'
 --- !u!222 &1920024505
 CanvasRenderer:
   m_ObjectHideFlags: 0

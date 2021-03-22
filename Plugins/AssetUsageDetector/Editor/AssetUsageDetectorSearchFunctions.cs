@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -388,7 +389,29 @@ namespace AssetUsageDetectorNamespace
 				Mesh[] meshes = new Mesh[( (ParticleSystemRenderer) component ).meshCount];
 				int meshCount = ( (ParticleSystemRenderer) component ).GetMeshes( meshes );
 				for( int i = 0; i < meshCount; i++ )
-					referenceNode.AddLinkTo( SearchObject( meshes[i] ), "Custom particle mesh" );
+					referenceNode.AddLinkTo( SearchObject( meshes[i] ), "Renderer Module: Mesh" );
+			}
+			else if( component is ParticleSystem )
+			{
+				// Some ParticleSystem properties aren't searched by SerializedObject, search them manually instead
+				ParticleSystem particleSystem = (ParticleSystem) component;
+				referenceNode.AddLinkTo( SearchObject( particleSystem.lights.light ), "Light Module: Light" );
+
+				try
+				{
+					ParticleSystem.CollisionModule collisionModule = particleSystem.collision;
+					for( int i = 0, j = collisionModule.planeCount; i < j; i++ )
+						referenceNode.AddLinkTo( SearchObject( collisionModule.GetPlane( i ) ), "Collision Module: Plane" );
+				}
+				catch { }
+
+				try
+				{
+					ParticleSystem.TriggerModule triggerModule = particleSystem.trigger;
+					for( int i = 0, j = triggerModule.colliderCount; i < j; i++ )
+						referenceNode.AddLinkTo( SearchObject( triggerModule.GetCollider( i ) ), "Trigger Module: Collider" );
+				}
+				catch { }
 			}
 			else if( searchRenderers && component is Renderer )
 			{
@@ -1079,7 +1102,7 @@ namespace AssetUsageDetectorNamespace
 				try
 				{
 					object variableValue = variables[i].Get( referenceNode.nodeObject );
-					if( variableValue == null )
+					if( variableValue == null || variableValue.Equals( null ) )
 						continue;
 
 					// Values stored inside ICollection objects are searched using IEnumerable,
@@ -1110,6 +1133,15 @@ namespace AssetUsageDetectorNamespace
 				catch( MissingReferenceException ) { }
 				catch( MissingComponentException ) { }
 				catch( NotImplementedException ) { }
+				catch( Exception e )
+				{
+					// Unknown exceptions usually occur when variableValue is an IEnumerable and its enumerator throws an unhandled exception in MoveNext or Current
+					StringBuilder sb = new StringBuilder( callStack.Count * 50 + 1000 );
+					sb.Append( "Skipped searching " ).Append( referenceNode.nodeObject.GetType().FullName ).Append( "." ).Append( variables[i].name ).AppendLine( " because it threw exception:" ).Append( e ).AppendLine();
+
+					Object latestUnityObjectInCallStack = AppendCallStackToStringBuilder( sb );
+					Debug.LogWarning( sb.ToString(), latestUnityObjectInCallStack );
+				}
 			}
 		}
 
@@ -1196,22 +1228,20 @@ namespace AssetUsageDetectorNamespace
 						if( propertyGetter.GetBaseDefinition().DeclaringType != propertyGetter.DeclaringType )
 							continue;
 
-						// Additional filtering for properties:
-						// 1- Ignore "gameObject", "transform", "rectTransform" and "attachedRigidbody" properties of Component's to get more useful results
-						// 2- Ignore "canvasRenderer" and "canvas" properties of Graphic components
-						// 3 & 4- Prevent accessing properties of Unity that instantiate an existing resource (causing memory leak)
 						string propertyName = property.Name;
+
+						// Ignore "gameObject", "transform", "rectTransform" and "attachedRigidbody" properties of components to get more useful results
 						if( typeof( Component ).IsAssignableFrom( currType ) && ( propertyName == "gameObject" ||
 							propertyName == "transform" || propertyName == "attachedRigidbody" || propertyName == "rectTransform" ) )
 							continue;
+						// Ignore "canvasRenderer" and "canvas" properties of Graphic components to get more useful results
 						else if( typeof( Graphic ).IsAssignableFrom( currType ) &&
 							( propertyName == "canvasRenderer" || propertyName == "canvas" ) )
 							continue;
+						// Prevent accessing properties of Unity that instantiate an existing resource (causing memory leak)
 						else if( typeof( MeshFilter ).IsAssignableFrom( currType ) && propertyName == "mesh" )
 							continue;
-						else if( typeof( Renderer ).IsAssignableFrom( currType ) &&
-							( propertyName == "sharedMaterial" || propertyName == "sharedMaterials" ) )
-							continue;
+						// Same as above
 						else if( ( propertyName == "material" || propertyName == "materials" ) &&
 							( typeof( Renderer ).IsAssignableFrom( currType ) || typeof( Collider ).IsAssignableFrom( currType ) ||
 #if !UNITY_2019_3_OR_NEWER
@@ -1220,6 +1250,19 @@ namespace AssetUsageDetectorNamespace
 #pragma warning restore 0618
 #endif
 							typeof( Collider2D ).IsAssignableFrom( currType ) ) )
+							continue;
+						// "sharedMaterials" are searched via SearchComponent, no need to search it with reflection, as well
+						else if( typeof( Renderer ).IsAssignableFrom( currType ) &&
+							( propertyName == "sharedMaterial" || propertyName == "sharedMaterials" ) )
+							continue;
+						// Ignore "parameters" property of Animator since it doesn't contain any useful data and logs a warning to the console when Animator is inactive
+						else if( typeof( Animator ).IsAssignableFrom( currType ) && propertyName == "parameters" )
+							continue;
+						// Ignore "spriteAnimator" property of TMP_Text component because this property adds a TMP_SpriteAnimator component to the object if it doesn't exist
+						else if( propertyName == "spriteAnimator" && currType.Name == "TMP_Text" )
+							continue;
+						// Ignore "meshFilter" property of TextMeshPro and TMP_SubMesh components because this property adds a MeshFilter component to the object if it doesn't exist
+						else if( propertyName == "meshFilter" && ( currType.Name == "TextMeshPro" || currType.Name == "TMP_SubMesh" ) )
 							continue;
 						else
 						{
