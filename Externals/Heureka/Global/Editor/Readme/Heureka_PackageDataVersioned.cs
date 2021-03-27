@@ -107,7 +107,7 @@ namespace HeurekaGames
                 initialize();
 
             GUILayout.Space(10);
-            FoldOut = EditorGUILayout.Foldout(FoldOut, VersionNum.GetVersionString());
+            FoldOut = EditorGUILayout.Foldout(FoldOut, VersionNum.GetVerStr());
             if (FoldOut)
             {
                 EditorGUILayout.BeginHorizontal();
@@ -181,7 +181,7 @@ namespace HeurekaGames
             }
         }
 
-        public string GetVersionString()
+        public string GetVerStr()
         {
             return string.Format("{0}.{1}.{2}", Major, Minor, Patch);
         }

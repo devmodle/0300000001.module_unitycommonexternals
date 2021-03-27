@@ -171,7 +171,7 @@ namespace HeurekaGames
                             {
                                 EditorGUI.indentLevel++;
                                 {
-                                    GUILayout.Label(versionedSection.VersionData[i].VersionNum.GetVersionString(), HeadingStyle);
+                                    GUILayout.Label(versionedSection.VersionData[i].VersionNum.GetVerStr(), HeadingStyle);
 
                                     EditorGUI.indentLevel+=2;
                                     foreach (var versionChange in versionedSection.VersionData[i].VersionChanges)
