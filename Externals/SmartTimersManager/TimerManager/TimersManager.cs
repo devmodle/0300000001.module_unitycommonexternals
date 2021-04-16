@@ -36,6 +36,18 @@ namespace Timers
             m_instance = this;
         }
 
+		private static void FindAndRemove(WeakReference Owner)
+        {
+            foreach (KeyValuePair<WeakReference, Timer> elem in m_Timers)
+            {
+                if (elem.Key.Target == Owner.Target)
+                {
+                    m_Timers.Remove(elem.Key);
+                    break;
+                }
+            }
+        }
+
         private static void FindAndRemove(UnityAction UnityAction)
         {
             foreach (KeyValuePair<WeakReference, Timer> elem in m_Timers)
@@ -160,6 +172,16 @@ namespace Timers
                     m_Timers.Add(new WeakReference(Owner), timer);
                 }
             }
+        }
+
+		/// <summary>
+        /// Remove a certain timer
+        /// </summary>
+        /// <param name="UnityAction">Delegate name</param>
+        public static void ClearTimer(WeakReference Owner)
+        {
+            if (Owner != null)
+                FindAndRemove(Owner);
         }
 
         /// <summary>
