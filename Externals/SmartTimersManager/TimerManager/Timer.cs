@@ -9,7 +9,7 @@ namespace Timers
 		NONE = -1,
 		NORM,
 		REALTIME,
-		MAX_VALUE
+		MAX_VAL
 	}
 
     [System.Serializable]
