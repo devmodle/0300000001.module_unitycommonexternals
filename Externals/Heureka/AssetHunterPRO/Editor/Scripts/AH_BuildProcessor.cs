@@ -76,12 +76,12 @@ namespace HeurekaGames.AssetHunterPRO
         static AH_SerializedBuildInfo buildInfo;
 
         private bool isProcessing;
-        private static bool isGenerating;
+        //private static bool isGenerating;
 
         private void initBuildReport(BuildTarget platform, string outputPath)
         {
             //Only start processing if its set in preferences
-            isProcessing = AH_SettingsManager.Instance.AutoCreateLog || isGenerating;
+            isProcessing = AH_SettingsManager.Instance.AutoCreateLog /*|| isGenerating*/;
 
             if (isProcessing)
             {
@@ -106,7 +106,7 @@ namespace HeurekaGames.AssetHunterPRO
             }
         }
 
-        internal static void GenerateBuild()
+        /*internal static void GenerateBuild()
         {
             isGenerating = true;
 
@@ -121,7 +121,7 @@ namespace HeurekaGames.AssetHunterPRO
 
             // Build player.
             BuildPipeline.BuildPlayer(bpOptions);
-        }
+        }*/
 
         private void processUsedAsset(string scenePath, string assetPath)
         {

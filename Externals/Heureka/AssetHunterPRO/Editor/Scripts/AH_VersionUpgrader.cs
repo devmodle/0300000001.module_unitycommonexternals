@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace HeurekaGames.AssetHunterPRO
 {
+    ///Removed as there are very few that still upgrade from old AH2 and it caused issues for a few people
+    /*
     [InitializeOnLoad]
     public class AH_VersionUpgrader
     {
@@ -134,5 +136,5 @@ namespace HeurekaGames.AssetHunterPRO
             }
         }
 #endif
-    }
+    }*/
 }

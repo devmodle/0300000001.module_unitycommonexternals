@@ -7,7 +7,7 @@ using UnityEngine;
 public class AH_PreProcessor : MonoBehaviour
 {
     public const string DefineScriptAllow = "AH_SCRIPT_ALLOW";
-    public const string DefineHasOldVersion = "AH_HAS_OLD_INSTALLED";
+    //public const string DefineHasOldVersion = "AH_HAS_OLD_INSTALLED";
 
     /// <summary>
     /// Add define symbols as soon as Unity gets done compiling.

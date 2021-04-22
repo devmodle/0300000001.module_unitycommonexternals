@@ -17,7 +17,7 @@ namespace HeurekaGames.AssetHunterPRO
     {
         public const int WINDOWMENUITEMPRIO = 11;
 
-        public const string VERSION = "1.3.4";
+        public const string VERSION = "1.3.5";
         private static AH_Window m_window;
 
         [NonSerialized] bool m_Initialized;
@@ -258,10 +258,10 @@ namespace HeurekaGames.AssetHunterPRO
 
             if (doSelectionButton(guiContentLoadBuildInfo))
                 openBuildInfoSelector();
-            EditorGUI.BeginDisabledGroup(!EditorBuildSettings.scenes.Any(val => val.enabled == true)); //Disable the generate btn if there are no enabled scenes in buildsettings
+            /*EditorGUI.BeginDisabledGroup(!EditorBuildSettings.scenes.Any(val => val.enabled == true)); //Disable the generate btn if there are no enabled scenes in buildsettings
             if (doSelectionButton(guiContentGenerateBuildInfo))
                 generateBuildInfo();
-            EditorGUI.EndDisabledGroup();
+            EditorGUI.EndDisabledGroup();*/
             if (doSelectionButton(guiContentSettings))
                 AH_SettingsWindow.Init(true);
 
@@ -271,12 +271,14 @@ namespace HeurekaGames.AssetHunterPRO
                 AH_BuildReportWindow.Init();
 #endif
 
+            /*
 #if AH_HAS_OLD_INSTALLED
             //Transfer settings to PRO
             GUIContent TransferSettingsContent = new GUIContent("Transfer Settings", "Transfer your settings from old Asset Hunter into PRO");
             if (AH_VersionUpgrader.VersionUpgraderReady && GUILayout.Button(TransferSettingsContent, GUILayout.MaxHeight(18)))
                 AH_VersionUpgrader.RunUpgrade();
 #endif
+            */
 
             if (infoLoaded && m_TreeView.GetCombinedUnusedSize() > 0)
             {
@@ -319,13 +321,13 @@ namespace HeurekaGames.AssetHunterPRO
             return GUILayout.Button(btnContent, GUILayout.MaxHeight(AH_SettingsManager.Instance.HideButtonText ? btnMaxHeight * 2f : btnMaxHeight));
         }
 
-        private void generateBuildInfo()
+        /*private void generateBuildInfo()
         {
             if (EditorUtility.DisplayDialog("New build", "Create new build based on current buildsettings?", "OK", "Cancel"))
             {
                 AH_BuildProcessor.GenerateBuild();
             }
-        }
+        }*/
 
         private void OnIgnoreListUpdatedEvent()
         {

@@ -7,7 +7,7 @@ using System.Linq;
 #if UNITY_2018_1_OR_NEWER
 using UnityEditor.Build.Reporting;
 #endif
-#if ADRESSABLES_1_0_0_OR_NEWER
+#if ADRESSABLES_1_2_0_OR_NEWER
 using UnityEditor.AddressableAssets;
 #endif
 
@@ -181,7 +181,7 @@ namespace HeurekaGames.AssetHunterPRO
 
         private void addAdressablesToReport()
         {
-#if ADRESSABLES_1_0_0_OR_NEWER
+#if ADRESSABLES_1_2_0_OR_NEWER
             if (AddressableAssetSettingsDefaultObject.SettingsExists)
             {
                 var fooSettings = AddressableAssetSettingsDefaultObject.Settings;
@@ -191,9 +191,9 @@ namespace HeurekaGames.AssetHunterPRO
                 foreach (var guid in guids)
                     AddBuildDependency("", AssetDatabase.GUIDToAssetPath(guid));
 
-                guids = AssetDatabase.FindAssets(string.Format("t:{0}", typeof(UnityEditor.AddressableAssets.Build.AnalyzeRules.AnalyzeResultData)));
+                /*guids = AssetDatabase.FindAssets(string.Format("t:{0}", typeof(UnityEditor.AddressableAssets.Build.AnalyzeRules.AnalyzeResultData)));
                 foreach (var guid in guids)
-                    AddBuildDependency("", AssetDatabase.GUIDToAssetPath(guid));
+                    AddBuildDependency("", AssetDatabase.GUIDToAssetPath(guid));*/
 
                 guids = AssetDatabase.FindAssets(string.Format("addressables_content_state"));
                 foreach (var guid in guids)

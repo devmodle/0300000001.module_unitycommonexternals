@@ -267,4 +267,19 @@ MonoBehaviour:
       Patch: 3
     VersionChanges:
     - Fixed issue with import caused by lackluster asset update options
+    FoldOut: 0
+  - VersionNum:
+      Major: 1
+      Minor: 3
+      Patch: 4
+    VersionChanges:
+    - Fixed issue with UWP
+    FoldOut: 0
+  - VersionNum:
+      Major: 1
+      Minor: 3
+      Patch: 5
+    VersionChanges:
+    - Removed 'Build' button
+    - Removed 'AutoUpgrade' functionality from AH2 as it caused issues for a few people
     FoldOut: 1
