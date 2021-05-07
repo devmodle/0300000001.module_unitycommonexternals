@@ -1,6 +1,7 @@
 #if UNITY_2019_3_11 || UNITY_2019_3_12 || UNITY_2019_3_13 || UNITY_2019_3_14 || UNITY_2019_3_15 || UNITY_2019_4_OR_NEWER
 #define SERIALIZE_FIELD_MASKABLE
 #endif
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Coffee.UIParticleExtensions;
@@ -60,6 +61,7 @@ namespace Coffee.UIExtensions
         private static readonly List<Material> s_PrevMaskMaterials = new List<Material>();
         private static readonly List<Material> s_PrevModifiedMaterials = new List<Material>();
         private static readonly List<Component> s_Components = new List<Component>();
+        private static readonly List<ParticleSystem> s_ParticleSystems = new List<ParticleSystem>();
 
 
         /// <summary>
@@ -176,6 +178,11 @@ namespace Coffee.UIExtensions
             particles.Exec(p => p.Stop());
         }
 
+        public void Clear()
+        {
+            particles.Exec(p => p.Clear());
+        }
+
         public void SetParticleSystemInstance(GameObject instance)
         {
             SetParticleSystemInstance(instance, true);
@@ -222,6 +229,7 @@ namespace Coffee.UIExtensions
         {
             if (!root) return;
             root.GetComponentsInChildren(particles);
+            particles.RemoveAll(x => x.GetComponentInParent<UIParticle>() != this);
 
             foreach (var ps in particles)
             {
@@ -265,7 +273,7 @@ namespace Coffee.UIExtensions
 
             //
             GetComponents(typeof(IMaterialModifier), s_Components);
-            var materialCount = Mathf.Max(8, count);
+            var materialCount = Mathf.Min(8, count);
             canvasRenderer.materialCount = materialCount;
             var j = 0;
             for (var i = 0; i < particles.Count; i++)
@@ -387,7 +395,6 @@ namespace Coffee.UIExtensions
 #if !SERIALIZE_FIELD_MASKABLE
             maskable = m_Maskable;
 #endif
-            _cachedPosition = transform.localPosition;
             activeMeshIndices.Clear();
 
             UIParticleUpdater.Register(this);
@@ -404,6 +411,25 @@ namespace Coffee.UIExtensions
             base.OnEnable();
 
             InitializeIfNeeded();
+        }
+
+        private new IEnumerator Start()
+        {
+            // #147: ParticleSystem creates Particles in wrong position during prewarm
+            // #148: Particle Sub Emitter not showing when start game
+            var delayToPlay = particles.AnyFast(ps =>
+            {
+                ps.GetComponentsInChildren(false, s_ParticleSystems);
+                return s_ParticleSystems.AnyFast(p => p.isPlaying && (p.subEmitters.enabled || p.main.prewarm));
+            });
+            s_ParticleSystems.Clear();
+            if (!delayToPlay) yield break;
+
+            Stop();
+            Clear();
+            yield return null;
+
+            Play();
         }
 
         /// <summary>
@@ -442,14 +468,6 @@ namespace Coffee.UIExtensions
             if (enabled && m_IsTrail)
             {
                 UnityEngine.Debug.LogWarningFormat(this, "[UIParticle] The UIParticle component should be removed: {0}\nReason: UIParticle for trails is no longer needed.", name);
-                gameObject.hideFlags = HideFlags.None;
-                _shouldBeRemoved = true;
-                enabled = false;
-                return;
-            }
-            else if (enabled && transform.parent && transform.parent.GetComponentInParent<UIParticle>())
-            {
-                UnityEngine.Debug.LogWarningFormat(this, "[UIParticle] The UIParticle component should be removed: {0}\nReason: The parent UIParticle exists.", name);
                 gameObject.hideFlags = HideFlags.None;
                 _shouldBeRemoved = true;
                 enabled = false;

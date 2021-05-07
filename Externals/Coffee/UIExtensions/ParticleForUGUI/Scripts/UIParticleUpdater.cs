@@ -154,6 +154,9 @@ namespace Coffee.UIExtensions
 
             particle.cachedPosition = position;
 
+            if (particle.activeMeshIndices.CountFast() == 0)
+                diff = Vector3.zero;
+
             for (var i = 0; i < particle.particles.Count; i++)
             {
                 Profiler.BeginSample("[UIParticle] Bake Mesh > Push index");
@@ -241,6 +244,10 @@ namespace Coffee.UIExtensions
                     var hash = currentPs.GetMaterialHash(true);
                     if (hash != 0)
                     {
+                        matrix = currentPs.main.simulationSpace == ParticleSystemSimulationSpace.Local && currentPs.trails.worldSpace
+                            ? matrix * Matrix4x4.Translate(-currentPs.transform.position)
+                            : matrix;
+
                         var m = MeshHelper.GetTemporaryMesh();
                         try
                         {

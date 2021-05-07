@@ -9,8 +9,9 @@ namespace Coffee.UIParticleExtensions
     internal static class SpriteExtensions
     {
 #if UNITY_EDITOR
-        private static Type tSpriteEditorExtension = Type.GetType("UnityEditor.Experimental.U2D.SpriteEditorExtension, UnityEditor")
-                                                     ?? Type.GetType("UnityEditor.U2D.SpriteEditorExtension, UnityEditor");
+        private static Type tSpriteEditorExtension =
+            Type.GetType("UnityEditor.Experimental.U2D.SpriteEditorExtension, UnityEditor")
+            ?? Type.GetType("UnityEditor.U2D.SpriteEditorExtension, UnityEditor");
 
         private static MethodInfo miGetActiveAtlasTexture = tSpriteEditorExtension
             .GetMethod("GetActiveAtlasTexture", BindingFlags.Static | BindingFlags.NonPublic);
@@ -60,6 +61,16 @@ namespace Coffee.UIParticleExtensions
             for (var i = 0; i < self.Count; ++i)
             {
                 if (self[i]) return true;
+            }
+
+            return false;
+        }
+
+        public static bool AnyFast<T>(this List<T> self, Predicate<T> predicate) where T : Object
+        {
+            for (var i = 0; i < self.Count; ++i)
+            {
+                if (self[i] && predicate(self[i])) return true;
             }
 
             return false;
@@ -222,27 +233,18 @@ namespace Coffee.UIParticleExtensions
                 if (!Mathf.Approximately(aPos, bPos))
                     return (int) Mathf.Sign(bPos - aPos);
 
-                // Material instance ID: match
-                if (aMat.GetInstanceID() == bMat.GetInstanceID())
-                    return 0;
-
-                // Transform: ascending
-                return TransformCompare(aTransform, bTransform);
+                return (int) Mathf.Sign(GetIndex(self, a) - GetIndex(self, b));
             });
         }
 
-        private static int TransformCompare(Transform a, Transform b)
+        private static int GetIndex(IList<ParticleSystem> list, Object ps)
         {
-            while (true)
+            for (var i = 0; i < list.Count; i++)
             {
-                if (!a && !b) return 0;
-                if (!a) return -1;
-                if (!b) return 1;
-                if (a.parent == b.parent) return a.GetSiblingIndex() - b.GetSiblingIndex();
-
-                a = a.parent;
-                b = b.parent;
+                if (list[i].GetInstanceID() == ps.GetInstanceID()) return i;
             }
+
+            return 0;
         }
 
         public static long GetMaterialHash(this ParticleSystem self, bool trail)
