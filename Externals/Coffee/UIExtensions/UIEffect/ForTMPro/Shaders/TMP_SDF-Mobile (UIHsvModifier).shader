@@ -95,7 +95,7 @@ SubShader {
 		
 		#define MOBILE 1
 		#define UI_HSV_MODIFIER 1
-		#include "Packages/.UnityModule.Common.Externals@1.3.4/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
+		#include "Packages/.UnityModule.Common.Externals@1.4.0/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
 		#include "UI-Effect-TMPro.cginc"
 
 		fixed4 frag(pixel_t IN) : SV_Target
