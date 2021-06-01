@@ -56,7 +56,7 @@ Shader "Hidden/UI/Default (SoftMaskable)"
             #pragma multi_compile __ UNITY_UI_CLIP_RECT
             #pragma multi_compile __ UNITY_UI_ALPHACLIP
 
-            #include "Packages/.UnityModule.Common.Externals@1.4.1/Externals/Coffee/UIExtensions/SoftMaskForUGUI/Shaders/SoftMask.cginc"	// Add for soft mask
+            #include "Packages/.UnityModule.Common.Externals@1.4.2/Externals/Coffee/UIExtensions/SoftMaskForUGUI/Shaders/SoftMask.cginc"	// Add for soft mask
             #pragma shader_feature __ SOFTMASK_EDITOR	// Add for soft mask
 
             struct appdata_t
