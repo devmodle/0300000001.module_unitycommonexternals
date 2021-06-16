@@ -132,7 +132,7 @@ SubShader {
 		#include "Assets/TextMesh Pro/Shaders/TMPro.cginc"
 		
 		#define UI_EFFECT 1
-		#include "Packages/.UnityModule.Common.Externals@1.5.0/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
+		#include "Packages/.UnityModule.Common.Externals@1.5.1/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
 		#include "UI-Effect-TMPro.cginc"
 
 		fixed4 frag(pixel_t IN) : SV_Target
