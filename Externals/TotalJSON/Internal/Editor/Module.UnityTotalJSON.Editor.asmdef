@@ -1,7 +1,7 @@
 {
-    "name": "UnityModule.TotalJSON.Editor",
+    "name": "Module.UnityTotalJSON.Editor",
     "references": [
-        "UnityModule.Common.Externals"
+        "Module.UnityCommonExternals"
     ],
     "includePlatforms": [
         "Editor"

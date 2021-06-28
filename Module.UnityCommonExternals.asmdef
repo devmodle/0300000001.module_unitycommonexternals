@@ -1,9 +1,11 @@
 {
-    "name": "UnityModule.UIEffect.EditorA",
-    "references": [],
-    "includePlatforms": [
-        "Editor"
+    "name": "Module.UnityCommonExternals",
+    "rootNamespace": "",
+    "references": [
+        "MessagePack",
+        "MessagePack.Annotations"
     ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

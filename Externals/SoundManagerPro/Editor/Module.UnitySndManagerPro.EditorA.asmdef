@@ -1,11 +1,13 @@
 {
-    "name": "UnityModule.Common.Externals",
+    "name": "Module.UnitySndManagerPro.EditorA",
     "rootNamespace": "",
     "references": [
-        "MessagePack",
-        "MessagePack.Annotations"
+        "Module.UnityCommonExternals",
+        "Module.UnitySndManagerPro.EditorB"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

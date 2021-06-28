@@ -1,7 +1,7 @@
 {
-    "name": "UnityModule.FPSCounter.EditorA",
+    "name": "Module.UnityUIEffect.EditorB",
     "references": [
-        "UnityModule.Common.Externals"
+        "Module.UnityCommonExternals"
     ],
     "includePlatforms": [
         "Editor"

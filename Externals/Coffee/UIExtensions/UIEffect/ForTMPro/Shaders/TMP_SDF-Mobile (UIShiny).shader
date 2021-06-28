@@ -95,7 +95,7 @@ SubShader {
 		
 		#define MOBILE 1
 		#define UI_SHINY 1
-        #include "Packages/.UnityModule.Common.Externals@1.5.7/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
+        #include "Packages/.Module.UnityCommonExternals@1.5.7/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
 		#include "UI-Effect-TMPro.cginc"
 
 		fixed4 frag(pixel_t IN) : SV_Target

@@ -1,8 +1,8 @@
 {
-    "name": "UnityModule.SimpleScrollSnap.Editor",
+    "name": "Module.UnitySimpleScrollSnap.Editor",
     "rootNamespace": "",
     "references": [
-        "UnityModule.Common.Externals"
+        "Module.UnityCommonExternals"
     ],
     "includePlatforms": [
         "Editor"

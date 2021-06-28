@@ -1,5 +1,5 @@
 {
-    "name": "UnityModule.SignInWithApple.Editor",
+    "name": "Module.UnityUIEffect.EditorA",
     "references": [],
     "includePlatforms": [
         "Editor"
