@@ -65,8 +65,8 @@
             
 			#define TMP_SPRITE 1
 			#define UI_EFFECT 1
-            #include "Packages/.Module.UnityCommonExternals@1.5.7/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
-            #include "Packages/.Module.UnityCommonExternals@1.5.7/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect-Sprite.cginc"
+            #include "Packages/.Module.UnityCommonExternals@1.5.8/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect.cginc"
+            #include "Packages/.Module.UnityCommonExternals@1.5.8/Externals/Coffee/UIExtensions/UIEffect/Shaders/UI-Effect-Sprite.cginc"
 
 			fixed4 frag(v2f IN) : SV_Target
 			{
