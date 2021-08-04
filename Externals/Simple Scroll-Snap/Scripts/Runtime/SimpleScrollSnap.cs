@@ -52,7 +52,7 @@ namespace DanielLochner.Assets.SimpleScrollSnap
         private Vector2 previousContentAnchoredPosition, velocity;
         private Dictionary<int, Graphic[]> panelGraphics = new Dictionary<int, Graphic[]>();
 
-		// FIXME: sd.lee (트랜스 폼 설정 구문 추가)
+		// FIXME: dante (트랜스 폼 설정 구문 추가)
 		private int m_nTransSetupTimes = 0;
 		private List<RectTransform> m_oTransList = new List<RectTransform>();
         #endregion
@@ -141,7 +141,7 @@ namespace DanielLochner.Assets.SimpleScrollSnap
 
             DetermineVelocity();
 
-			// FIXME: sd.lee (트랜스 폼 설정 구문 추가) {
+			// FIXME: dante (트랜스 폼 설정 구문 추가) {
 			// 트랜스 폼 설정이 가능 할 경우
 			if(m_nTransSetupTimes < byte.MaxValue * 2) {
 				m_nTransSetupTimes += 1;
@@ -151,7 +151,7 @@ namespace DanielLochner.Assets.SimpleScrollSnap
 					LayoutRebuilder.MarkLayoutForRebuild(m_oTransList[i]);
 				}
 			}
-			// FIXME: sd.lee (트랜스 폼 설정 구문 추가) }
+			// FIXME: dante (트랜스 폼 설정 구문 추가) }
         }
         #if UNITY_EDITOR
         private void OnValidate()
