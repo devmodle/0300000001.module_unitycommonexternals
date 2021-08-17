@@ -1053,9 +1053,6 @@ namespace EnhancedUI.EnhancedScroller
             if (NumberOfCells == 0) return 0;
             if (cellViewIndex < 0) cellViewIndex = 0;
 
-			// FIXME: dante (인덱스 보정 구문 추가)
-			cellViewIndex = Mathf.Clamp(cellViewIndex, 0, NumberOfCells - 1);
-
             if (cellViewIndex == 0 && insertPosition == CellViewPositionEnum.Before)
             {
                 return 0;
@@ -1337,6 +1334,12 @@ namespace EnhancedUI.EnhancedScroller
         /// of a continuous stream of cells
         /// </summary>
         private bool _ignoreLoopJump;
+
+        /// <summary>
+        /// The number of fingers that are dragging the ScrollRect.
+        /// Used in OnBeginDrag and OnEndDrag
+        /// </summary>
+        private int _dragFingerCount;
 
         /// <summary>
         /// Where in the list we are
@@ -1888,6 +1891,9 @@ namespace EnhancedUI.EnhancedScroller
         /// </summary>
 		public void OnBeginDrag(PointerEventData data)
 		{
+            _dragFingerCount++;
+            if (_dragFingerCount > 1) return;
+
 			// capture the snapping and set it to false if desired
 			_snapBeforeDrag = snapping;
 			if (!snapWhileDragging)
@@ -1910,6 +1916,9 @@ namespace EnhancedUI.EnhancedScroller
         /// </summary>
 		public void OnEndDrag(PointerEventData data)
 		{
+            _dragFingerCount--;
+            if (_dragFingerCount < 0) _dragFingerCount = 0;
+
 			// reset the snapping and looping to what it was before the drag
 			snapping = _snapBeforeDrag;
 			loop = _loopBeforeDrag;
