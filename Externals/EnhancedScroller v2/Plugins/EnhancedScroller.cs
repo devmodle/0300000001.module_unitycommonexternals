@@ -663,6 +663,9 @@ namespace EnhancedUI.EnhancedScroller
             }
             else
             {
+                // reactivate the cell view from one that was recycled
+                cellView.gameObject.SetActive(true);
+
                 // call the reused callback
                 if (cellViewReused != null)
                 {
@@ -1615,7 +1618,10 @@ namespace EnhancedUI.EnhancedScroller
             _recycledCellViews.Add(cellView);
 
             // move the GameObject to the recycled container
-            cellView.transform.SetParent(_recycledCellViewContainer);
+            //cellView.transform.SetParent(_recycledCellViewContainer);
+
+            // deactivate the cellview (this is more efficient than moving the to a new parent like the above commented lines)
+            cellView.transform.gameObject.SetActive(false);
 
             // reset the cellView's properties
             cellView.dataIndex = 0;
