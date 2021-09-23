@@ -832,7 +832,8 @@ namespace EnhancedUI.EnhancedScroller
             TweenType tweenType = TweenType.immediate,
             float tweenTime = 0f,
             Action jumpComplete = null,
-            LoopJumpDirectionEnum loopJumpDirection = LoopJumpDirectionEnum.Closest
+            LoopJumpDirectionEnum loopJumpDirection = LoopJumpDirectionEnum.Closest,
+            bool forceCalculateRange = false
             )
         {
             var cellOffsetPosition = 0f;
@@ -1011,7 +1012,7 @@ namespace EnhancedUI.EnhancedScroller
             }
 
             // start tweening
-            StartCoroutine(TweenPosition(tweenType, tweenTime, ScrollPosition, newScrollPosition, jumpComplete));
+            StartCoroutine(TweenPosition(tweenType, tweenTime, ScrollPosition, newScrollPosition, jumpComplete, forceCalculateRange));
         }
 
         /// <summary>
@@ -2138,7 +2139,7 @@ namespace EnhancedUI.EnhancedScroller
         /// <param name="end">The ending scroll position</param>
         /// <param name="jumpComplete">The action to fire when the tween is complete</param>
         /// <returns></returns>
-        IEnumerator TweenPosition(TweenType tweenType, float time, float start, float end, Action tweenComplete)
+        IEnumerator TweenPosition(TweenType tweenType, float time, float start, float end, Action tweenComplete, bool forceCalculateRange)
         {
             if (!(tweenType == TweenType.immediate || time == 0))
             {
@@ -2205,8 +2206,10 @@ namespace EnhancedUI.EnhancedScroller
             // is the actual end position.
             ScrollPosition = end;
 
-            // deprecated: it appears calling this at the end can cause the wrong cell range to be calculated
-            //_RefreshActive();
+            if (forceCalculateRange)
+            {
+                _RefreshActive();
+            }
 
             // the tween jump is complete, so we fire the delegate
             if (tweenComplete != null) tweenComplete();
