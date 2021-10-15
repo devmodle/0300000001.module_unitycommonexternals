@@ -18,14 +18,6 @@ namespace EnhancedScrollerDemos.Chat
         private List<Data> _data;
 
         /// <summary>
-        /// This member tells the scroller that we need
-        /// the cell views to figure out how much space to use.
-        /// This is only set to true on the first pass to reduce
-        /// processing required.
-        /// </summary>
-        private bool _calculateLayout;
-
-        /// <summary>
         /// This stores the total size of all the cells,
         /// plus the scroller's top and bottom padding.
         /// This will be used to calculate the spacer required
@@ -66,6 +58,17 @@ namespace EnhancedScrollerDemos.Chat
         /// This will be the prefab of our first cell to push the other cells to the bottom
         /// </summary>
         public EnhancedScrollerCellView spacerCellViewPrefab;
+
+        /// <summary>
+        /// The estimated width of each character. Note that this is just an estimate
+        /// since most fonts are not mono-spaced.
+        /// </summary>
+        public int characterWidth = 8;
+
+        /// <summary>
+        /// The height of each character.
+        /// </summary>
+        public int characterHeight = 26;
 
         void Start()
         {
@@ -116,17 +119,23 @@ namespace EnhancedScrollerDemos.Chat
             // reset the scroller's position so that it is not outside of the new bounds
             scroller.ScrollPosition = 0;
 
-            // second, reset the data's cell view sizes
-            for (var i = 1; i < _data.Count; i++)
-            {
-                _data[i].cellSize = 0;
-            }
+
+            // calculate the space needed for the text in the cell
+
+            // get the estimated total width of the text (estimated because the font is assumed to be mono-spaced)
+            float totalTextWidth = (float)text.Length * (float)characterWidth;
+
+            // get the number of rows the text will take up by dividing the total width by the widht of the cell
+            int numRows = Mathf.CeilToInt(totalTextWidth / scroller.GetComponent<RectTransform>().sizeDelta.x) + 1;
+
+            // get the cell size by multiplying the rows times the character height
+            var cellSize = numRows * (float)characterHeight;
 
             // now we can add the data row
             _data.Add(new Data()
             {
                 cellType = cellType,
-                cellSize = 0,
+                cellSize = cellSize,
                 someText = text
             });
 
@@ -157,11 +166,6 @@ namespace EnhancedScrollerDemos.Chat
             // set the dimensions to the largest size possible to acommodate all the cells
             rectTransform.sizeDelta = new Vector2(size.x, float.MaxValue);
 
-            // First Pass: reload the scroller so that it can populate the text UI elements in the cell view.
-            // The content size fitter will determine how big the cells need to be on subsequent passes.
-            _calculateLayout = true;
-            scroller.ReloadData();
-
             // calculate the total size required by all cells. This will be used when we determine
             // where to end up at after we reload the data on the second pass.
             _totalCellSize = scroller.padding.top + scroller.padding.bottom;
@@ -177,8 +181,8 @@ namespace EnhancedScrollerDemos.Chat
             // reset the scroller size back to what it was originally
             rectTransform.sizeDelta = size;
 
-            // Second Pass: reload the data once more with the newly set cell view sizes and scroller content size.
-            _calculateLayout = false;
+            // reload the data with the newly set cell view sizes and scroller content size.
+            //_calculateLayout = false;
             scroller.ReloadData();
 
             // set the scroll position to the previous cell (plus the offset of where the scroller currently is) so that we can jump to the new cell.
@@ -292,7 +296,7 @@ namespace EnhancedScrollerDemos.Chat
                 cellView.name = "Cell " + dataIndex.ToString();
 
                 // initialize the cell's data so that it can configure its view.
-                cellView.SetData(_data[dataIndex], _calculateLayout);
+                cellView.SetData(_data[dataIndex]);
             }
 
             return cellView;

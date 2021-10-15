@@ -26,20 +26,9 @@ namespace EnhancedScrollerDemos.Chat
         /// </summary>
         public RectOffset textBuffer;
 
-        public void SetData(Data data, bool calculateLayout)
+        public void SetData(Data data)
         {
             someTextText.text = data.someText;
-
-            // Only calculate the layout on the first pass.
-            // This will save processing on subsequent passes.
-            if (calculateLayout)
-            {
-                // force update the canvas so that it can calculate the size needed for the text immediately
-                Canvas.ForceUpdateCanvases();
-
-                // set the data's cell size and add in some padding so the the text isn't up against the border of the cell
-                data.cellSize = textRectTransform.rect.height + textBuffer.top + textBuffer.bottom;
-            }
         }
     }
 }

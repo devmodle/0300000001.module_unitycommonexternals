@@ -2,6 +2,14 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+Version 2.31.0
+9 October 2021
+Requires Unity 2019.4.4f1+
+
+    Features:
+        - Updated Chat Demo #16 to calculate the text space used inside the scroller, instead of relying ont the Unity Content Size Fitter. This has less accuracy, but is far more efficient for text cells.
+
+
 Version 2.30.2
 23 September 2021
 Requires Unity 2019.4.4f1+

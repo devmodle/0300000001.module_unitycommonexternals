@@ -303,8 +303,8 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 1665869770}
-  - {fileID: 824721524}
   - {fileID: 1953617058}
+  - {fileID: 824721524}
   - {fileID: 1532678792}
   - {fileID: 184020312}
   m_Father: {fileID: 0}
@@ -1647,6 +1647,8 @@ MonoBehaviour:
     type: 3}
   spacerCellViewPrefab: {fileID: 3687533178484346257, guid: 6a6a0582cca824522a219ef6ab9ffd4b,
     type: 3}
+  characterWidth: 8
+  characterHeight: 26
 --- !u!4 &1649476740
 Transform:
   m_ObjectHideFlags: 0
@@ -2164,18 +2166,27 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'This demo show how you can combine the Multiple Cell Types demo and the
-    View Driven Cell Sizes Demo to form a basic chat window.
+  m_Text: 'This demo show how you can create a basic chat window.
 
 
-    There are three
-    cell types in this demo: a single spacer cell to push all the cells down to the
-    bottom, a chat cell for texts we send, and a chat cell for texts from another
-    person.
+    There are
+    three cell types in this demo: a single spacer cell to push all the cells down
+    to the bottom, a chat cell for texts we send, and a chat cell for texts from
+    another person.
 
 
-    To chat, enter text below the chat scroller. To simulate another
-    person chatting, enter text in the input field below this explanation.'
+    Unlike the view-driven demo which uses Unity''s Content
+    Size Fitter to calculate the cell size, this demo calculates the cell size in
+    the controller using an algorithm to estimate how much space the text will use.
+    Although this method is not as accurate or versatile as the Content Size Fitter,
+    it is far more effiicient because you do not need to create all the cell views
+    to determine their sizes. If you would like to use the Content SIze Fitter anyway,
+    please take a look at the view-driven demo.
+
+
+    To chat, enter text below the
+    chat scroller. To simulate another person chatting, enter text in the input field
+    below this explanation.'
 --- !u!222 &1920024505
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2294,7 +2305,7 @@ RectTransform:
   - {fileID: 806773685}
   - {fileID: 1887170271}
   m_Father: {fileID: 394731506}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
