@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace Coffee.UIExtensions {
-	//! 효과
+	/** 효과 */
 	public abstract class CFXBase : UIEffectBase {
 		#region 프로퍼티
 		public abstract float effectFactor { get; set; }
