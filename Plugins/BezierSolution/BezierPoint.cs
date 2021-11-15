@@ -3,6 +3,7 @@
 namespace BezierSolution
 {
 	[AddComponentMenu( "Bezier Solution/Bezier Point" )]
+	[HelpURL( "https://github.com/yasirkula/UnityBezierSolution" )]
 	public partial class BezierPoint : MonoBehaviour
 	{
 		public Vector3 localPosition
@@ -290,6 +291,23 @@ namespace BezierSolution
 		}
 
 		[SerializeField, HideInInspector]
+		private Vector3[] m_intermediateNormals;
+		public Vector3[] intermediateNormals
+		{
+			get { return m_intermediateNormals; }
+			set
+			{
+				// In this special case, don't early exit if the assigned array is the same because one of its elements might have changed.
+				// We can safely early exit if the assigned value was null or empty, though
+				if( ( m_intermediateNormals == null || m_intermediateNormals.Length == 0 ) && ( value == null || value.Length == 0 ) )
+					return;
+
+				m_intermediateNormals = value;
+				spline.dirtyFlags |= InternalDirtyFlags.NormalChange;
+			}
+		}
+
+		[SerializeField, HideInInspector]
 		[UnityEngine.Serialization.FormerlySerializedAs( "extraData" )]
 		private ExtraData m_extraData;
 		public ExtraData extraData
@@ -308,6 +326,38 @@ namespace BezierSolution
 
 		public BezierSpline spline { get; internal set; }
 		public int index { get; internal set; }
+
+		public BezierPoint previousPoint
+		{
+			get
+			{
+				if( spline )
+				{
+					if( index > 0 )
+						return spline.endPoints[index - 1];
+					else if( spline.loop )
+						return spline.endPoints[spline.endPoints.Count - 1];
+				}
+
+				return null;
+			}
+		}
+
+		public BezierPoint nextPoint
+		{
+			get
+			{
+				if( spline )
+				{
+					if( index < spline.endPoints.Count - 1 )
+						return spline.endPoints[index + 1];
+					else if( spline.loop )
+						return spline.endPoints[0];
+				}
+
+				return null;
+			}
+		}
 
 		private void Awake()
 		{
@@ -352,6 +402,31 @@ namespace BezierSolution
 			{
 				Refresh();
 				spline.dirtyFlags |= InternalDirtyFlags.EndPointTransformChange | InternalDirtyFlags.ControlPointPositionChange;
+			}
+		}
+
+		internal void SetNormalAndResetIntermediateNormals( Vector3 normal, string undo )
+		{
+			if( spline && spline.autoCalculateNormals )
+				return;
+
+#if UNITY_EDITOR
+			if( !string.IsNullOrEmpty( undo ) )
+				UnityEditor.Undo.RecordObject( this, undo );
+#endif
+
+			this.normal = normal;
+			intermediateNormals = null;
+
+			BezierPoint previousPoint = this.previousPoint;
+			if( previousPoint && previousPoint.m_intermediateNormals != null && previousPoint.m_intermediateNormals.Length > 0 )
+			{
+#if UNITY_EDITOR
+				if( !string.IsNullOrEmpty( undo ) )
+					UnityEditor.Undo.RecordObject( previousPoint, undo );
+#endif
+
+				previousPoint.intermediateNormals = null;
 			}
 		}
 

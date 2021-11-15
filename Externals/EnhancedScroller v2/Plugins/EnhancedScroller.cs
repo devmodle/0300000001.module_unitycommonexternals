@@ -448,6 +448,15 @@ namespace EnhancedUI.EnhancedScroller
                     // make sure we actually have some cell views
                     if (_cellViewOffsetArray != null && _cellViewOffsetArray.Count > 0)
                     {
+                        if (scrollDirection == ScrollDirectionEnum.Vertical)
+                        {
+                            ScrollRect.verticalScrollbar = _scrollbar;
+                        }
+                        else
+                        {
+                            ScrollRect.horizontalScrollbar = _scrollbar;
+                        }
+
                         if (_cellViewOffsetArray.Last() < ScrollRectSize || loop)
                         {
                             // if the size of the scrollable area is smaller than the scroller
@@ -461,6 +470,12 @@ namespace EnhancedUI.EnhancedScroller
                             // or looping is off, then show the scrollbars unless visibility
                             // is set to Never.
                             _scrollbar.gameObject.SetActive(scrollbarVisibility != ScrollbarVisibilityEnum.Never);
+                        }
+
+                        if (!_scrollbar.gameObject.activeSelf)
+                        {
+                            ScrollRect.verticalScrollbar = null;
+                            ScrollRect.horizontalScrollbar = null;
                         }
                     }
                 }

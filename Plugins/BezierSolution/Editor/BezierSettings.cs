@@ -158,6 +158,23 @@ namespace BezierSolution.Extras
 				SetColor( "BezierSolution_NormalsPreviewColor", value );
 			}
 		}
+
+		private static Color? m_evenlySpacedPointsColor = null;
+		public static Color EvenlySpacedPointsColor
+		{
+			get
+			{
+				if( m_evenlySpacedPointsColor == null )
+					m_evenlySpacedPointsColor = GetColor( "BezierSolution_EvenlySpacedPointsColor", Color.white );
+
+				return m_evenlySpacedPointsColor.Value;
+			}
+			set
+			{
+				m_evenlySpacedPointsColor = value;
+				SetColor( "BezierSolution_EvenlySpacedPointsColor", value );
+			}
+		}
 		#endregion
 
 		#region Size Adjustments
@@ -258,8 +275,26 @@ namespace BezierSolution.Extras
 			}
 			set
 			{
+				value = Mathf.Max( value, 0f );
 				m_normalsPreviewLength = value;
 				EditorPrefs.SetFloat( "BezierSolution_NormalsPreviewLength", value );
+			}
+		}
+
+		private static float? m_evenlySpacedPointsSize = null;
+		public static float EvenlySpacedPointsSize
+		{
+			get
+			{
+				if( m_evenlySpacedPointsSize == null )
+					m_evenlySpacedPointsSize = EditorPrefs.GetFloat( "BezierSolution_EvenlySpacedPointsSize", 0.1f );
+
+				return m_evenlySpacedPointsSize.Value;
+			}
+			set
+			{
+				m_evenlySpacedPointsSize = value;
+				EditorPrefs.SetFloat( "BezierSolution_EvenlySpacedPointsSize", value );
 			}
 		}
 
@@ -297,6 +332,24 @@ namespace BezierSolution.Extras
 				value = Mathf.Max( value, 1f );
 				m_splineSmoothness = value;
 				EditorPrefs.SetFloat( "BezierSolution_SplineSmoothness", value );
+			}
+		}
+
+		private static int? m_displayedIntermediateNormalsCount = null;
+		public static int DisplayedIntermediateNormalsCount
+		{
+			get
+			{
+				if( m_displayedIntermediateNormalsCount == null )
+					m_displayedIntermediateNormalsCount = EditorPrefs.GetInt( "BezierSolution_IntermediateNormals", 8 );
+
+				return m_displayedIntermediateNormalsCount.Value;
+			}
+			set
+			{
+				value = Mathf.Clamp( value, 0, 999 );
+				m_displayedIntermediateNormalsCount = value;
+				EditorPrefs.SetInt( "BezierSolution_IntermediateNormals", value );
 			}
 		}
 
@@ -421,6 +474,23 @@ namespace BezierSolution.Extras
 			}
 		}
 
+		private static bool? m_showEvenlySpacedPoints = null;
+		public static bool ShowEvenlySpacedPoints
+		{
+			get
+			{
+				if( m_showEvenlySpacedPoints == null )
+					m_showEvenlySpacedPoints = EditorPrefs.GetBool( "BezierSolution_ShowEvenlySpacedPoints", false );
+
+				return m_showEvenlySpacedPoints.Value;
+			}
+			set
+			{
+				m_showEvenlySpacedPoints = value;
+				EditorPrefs.SetBool( "BezierSolution_ShowEvenlySpacedPoints", value );
+			}
+		}
+
 		private static bool? m_visualizeExtraDataAsFrustum = null;
 		public static bool VisualizeExtraDataAsFrustum
 		{
@@ -465,6 +535,7 @@ namespace BezierSolution.Extras
 		{
 			Color c;
 			float f;
+			int i;
 			bool b;
 
 			float labelWidth = EditorGUIUtility.labelWidth;
@@ -560,6 +631,11 @@ namespace BezierSolution.Extras
 			EditorGUI.indentLevel++;
 
 			EditorGUI.BeginChangeCheck();
+			i = IntField( "Displayed Intermediate Normals", DisplayedIntermediateNormalsCount, 8 );
+			if( EditorGUI.EndChangeCheck() )
+				DisplayedIntermediateNormalsCount = i;
+
+			EditorGUI.BeginChangeCheck();
 			c = ColorField( "Normals Preview Color", NormalsPreviewColor, Color.blue );
 			if( EditorGUI.EndChangeCheck() )
 				NormalsPreviewColor = c;
@@ -568,6 +644,27 @@ namespace BezierSolution.Extras
 			f = FloatField( "Normals Preview Length", NormalsPreviewLength, 0.35f );
 			if( EditorGUI.EndChangeCheck() )
 				NormalsPreviewLength = f;
+
+			EditorGUI.indentLevel--;
+
+			EditorGUILayout.Space();
+
+			EditorGUI.BeginChangeCheck();
+			b = EditorGUILayout.Toggle( "Visualize Evenly Spaced Points", ShowEvenlySpacedPoints );
+			if( EditorGUI.EndChangeCheck() )
+				ShowEvenlySpacedPoints = b;
+
+			EditorGUI.indentLevel++;
+
+			EditorGUI.BeginChangeCheck();
+			c = ColorField( "Evenly Spaced Points Color", EvenlySpacedPointsColor, Color.white );
+			if( EditorGUI.EndChangeCheck() )
+				EvenlySpacedPointsColor = c;
+
+			EditorGUI.BeginChangeCheck();
+			f = FloatField( "Evenly Spaced Points Size", EvenlySpacedPointsSize, 0.1f );
+			if( EditorGUI.EndChangeCheck() )
+				EvenlySpacedPointsSize = f;
 
 			EditorGUI.indentLevel--;
 
@@ -625,6 +722,17 @@ namespace BezierSolution.Extras
 		{
 			GUILayout.BeginHorizontal();
 			float result = EditorGUILayout.FloatField( label, value );
+			if( GUILayout.Button( "Reset", BezierUtils.GL_WIDTH_60 ) )
+				result = defaultValue;
+			GUILayout.EndHorizontal();
+
+			return result;
+		}
+
+		private static int IntField( string label, int value, int defaultValue )
+		{
+			GUILayout.BeginHorizontal();
+			int result = EditorGUILayout.IntField( label, value );
 			if( GUILayout.Button( "Reset", BezierUtils.GL_WIDTH_60 ) )
 				result = defaultValue;
 			GUILayout.EndHorizontal();

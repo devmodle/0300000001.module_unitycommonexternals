@@ -11,6 +11,7 @@ using UnityEngine;
 namespace BezierSolution
 {
 	[AddComponentMenu( "Bezier Solution/Bezier Spline" )]
+	[HelpURL( "https://github.com/yasirkula/UnityBezierSolution" )]
 	[ExecuteInEditMode]
 	public partial class BezierSpline : MonoBehaviour, IEnumerable<BezierPoint>
 	{
@@ -107,13 +108,30 @@ namespace BezierSolution
 			}
 		}
 
+		[SerializeField, HideInInspector]
+		private int m_autoCalculatedIntermediateNormalsCount = 10;
+		public int autoCalculatedIntermediateNormalsCount
+		{
+			get { return m_autoCalculatedIntermediateNormalsCount; }
+			set
+			{
+				value = Mathf.Clamp( value, 0, 999 );
+
+				if( m_autoCalculatedIntermediateNormalsCount != value )
+				{
+					m_autoCalculatedIntermediateNormalsCount = value;
+					dirtyFlags |= InternalDirtyFlags.NormalOffsetChange;
+				}
+			}
+		}
+
 		private EvenlySpacedPointsHolder m_evenlySpacedPoints = null;
 		public EvenlySpacedPointsHolder evenlySpacedPoints
 		{
 			get
 			{
 				if( m_evenlySpacedPoints == null )
-					m_evenlySpacedPoints = CalculateEvenlySpacedPoints();
+					m_evenlySpacedPoints = CalculateEvenlySpacedPoints( m_evenlySpacedPointsResolution, m_evenlySpacedPointsAccuracy );
 
 				return m_evenlySpacedPoints;
 			}
@@ -125,9 +143,66 @@ namespace BezierSolution
 			get
 			{
 				if( m_pointCache == null )
-					m_pointCache = GeneratePointCache();
+					m_pointCache = GeneratePointCache( resolution: m_pointCacheResolution );
 
 				return m_pointCache;
+			}
+		}
+
+		[SerializeField, HideInInspector]
+		private float m_evenlySpacedPointsResolution = 10f;
+		public float evenlySpacedPointsResolution
+		{
+			get { return m_evenlySpacedPointsResolution; }
+			set
+			{
+				value = Mathf.Clamp( value, 1f, 999f );
+
+				if( m_evenlySpacedPointsResolution != value )
+				{
+					m_evenlySpacedPointsResolution = value;
+					m_evenlySpacedPoints = null;
+
+					dirtyFlags = InternalDirtyFlags.All;
+				}
+			}
+		}
+
+		[SerializeField, HideInInspector]
+		private float m_evenlySpacedPointsAccuracy = 3f;
+		public float evenlySpacedPointsAccuracy
+		{
+			get { return m_evenlySpacedPointsAccuracy; }
+			set
+			{
+				value = Mathf.Clamp( value, 1f, 999f );
+
+				if( m_evenlySpacedPointsAccuracy != value )
+				{
+					m_evenlySpacedPointsAccuracy = value;
+					m_evenlySpacedPoints = null;
+
+					dirtyFlags = InternalDirtyFlags.All;
+				}
+			}
+		}
+
+		[SerializeField, HideInInspector]
+		private int m_pointCacheResolution = 100;
+		public int pointCacheResolution
+		{
+			get { return m_pointCacheResolution; }
+			set
+			{
+				value = Mathf.Clamp( value, 10, 10000 );
+
+				if( m_pointCacheResolution != value )
+				{
+					m_pointCacheResolution = value;
+					m_pointCache = null;
+
+					dirtyFlags = InternalDirtyFlags.All;
+				}
 			}
 		}
 
@@ -199,9 +274,12 @@ namespace BezierSolution
 					}
 					else
 					{
-						AutoCalculateNormals( m_autoCalculatedNormalsAngle );
+						if( m_autoCalculatedIntermediateNormalsCount <= 0 )
+							AutoCalculateNormals( m_autoCalculatedNormalsAngle, calculateIntermediateNormals: false );
+						else
+							AutoCalculateNormals( m_autoCalculatedNormalsAngle, m_autoCalculatedIntermediateNormalsCount + 1, true );
 
-						// If an end point's normal vector was changed only, we've reverted that change by auto calculating the normals again
+						// If an end point's only normal vector was changed, we've reverted that change by auto calculating the normals again
 						dirtyFlags &= ~InternalDirtyFlags.NormalChange;
 
 						// If an end point's position or normal calculation offset was changed, then the spline's normals have indeed changed
@@ -636,10 +714,19 @@ namespace BezierSolution
 			if( endIndex == endPoints.Count )
 				endIndex = 0;
 
+			float localT = t - startIndex;
+
+			Vector3[] intermediateNormals = endPoints[startIndex].intermediateNormals;
+			if( intermediateNormals != null && intermediateNormals.Length > 0 )
+			{
+				localT *= intermediateNormals.Length - 1;
+				int localStartIndex = (int) localT;
+
+				return ( localStartIndex < intermediateNormals.Length - 1 ) ? Vector3.LerpUnclamped( intermediateNormals[localStartIndex], intermediateNormals[localStartIndex + 1], localT - localStartIndex ) : intermediateNormals[localStartIndex];
+			}
+
 			Vector3 startNormal = endPoints[startIndex].normal;
 			Vector3 endNormal = endPoints[endIndex].normal;
-
-			float localT = t - startIndex;
 
 			Vector3 normal = Vector3.LerpUnclamped( startNormal, endNormal, localT );
 			if( normal.y == 0f && normal.x == 0f && normal.z == 0f )
@@ -1091,13 +1178,17 @@ namespace BezierSolution
 
 		// Credit: https://stackoverflow.com/a/14241741/2373034
 		// Alternative approach: https://stackoverflow.com/a/25458216/2373034
-		public void AutoCalculateNormals( float normalAngle = 0f, int smoothness = 10 )
+		public void AutoCalculateNormals( float normalAngle = 0f, int smoothness = 10, bool calculateIntermediateNormals = false )
 		{
 			for( int i = 0; i < endPoints.Count; i++ )
 				endPoints[i].RefreshIfChanged();
 
+			Vector3 tangent = new Vector3(), rotatedNormal = new Vector3();
 			smoothness = Mathf.Max( 1, smoothness );
 			float _1OverSmoothness = 1f / smoothness;
+
+			if( smoothness <= 1 )
+				calculateIntermediateNormals = false;
 
 			// Calculate initial point's normal using Frenet formula
 			Segment segment = new Segment( endPoints[0], endPoints[1], 0f );
@@ -1107,7 +1198,9 @@ namespace BezierSolution
 			if( Mathf.Approximately( cross.sqrMagnitude, 0f ) ) // This is not a curved spline but rather a straight line
 				cross = Vector3.Cross( tangent2, ( tangent2.x != 0f || tangent2.z != 0f ) ? Vector3.up : Vector3.forward );
 
-			endPoints[0].normal = Vector3.Cross( cross, tangent1 ).normalized;
+			// prevNormal stores the unrotated normal whereas endpoints[index].normal stores the rotated normal
+			Vector3 prevNormal = Vector3.Cross( cross, tangent1 ).normalized;
+			endPoints[0].normal = Quaternion.AngleAxis( normalAngle + endPoints[0].autoCalculatedNormalAngleOffset, tangent1 ) * prevNormal;
 
 			// Calculate other points' normals by iteratively (smoothness) calculating normals between the previous point and the next point
 			for( int i = 0; i < endPoints.Count; i++ )
@@ -1119,35 +1212,73 @@ namespace BezierSolution
 				else
 					break;
 
-				Vector3 prevNormal = endPoints[i].normal;
-				for( int j = 1; j <= smoothness; j++ )
+				Vector3[] intermediateNormals = null;
+				if( !calculateIntermediateNormals )
+					segment.point1.intermediateNormals = null;
+				else
 				{
-					Vector3 tangent = segment.GetTangent( j * _1OverSmoothness ).normalized;
-					prevNormal = Vector3.Cross( tangent, Vector3.Cross( prevNormal, tangent ).normalized ).normalized;
+					intermediateNormals = segment.point1.intermediateNormals;
+					if( intermediateNormals == null || intermediateNormals.Length != smoothness + 1 )
+						segment.point1.intermediateNormals = intermediateNormals = new Vector3[smoothness + 1];
+
+					intermediateNormals[0] = segment.point1.normal;
 				}
 
-				if( i < endPoints.Count - 1 )
-					endPoints[i + 1].normal = prevNormal;
-				else if( prevNormal != -endPoints[0].normal )
-					endPoints[0].normal = ( endPoints[0].normal + prevNormal ).normalized;
-			}
+				float normalAngle1 = normalAngle + segment.point1.autoCalculatedNormalAngleOffset;
+				float normalAngle2 = normalAngle + segment.point2.autoCalculatedNormalAngleOffset;
 
-			// Rotate normals
-			for( int i = 0; i < endPoints.Count; i++ )
-			{
-				float rotateAngle = normalAngle + endPoints[i].autoCalculatedNormalAngleOffset;
-				if( Mathf.Approximately( rotateAngle, 180f ) )
-					endPoints[i].normal = -endPoints[i].normal;
-				else if( !Mathf.Approximately( rotateAngle, 0f ) )
+				for( int j = 1; j <= smoothness; j++ )
 				{
-					if( i < endPoints.Count - 1 )
-						segment = new Segment( endPoints[i], endPoints[i + 1], 0f );
-					else if( m_loop )
-						segment = new Segment( endPoints[i], endPoints[0], 0f );
-					else
-						segment = new Segment( endPoints[i - 1], endPoints[i], 1f );
+					float localT = j * _1OverSmoothness;
+					tangent = segment.GetTangent( localT ).normalized;
+					prevNormal = Vector3.Cross( tangent, Vector3.Cross( prevNormal, tangent ).normalized ).normalized;
 
-					endPoints[i].normal = Quaternion.AngleAxis( rotateAngle, segment.GetTangent() ) * endPoints[i].normal;
+					if( calculateIntermediateNormals )
+					{
+						float _normalAngle = Mathf.LerpUnclamped( normalAngle1, normalAngle2, localT );
+						intermediateNormals[j] = rotatedNormal = ( _normalAngle == 0f ) ? prevNormal : ( Quaternion.AngleAxis( _normalAngle, tangent ) * prevNormal );
+					}
+				}
+
+				if( !calculateIntermediateNormals )
+					rotatedNormal = ( normalAngle2 == 0f ) ? prevNormal : ( Quaternion.AngleAxis( normalAngle2, tangent ) * prevNormal );
+
+				if( i < endPoints.Count - 1 )
+					endPoints[i + 1].normal = rotatedNormal;
+				else
+				{
+					if( !calculateIntermediateNormals )
+					{
+						if( rotatedNormal != -endPoints[0].normal )
+							endPoints[0].normal = ( endPoints[0].normal + rotatedNormal ).normalized;
+					}
+					else
+					{
+						// In a looping spline, the first end point's normal value is a special case because the initial value that we've assigned to it
+						// might end up vastly different from the final rotatedNormal that we've found. To accommodate to this change, we'll find the
+						// angle difference between these two values and gradually apply that difference to the first end point's intermediate normals
+						Vector3 initialNormal0 = endPoints[0].normal;
+						float normal0DeltaAngle = Vector3.Angle( initialNormal0, rotatedNormal );
+						if( Mathf.Abs( normal0DeltaAngle ) > 5f )
+						{
+							// Vector3.SignedAngle: https://github.com/Unity-Technologies/UnityCsReference/blob/61f92bd79ae862c4465d35270f9d1d57befd1761/Runtime/Export/Math/Vector3.cs#L316-L328
+							// The function itself isn't available on Unity 5.6 so its source code is copy&pasted here
+							float cross_x = initialNormal0.y * rotatedNormal.z - initialNormal0.z * rotatedNormal.y;
+							float cross_y = initialNormal0.z * rotatedNormal.x - initialNormal0.x * rotatedNormal.z;
+							float cross_z = initialNormal0.x * rotatedNormal.y - initialNormal0.y * rotatedNormal.x;
+							normal0DeltaAngle *= Mathf.Sign( tangent.x * cross_x + tangent.y * cross_y + tangent.z * cross_z );
+
+							segment = new Segment( endPoints[0], endPoints[1], 0f );
+							intermediateNormals = endPoints[0].intermediateNormals;
+							endPoints[0].normal = intermediateNormals[0] = rotatedNormal;
+
+							for( int j = 1; j < smoothness; j++ )
+							{
+								float localT = j * _1OverSmoothness;
+								intermediateNormals[j] = Quaternion.AngleAxis( Mathf.LerpUnclamped( normal0DeltaAngle, 0f, localT ), segment.GetTangent( localT ).normalized ) * intermediateNormals[j];
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1283,6 +1414,12 @@ namespace BezierSolution
 			}
 
 			return new PointCache( positions, normals, tangents, bitangents, extraDatas, loop );
+		}
+
+		public void ClearIntermediateNormals()
+		{
+			for( int i = 0; i < endPoints.Count; i++ )
+				endPoints[i].intermediateNormals = null;
 		}
 
 		private float AccuracyToStepSize( float accuracy )
