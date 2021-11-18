@@ -47,34 +47,53 @@ public class tk2dSpriteCollectionEditor : Editor
 			}
 			else 
 			{
-                string message = @"Due to changes in the prefab system in Unity 2018.3, the edit functionality has been moved." + 
+				// 2021.11.18 sd.lee (버튼 입력 처리 변경) {
+				string message = @"Due to changes in the prefab system in Unity 2018.3, the edit functionality has been moved." + 
                                   "Exit prefab edit mode, select your sprite collection and click 2D Toolikt / Edit... in the main menu";
-
-
+								  
                 tk2dGuiUtility.InfoBox(message, tk2dGuiUtility.WarningLevel.Warning);
-
-                GUILayout.BeginHorizontal();
+				
+				GUILayout.BeginHorizontal();
 				GUILayout.FlexibleSpace();
 
-				if (GUILayout.Button("Open Editor...", GUILayout.MinWidth(120)))
-				{
-                    UnityEditor.EditorUtility.DisplayDialog("Open Editor has moved",
-                        message,
-                        "Ok");
+				// 버튼을 눌렀을 경우
+				if(GUILayout.Button("Open Editor...", GUILayout.MinWidth(120))) {
+					tk2dEditorUtility.Edit();
+				}
 
-                    //if (gen.name == defaultSpriteCollectionName)
-                    //{
-                    //	EditorUtility.DisplayDialog("Invalid Sprite Collection name", "Please rename sprite collection before proceeding", "Ok");
-                    //}
-                    //else
-                    //{
-                    //	tk2dSpriteCollectionEditorPopup v = EditorWindow.GetWindow( typeof(tk2dSpriteCollectionEditorPopup), false, "SpriteCollection" ) as tk2dSpriteCollectionEditorPopup;
-                    //	v.SetGenerator(gen);
-                    //	v.Show();
-                    //}
-                }
-                GUILayout.FlexibleSpace();
+				GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
+
+				// 기존 로직
+                // string message = @"Due to changes in the prefab system in Unity 2018.3, the edit functionality has been moved." + 
+                //                   "Exit prefab edit mode, select your sprite collection and click 2D Toolikt / Edit... in the main menu";
+
+
+                // tk2dGuiUtility.InfoBox(message, tk2dGuiUtility.WarningLevel.Warning);
+
+                // GUILayout.BeginHorizontal();
+				// GUILayout.FlexibleSpace();
+
+				// if (GUILayout.Button("Open Editor...", GUILayout.MinWidth(120)))
+				// {
+                //     UnityEditor.EditorUtility.DisplayDialog("Open Editor has moved",
+                //         message,
+                //         "Ok");
+
+                //     //if (gen.name == defaultSpriteCollectionName)
+                //     //{
+                //     //	EditorUtility.DisplayDialog("Invalid Sprite Collection name", "Please rename sprite collection before proceeding", "Ok");
+                //     //}
+                //     //else
+                //     //{
+                //     //	tk2dSpriteCollectionEditorPopup v = EditorWindow.GetWindow( typeof(tk2dSpriteCollectionEditorPopup), false, "SpriteCollection" ) as tk2dSpriteCollectionEditorPopup;
+                //     //	v.SetGenerator(gen);
+                //     //	v.Show();
+                //     //}
+                // }
+                // GUILayout.FlexibleSpace();
+				// GUILayout.EndHorizontal();
+				// 2021.11.18 sd.lee (버튼 입력 처리 변경) }
 			}
 		}
 
