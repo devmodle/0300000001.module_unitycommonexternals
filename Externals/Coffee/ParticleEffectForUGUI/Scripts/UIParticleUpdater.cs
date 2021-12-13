@@ -11,6 +11,7 @@ namespace Coffee.UIExtensions
         static readonly List<UIParticle> s_ActiveParticles = new List<UIParticle>();
         static MaterialPropertyBlock s_Mpb;
         static ParticleSystem.Particle[] s_Particles = new ParticleSystem.Particle[2048];
+        private static int frameCount = 0;
 
 
         public static void Register(UIParticle particle)
@@ -41,6 +42,10 @@ namespace Coffee.UIExtensions
 
         private static void Refresh()
         {
+            // Do not allow it to be called in the same frame.
+            if (frameCount == Time.frameCount) return;
+            frameCount = Time.frameCount;
+
             Profiler.BeginSample("[UIParticle] Refresh");
             for (var i = 0; i < s_ActiveParticles.Count; i++)
             {
@@ -69,12 +74,12 @@ namespace Coffee.UIExtensions
             BakeMesh(particle);
             Profiler.EndSample();
 
-            if (QualitySettings.activeColorSpace == ColorSpace.Linear)
-            {
-                Profiler.BeginSample("[UIParticle] Modify color space to linear");
-                particle.bakedMesh.ModifyColorSpaceToLinear();
-                Profiler.EndSample();
-            }
+            // if (QualitySettings.activeColorSpace == ColorSpace.Linear)
+            // {
+            //     Profiler.BeginSample("[UIParticle] Modify color space to linear");
+            //     particle.bakedMesh.ModifyColorSpaceToLinear();
+            //     Profiler.EndSample();
+            // }
 
             Profiler.BeginSample("[UIParticle] Set mesh to CanvasRenderer");
             particle.canvasRenderer.SetMesh(particle.bakedMesh);

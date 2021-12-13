@@ -22,8 +22,6 @@ namespace Coffee.UIExtensions
         private static readonly GUIContent s_ContentTrailMaterial = new GUIContent("Trail Material");
         private static readonly GUIContent s_Content3D = new GUIContent("3D");
         private static readonly GUIContent s_ContentScale = new GUIContent("Scale");
-        private static readonly List<UIParticle> s_TempParents = new List<UIParticle>();
-        private static readonly List<UIParticle> s_TempChildren = new List<UIParticle>();
 
         private SerializedProperty _spMaskable;
         private SerializedProperty _spScale;
@@ -218,7 +216,12 @@ namespace Coffee.UIExtensions
             var stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
             if (stage != null && stage.scene.isLoaded)
             {
-                PrefabUtility.SaveAsPrefabAsset(stage.prefabContentsRoot, stage.prefabAssetPath);
+#if UNITY_2020_1_OR_NEWER
+                string prefabAssetPath = stage.assetPath;
+#else
+                string prefabAssetPath = stage.prefabAssetPath;
+#endif
+                PrefabUtility.SaveAsPrefabAsset(stage.prefabContentsRoot, prefabAssetPath);
             }
 #endif
         }

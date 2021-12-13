@@ -1,3 +1,32 @@
+## [3.3.9](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.8...3.3.9) (2021-08-02)
+
+
+### Bug Fixes
+
+* fix for warning CS0618 ([61760d9](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/61760d940cdd4baacaa196ac1631a0a1a40b7204))
+
+## [3.3.8](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.7...3.3.8) (2021-06-08)
+
+
+### Bug Fixes
+
+* improve performance ([e352d15](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/e352d153cef8c1efb2792e35010d7eed1e31a040))
+
+## [3.3.7](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.6...3.3.7) (2021-06-02)
+
+
+### Bug Fixes
+
+* Refresh() will be called multiple times in the same frame, due to external assets ([0b9d80d](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/0b9d80da939580c72ca1471081d7a034edc985d4))
+
+## [3.3.6](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.5...3.3.6) (2021-05-11)
+
+
+### Bug Fixes
+
+* In rare cases, the generated camera (for baking) will not be deactivated ([12c748a](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/12c748a8cd4adfd2dc5f085cec77050431f261a4))
+* remove from "Add Component" menu ([476c402](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/476c4027ff5f70fb9b4c026dd5fc59bf5a876227))
+
 ## [3.3.5](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.4...3.3.5) (2021-02-28)
 
 
