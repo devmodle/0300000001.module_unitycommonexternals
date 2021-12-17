@@ -590,7 +590,7 @@ namespace Leguar.TotalJSON {
 					} else {
 						return ("Expecting digit or plus/minus sign after E/e, got '"+chr+"' instead");
 					}
-				} else if (state==8) { // Need at least one digit after E plus/minus, 
+				} else if (state==8) { // Need at least one digit after E plus/minus,
 					if (chr>='0' && chr<='9') {
 						state=9;
 					} else {

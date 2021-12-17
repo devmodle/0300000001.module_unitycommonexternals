@@ -23,8 +23,8 @@ public class tk2dSpriteCollectionEditor : Editor
 		if (gen.managedSpriteCollection)
 		{
 			string label = showDefaultInspector?"Hide Default Inspector":"Show Default Inspector";
-			int buttonPressed = tk2dGuiUtility.InfoBoxWithButtons("This is a managed sprite collection. Please do not modify.", 
-																  tk2dGuiUtility.WarningLevel.Info, 
+			int buttonPressed = tk2dGuiUtility.InfoBoxWithButtons("This is a managed sprite collection. Please do not modify.",
+																  tk2dGuiUtility.WarningLevel.Info,
 																  new string[] { label } );
 			if (buttonPressed == 0) showDefaultInspector = !showDefaultInspector;
 			if (showDefaultInspector) 

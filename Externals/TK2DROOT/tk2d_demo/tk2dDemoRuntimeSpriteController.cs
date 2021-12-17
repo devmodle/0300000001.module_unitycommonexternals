@@ -102,7 +102,7 @@ public class tk2dDemoRuntimeSpriteController : MonoBehaviour {
 				"Full sprite",
 			};
 			Rect[] regions = new Rect[] {
-				new Rect(79, 243, 215, 200), 
+				new Rect(79, 243, 215, 200),
 				new Rect(256, 0, 64, 64),
 				new Rect(0, 0, runtimeTexture.width, runtimeTexture.height)
 			};

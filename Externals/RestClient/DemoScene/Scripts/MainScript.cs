@@ -85,7 +85,7 @@ public class MainScript : MonoBehaviour {
 	public void Put(){
 
 		currentRequest = new RequestHelper {
-			Uri = basePath + "/posts/1", 
+			Uri = basePath + "/posts/1",
 			Body = new Post {
 				title = "foo",
 				body = "bar",
