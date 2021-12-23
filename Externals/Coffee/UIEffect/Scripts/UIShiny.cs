@@ -13,6 +13,7 @@ using UnityEditor;
 
 namespace Coffee.UIExtensions
 {
+	// FIXME: dante (기초 효과 클래스 상속)
 	/// <summary>
 	/// UIEffect.
 	/// </summary>

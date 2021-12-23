@@ -1111,14 +1111,14 @@ namespace Leguar.TotalJSON {
 				throw (DeserializeException.forNoMatchingValue(type));
 			}
 
-			// 2021.09.24 sd.lee (콜백 로직 추가) {
+			// FIXME: dante (콜백 로직 추가) {
 			var oCallbackReceiver = objTypeOfCustom as MessagePack.IMessagePackSerializationCallbackReceiver;
 
 			// 콜백 수신자가 존재 할 경우
 			if(oCallbackReceiver != null) {
 				oCallbackReceiver.OnBeforeSerialize();
 			}
-			// 2021.09.24 sd.lee (콜백 로직 추가) }
+			// FIXME: dante (콜백 로직 추가) }
 
 			return objTypeOfCustom;
 

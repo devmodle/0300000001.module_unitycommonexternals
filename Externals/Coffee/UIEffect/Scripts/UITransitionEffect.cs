@@ -4,6 +4,7 @@ using UnityEngine.Serialization;
 
 namespace Coffee.UIExtensions
 {
+	// FIXME: dante (기초 효과 클래스 상속)
 	/// <summary>
 	/// Transition effect.
 	/// </summary>

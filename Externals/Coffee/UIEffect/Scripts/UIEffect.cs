@@ -12,6 +12,7 @@ using UnityEditor;
 
 namespace Coffee.UIExtensions
 {
+	// FIXME: dante (기초 효과 클래스 상속)
 	/// <summary>
 	/// UIEffect.
 	/// </summary>
@@ -19,7 +20,7 @@ namespace Coffee.UIExtensions
 	[RequireComponent(typeof(Graphic))]
 	[DisallowMultipleComponent]
 	[AddComponentMenu("UI/UIEffect/UIEffect", 1)]
-	public class UIEffect : UIEffectBase
+	public class UIEffect : CFXBase
 	{
 		//################################
 		// Constant or Static Members.
@@ -114,7 +115,7 @@ namespace Coffee.UIExtensions
 		/// <summary>
 		/// Effect factor between 0(no effect) and 1(complete effect).
 		/// </summary>
-		public float effectFactor
+		public override float effectFactor
 		{
 			get { return m_EffectFactor; }
 			set

@@ -18,7 +18,7 @@ class tk2dSpriteAnimationEditor : Editor
         GUILayout.Space(8);
         if (anim != null)
         {
-			// 2021.11.18 sd.lee (버튼 입력 처리 변경) {
+			// FIXME: dante (버튼 입력 처리 변경) {
 			string message = @"Due to changes in the prefab system in Unity 2018.3, the edit functionality has been moved." +
                               "Exit prefab edit mode, select your sprite animation and click 2D Toolikt / Edit... in the main menu";
 
@@ -50,7 +50,7 @@ class tk2dSpriteAnimationEditor : Editor
             // }
             // GUILayout.FlexibleSpace();
             // GUILayout.EndHorizontal();
-			// 2021.11.18 sd.lee (버튼 입력 처리 변경) }
+			// FIXME: dante (버튼 입력 처리 변경) }
         }
 
         if (viewData) {
