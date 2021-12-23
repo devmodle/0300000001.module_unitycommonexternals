@@ -62,8 +62,8 @@
 			#define TMP_SPRITE 1
 			#define UI_DISSOLVE 1
 			#define DISSOLVE 1
-            #include "Packages/.Module.UnityCommonExternals@1.8.0/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
-            #include "Packages/.Module.UnityCommonExternals@1.8.0/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
+            #include "Packages/.Module.UnityCommonExternals@2.0.0/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+            #include "Packages/.Module.UnityCommonExternals@2.0.0/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
             #pragma shader_feature __ ADD SUBTRACT FILL
 			
 			fixed4 frag(v2f IN) : SV_Target
