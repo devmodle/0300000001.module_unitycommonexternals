@@ -179,7 +179,7 @@ namespace EnhancedScrollerDemos.SnappingDemo
             _snappedDataIndices = new int[_slotControllers.Length];
 
             // set each slot controller's scroll snapping handler
-            // (we could have done this in the slot controller script,
+            // (we could have done this in the slot controller script, 
             // but handling it here gives us information about the
             // game's state and overall values for each slot controller)
             foreach (var slotController in _slotControllers)

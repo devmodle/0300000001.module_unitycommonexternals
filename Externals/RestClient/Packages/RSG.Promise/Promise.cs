@@ -71,7 +71,7 @@ namespace RSG
         /// The resolved callback chains a value promise (optionally converting to a different value type).
         /// </summary>
         IPromise<ConvertedT> Then<ConvertedT>(
-            Func<PromisedT, IPromise<ConvertedT>> onResolved,
+            Func<PromisedT, IPromise<ConvertedT>> onResolved, 
             Func<Exception, IPromise<ConvertedT>> onRejected
         );
 
@@ -640,7 +640,7 @@ namespace RSG
         /// The resolved callback chains a value promise (optionally converting to a different value type).
         /// </summary>
         public IPromise<ConvertedT> Then<ConvertedT>(
-            Func<PromisedT, IPromise<ConvertedT>> onResolved,
+            Func<PromisedT, IPromise<ConvertedT>> onResolved, 
             Func<Exception, IPromise<ConvertedT>> onRejected,
             Action<float> onProgress
         )

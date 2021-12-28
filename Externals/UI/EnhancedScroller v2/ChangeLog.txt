@@ -2,6 +2,15 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+Version 2.32.0
+22 December 2021
+Requires Unity 2019.4.4f1+
+
+    Feature:
+        - Added Demo #17 FlickSnap to show how you can create your own snapping component
+
+
+
 Version 2.31.1
 27 October 2021
 Requires Unity 2019.4.4f1+
