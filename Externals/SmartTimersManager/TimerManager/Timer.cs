@@ -5,11 +5,12 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleToAttribute("TimersManager")]
 namespace Timers 
 {
+	// FIXME: dante (타이머 모드 추가)
 	public enum TimerMode {
 		NONE = -1,
 		NORM,
 		REALTIME,
-		MAX_VAL
+		[HideInInspector] MAX_VAL
 	}
 
     [System.Serializable]
@@ -65,11 +66,8 @@ namespace Timers
             }
             else
             {
-				if(m_TimerMode == TimerMode.NORM) {
-                	m_ElapsedTime += Mathf.Clamp(Time.deltaTime, 0.0f, Mathf.Abs((1.0f / Application.targetFrameRate) * 2.0f));
-				} else {
-					m_ElapsedTime += Mathf.Clamp(Time.unscaledDeltaTime, 0.0f, Mathf.Abs((1.0f / Application.targetFrameRate) * 2.0f));
-				}
+				// FIXME: dante (타이머 모드 추가)
+				m_ElapsedTime += (m_TimerMode == TimerMode.NORM) ? Mathf.Clamp01(Time.deltaTime) : Mathf.Clamp01(Time.unscaledDeltaTime);
 
                 m_CurrentCycleElapsedTime = m_ElapsedTime - m_CurrentLoopsCount * m_Interval;
 
@@ -82,6 +80,7 @@ namespace Timers
             }
         }
 
+		// FIXME: dante (타이머 모드 추가) {
         public Timer(float Interval, uint LoopsCount, UnityAction UnityAction, TimerMode TimerMode = TimerMode.NORM)
         {
             if (m_Interval < 0)
@@ -93,6 +92,7 @@ namespace Timers
 
 			m_TimerMode = TimerMode;
         }
+		// FIXME: dante (타이머 모드 추가) }
 
         ~Timer()
         {
