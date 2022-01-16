@@ -620,7 +620,7 @@ namespace SimpleJSON
         }
         public override string ToString()
         {
-			// FIXME: dante (문자열 생성 구문 수정) {
+			// FIXME: dante (문자열 생성 로직 수정) {
 			var result = new System.Text.StringBuilder("[");
             foreach (JSONNode N in m_List)
             {
@@ -641,7 +641,7 @@ namespace SimpleJSON
             // }
             // result += " ]";
             // return result;
-			// FIXME: dante (문자열 생성 구문 수정) }
+			// FIXME: dante (문자열 생성 로직 수정) }
         }
         public override string ToString(string aPrefix)
         {
@@ -768,7 +768,7 @@ namespace SimpleJSON
         }
         public override string ToString()
         {
-			// FIXME: dante (문자열 생성 구문 수정) {
+			// FIXME: dante (문자열 생성 로직 수정) {
 			var result = new System.Text.StringBuilder("{");
             foreach (KeyValuePair<string, JSONNode> N in m_Dict)
             {
@@ -789,7 +789,7 @@ namespace SimpleJSON
             // }
             // result += "}";
             // return result;
-			// FIXME: dante (문자열 생성 구문 수정) }
+			// FIXME: dante (문자열 생성 로직 수정) }
         }
         public override string ToString(string aPrefix)
         {
