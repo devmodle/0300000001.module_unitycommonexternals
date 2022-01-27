@@ -36,17 +36,22 @@ namespace Timers
             m_instance = this;
         }
 
-		private static void FindAndRemove(WeakReference Owner)
-        {
-            foreach (KeyValuePair<WeakReference, Timer> elem in m_Timers)
-            {
-                if (elem.Key.Target == Owner.Target)
-                {
-                    m_Timers.Remove(elem.Key);
-                    break;
+		// FIXME: dante (컴포넌트 기반 타이머 제거 함수 추가) {
+		private static void FindAndRemove(WeakReference Owner) {
+			var oRemoveKeyList = new List<WeakReference>();
+
+            foreach(var stKeyVal in m_Timers) {
+				// 타겟이 동일 할 경우
+                if(stKeyVal.Key.Target == Owner.Target) {
+					oRemoveKeyList.Add(stKeyVal.Key);
                 }
             }
+
+			for(int i = 0; i < oRemoveKeyList.Count; ++i) {
+				m_Timers.Remove(oRemoveKeyList[i]);
+			}
         }
+		// FIXME: dante (컴포넌트 기반 타이머 제거 함수 추가) }
 
         private static void FindAndRemove(UnityAction UnityAction)
         {
