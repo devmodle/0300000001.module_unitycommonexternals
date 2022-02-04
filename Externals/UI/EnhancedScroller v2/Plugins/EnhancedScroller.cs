@@ -1852,11 +1852,11 @@ namespace EnhancedUI.EnhancedScroller
                 _container.anchorMax = new Vector2(0, 1f);
                 _container.pivot = new Vector2(0, 0.5f);
             }
-            _container.offsetMax = Vector2.zero;
-            _container.offsetMin = Vector2.zero;
             _container.localPosition = Vector3.zero;
             _container.localRotation = Quaternion.identity;
             _container.localScale = Vector3.one;
+            _container.offsetMax = Vector2.zero;
+            _container.offsetMin = Vector2.zero;
 
             _scrollRect.content = _container;
 

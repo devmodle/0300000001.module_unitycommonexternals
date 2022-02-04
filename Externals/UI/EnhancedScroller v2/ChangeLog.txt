@@ -2,6 +2,17 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+
+Version 2.32.1
+26 January 2022
+Requires Unity 2019.4.4f1+
+
+    Fixes:
+        - Moved the container offset calculation after the position / rotation / scale to fix some issues with offsets
+        - Added FlickSnap button to the MainMenu scene
+
+
+
 Version 2.32.0
 22 December 2021
 Requires Unity 2019.4.4f1+
