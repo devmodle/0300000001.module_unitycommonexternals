@@ -100,7 +100,7 @@ SubShader {
 		
 		#define MOBILE 1
 		#define UI_EFFECT 1
-		#include "Packages/.Module.UnityCommonExternals@2.0.3/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+		#include "Packages/.Module.UnityCommonExternals@2.0.4/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
 		#include "UI-Effect-TMPro.cginc"
 
 		fixed4 frag(pixel_t IN) : SV_Target
