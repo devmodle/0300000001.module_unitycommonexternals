@@ -10,7 +10,7 @@ namespace Timers
 		NONE = -1,
 		NORM,
 		REALTIME,
-		[HideInInspector] MAX_VAL
+		[InspectorName(null)] MAX_VAL
 	}
 
     [System.Serializable]
