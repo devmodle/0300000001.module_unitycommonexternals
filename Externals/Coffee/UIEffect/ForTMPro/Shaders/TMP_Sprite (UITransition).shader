@@ -61,8 +61,8 @@
 			#define TMP_SPRITE 1
 			#define UI_TRANSITION 1
 			#define ADD 1
-            #include "Packages/.Module.UnityCommonExternals@2.0.4/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
-            #include "Packages/.Module.UnityCommonExternals@2.0.4/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
+            #include "Packages/.Module.UnityCommonExternals@2.0.5/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+            #include "Packages/.Module.UnityCommonExternals@2.0.5/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
 			#pragma shader_feature __ FADE CUTOFF DISSOLVE
 
 			fixed4 frag(v2f IN) : SV_Target
