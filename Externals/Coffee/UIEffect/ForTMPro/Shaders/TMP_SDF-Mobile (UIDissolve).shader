@@ -96,7 +96,7 @@ SubShader {
 		#define MOBILE 1
 		#define UI_DISSOLVE 1
 		#define DISSOLVE 1
-		#include "Packages/.Module.UnityCommonExternals@2.0.10/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+		#include "Packages/.Module.UnityCommonExternals@2.0.11/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
 		#include "UI-Effect-TMPro.cginc"
 		#pragma shader_feature __ ADD SUBTRACT FILL
 
