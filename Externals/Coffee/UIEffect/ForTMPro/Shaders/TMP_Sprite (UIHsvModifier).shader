@@ -60,8 +60,8 @@
             
 			#define TMP_SPRITE 1
 			#define UI_HSV_MODIFIER 1
-            #include "Packages/.Module.UnityCommonExternals@2.0.13/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
-            #include "Packages/.Module.UnityCommonExternals@2.0.13/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
+            #include "Packages/.Module.UnityCommonExternals@2.0.14/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+            #include "Packages/.Module.UnityCommonExternals@2.0.14/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
 
 			fixed4 frag(v2f IN) : SV_Target
 			{
