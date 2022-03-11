@@ -130,7 +130,7 @@ SubShader {
 		
 		#define UI_DISSOLVE 1
 		#define DISSOLVE 1
-		#include "Packages/.Module.UnityCommonExternals@2.0.15/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+		#include "Packages/.Module.UnityCommonExternals@2.1.2/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
 		#include "UI-Effect-TMPro.cginc"
 		#pragma shader_feature __ ADD SUBTRACT FILL
 
