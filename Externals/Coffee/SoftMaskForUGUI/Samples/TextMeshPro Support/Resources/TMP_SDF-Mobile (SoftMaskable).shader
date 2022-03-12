@@ -95,7 +95,7 @@ SubShader {
 		#include "UnityUI.cginc"
 		#include "Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc"
 
-        #include "Packages/.Module.UnityCommonExternals@2.1.6/Externals/Coffee/SoftMaskForUGUI/Shaders/SoftMask.cginc"
+        #include "Packages/.Module.UnityCommonExternals@2.1.7/Externals/Coffee/SoftMaskForUGUI/Shaders/SoftMask.cginc"
         #pragma shader_feature __ SOFTMASK_EDITOR
 
 		struct vertex_t {
