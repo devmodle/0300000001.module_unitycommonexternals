@@ -130,7 +130,7 @@ SubShader {
 		
 		#define ADD 1
 		#define UI_TRANSITION 1
-		#include "Packages/.Module.UnityCommonExternals@2.1.8/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+		#include "Packages/.Module.UnityCommonExternals@2.1.9/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
 		#include "UI-Effect-TMPro.cginc"
 		#pragma shader_feature __ FADE CUTOFF DISSOLVE
 
