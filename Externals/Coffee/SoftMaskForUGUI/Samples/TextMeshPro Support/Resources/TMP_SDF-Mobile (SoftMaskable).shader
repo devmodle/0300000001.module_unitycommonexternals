@@ -90,12 +90,18 @@ SubShader {
 
 		#pragma multi_compile __ UNITY_UI_CLIP_RECT
 		#pragma multi_compile __ UNITY_UI_ALPHACLIP
+		#pragma multi_compile SAMPLE_PROJ
 
 		#include "UnityCG.cginc"
 		#include "UnityUI.cginc"
 		#include "Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc"
 
-        #include "Packages/.Module.UnityCommonExternals@2.2.0/Externals/Coffee/SoftMaskForUGUI/Shaders/SoftMask.cginc"
+#if SAMPLE_PROJ
+        #include "Packages/.Module.UnityCommonExternals/Externals/Coffee/SoftMaskForUGUI/Shaders/SoftMask.cginc"
+#else
+		#include "Packages/.Module.UnityCommonExternals@2.2.0/Externals/Coffee/SoftMaskForUGUI/Shaders/SoftMask.cginc"
+#endif			// #if SAMPLE_PROJ
+
         #pragma shader_feature __ SOFTMASK_EDITOR
 
 		struct vertex_t {
