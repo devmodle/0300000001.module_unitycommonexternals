@@ -119,7 +119,7 @@ SubShader {
 
 		#pragma multi_compile __ UNITY_UI_CLIP_RECT
 		#pragma multi_compile __ UNITY_UI_ALPHACLIP
-		#pragma multi_compile SAMPLE_PROJ
+		#pragma multi_compile __ SAMPLE_PROJ
 
 		#pragma shader_feature __ GRAYSCALE SEPIA NEGA PIXEL 
 		#pragma shader_feature __ ADD SUBTRACT FILL

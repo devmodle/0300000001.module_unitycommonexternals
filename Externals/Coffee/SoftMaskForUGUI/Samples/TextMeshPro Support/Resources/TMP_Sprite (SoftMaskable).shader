@@ -55,7 +55,7 @@ Shader "Hidden/TextMeshPro/Sprite (SoftMaskable)"
 
 			#pragma multi_compile __ UNITY_UI_CLIP_RECT
 			#pragma multi_compile __ UNITY_UI_ALPHACLIP
-			#pragma multi_compile SAMPLE_PROJ
+			#pragma multi_compile __ SAMPLE_PROJ
 
 #if SAMPLE_PROJ
             #include "Packages/.Module.UnityCommonExternals/Externals/Coffee/SoftMaskForUGUI/Shaders/SoftMask.cginc"
