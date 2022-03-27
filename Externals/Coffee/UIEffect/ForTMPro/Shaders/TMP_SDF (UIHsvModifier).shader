@@ -121,7 +121,7 @@ SubShader {
 
 		#pragma multi_compile __ UNITY_UI_CLIP_RECT
 		#pragma multi_compile __ UNITY_UI_ALPHACLIP
-
+		#pragma multi_compile SAMPLE_PROJ
 
 		#include "UnityCG.cginc"
 		#include "UnityUI.cginc"
@@ -129,7 +129,13 @@ SubShader {
 		#include "Assets/TextMesh Pro/Shaders/TMPro.cginc"
 		
 		#define UI_HSV_MODIFIER 1
+
+#if SAMPLE_PROJ
+		#include "Packages/.Module.UnityCommonExternals/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+#else
 		#include "Packages/.Module.UnityCommonExternals@2.3.0/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+#endif			// #if SAMPLE_PROJ
+
 		#include "UI-Effect-TMPro.cginc"
 
 		fixed4 frag(pixel_t IN) : SV_Target

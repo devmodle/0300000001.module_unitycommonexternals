@@ -88,6 +88,7 @@ SubShader {
 
 		#pragma multi_compile __ UNITY_UI_CLIP_RECT
 		#pragma multi_compile __ UNITY_UI_ALPHACLIP
+		#pragma multi_compile SAMPLE_PROJ
 
 		#include "UnityCG.cginc"
 		#include "UnityUI.cginc"
@@ -96,7 +97,13 @@ SubShader {
 		#define MOBILE 1
 		#define UI_DISSOLVE 1
 		#define DISSOLVE 1
+
+#if SAMPLE_PROJ
+		#include "Packages/.Module.UnityCommonExternals/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+#else
 		#include "Packages/.Module.UnityCommonExternals@2.3.0/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+#endif			// #if SAMPLE_PROJ
+
 		#include "UI-Effect-TMPro.cginc"
 		#pragma shader_feature __ ADD SUBTRACT FILL
 

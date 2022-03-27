@@ -57,6 +57,7 @@
 
 			#pragma multi_compile __ UNITY_UI_CLIP_RECT
 			#pragma multi_compile __ UNITY_UI_ALPHACLIP
+			#pragma multi_compile SAMPLE_PROJ
 
 			#pragma shader_feature __ GRAYSCALE SEPIA NEGA PIXEL 
 			#pragma shader_feature __ ADD SUBTRACT FILL
@@ -65,8 +66,14 @@
             
 			#define TMP_SPRITE 1
 			#define UI_EFFECT 1
-            #include "Packages/.Module.UnityCommonExternals@2.3.0/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
-            #include "Packages/.Module.UnityCommonExternals@2.3.0/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
+
+#if SAMPLE_PROJ
+            #include "Packages/.Module.UnityCommonExternals/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+            #include "Packages/.Module.UnityCommonExternals/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
+#else
+			#include "Packages/.Module.UnityCommonExternals@2.3.0/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+			#include "Packages/.Module.UnityCommonExternals@2.3.0/Externals/Coffee/UIEffect/Shaders/UI-Effect-Sprite.cginc"
+#endif			// #if SAMPLE_PROJ
 
 			fixed4 frag(v2f IN) : SV_Target
 			{

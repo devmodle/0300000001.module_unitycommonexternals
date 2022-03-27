@@ -88,6 +88,7 @@ SubShader {
 
 		#pragma multi_compile __ UNITY_UI_CLIP_RECT
 		#pragma multi_compile __ UNITY_UI_ALPHACLIP
+		#pragma multi_compile SAMPLE_PROJ
 
 		#pragma shader_feature __ GRAYSCALE SEPIA NEGA PIXEL 
 		#pragma shader_feature __ ADD SUBTRACT FILL
@@ -100,7 +101,13 @@ SubShader {
 		
 		#define MOBILE 1
 		#define UI_EFFECT 1
+
+#if SAMPLE_PROJ
+		#include "Packages/.Module.UnityCommonExternals/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+#else
 		#include "Packages/.Module.UnityCommonExternals@2.3.0/Externals/Coffee/UIEffect/Shaders/UI-Effect.cginc"
+#endif			// #if SAMPLE_PROJ
+
 		#include "UI-Effect-TMPro.cginc"
 
 		fixed4 frag(pixel_t IN) : SV_Target
