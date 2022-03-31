@@ -6,7 +6,7 @@ using UnityEngine.UI;
 // FIXME: dante (기초 효과 클래스 추가) {
 namespace Coffee.UIExtensions {
 	/** 효과 */
-	public abstract class CFXBase : UIEffectBase {
+	public abstract partial class CFXBase : UIEffectBase {
 		#region 프로퍼티
 		public abstract float effectFactor { get; set; }
 		#endregion			// 프로퍼티
