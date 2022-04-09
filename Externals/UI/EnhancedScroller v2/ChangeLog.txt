@@ -2,6 +2,13 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+Version 2.33.0
+6 April 2022
+Requires Unity 2019.4.4f1+
+
+    Features:
+        - Added Application.targetFrameRate = 60; to all demo scenes to improve smooth scrolling on some devices
+
 
 Version 2.32.1
 26 January 2022
