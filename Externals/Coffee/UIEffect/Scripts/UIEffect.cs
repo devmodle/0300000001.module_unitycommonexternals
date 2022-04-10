@@ -12,7 +12,7 @@ using UnityEditor;
 
 namespace Coffee.UIExtensions
 {
-	// FIXME: dante (기초 효과 클래스 상속)
+	// FIXME: dante (기초 효과 클래스 상속) {
 	/// <summary>
 	/// UIEffect.
 	/// </summary>
@@ -486,4 +486,5 @@ namespace Coffee.UIExtensions
 			uvBounds.Set(minUV.x, minUV.y, maxUV.x - minUV.x, maxUV.y - minUV.y);
 		}
 	}
+	// FIXME: dante (기초 효과 클래스 상속) }
 }

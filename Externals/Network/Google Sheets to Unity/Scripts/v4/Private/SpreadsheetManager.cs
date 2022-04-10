@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using GoogleSheetsToUnity.ThirdPary;
-// FIXME: dante (Odin Inspector 비활성화)
+// FIXME: dante (Odin Inspector 비활성화) {
 // #if ODIN_INSPECTOR
 // using Sirenix.OdinInspector;
 // #endif
+// FIXME: dante (Odin Inspector 비활성화) }
 using TinyJSON;
 using UnityEngine;
 using UnityEngine.Events;

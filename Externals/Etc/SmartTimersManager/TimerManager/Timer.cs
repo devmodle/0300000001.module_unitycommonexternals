@@ -5,13 +5,14 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleToAttribute("TimersManager")]
 namespace Timers 
 {
-	// FIXME: dante (타이머 모드 추가)
+	// FIXME: dante (타이머 모드 추가) {
 	public enum TimerMode {
 		NONE = -1,
 		NORM,
 		REALTIME,
 		[HideInInspector] MAX_VAL
 	}
+	// FIXME: dante (타이머 모드 추가) }
 
     [System.Serializable]
     public class Timer
