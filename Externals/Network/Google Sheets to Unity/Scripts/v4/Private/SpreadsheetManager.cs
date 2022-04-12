@@ -90,7 +90,17 @@ namespace GoogleSheetsToUnity
 
             using (request)
             {
-                yield return request.SendWebRequest();
+				// FIXME: dante (시간 측정 구문 추가) {
+				var oStopwatch = new System.Diagnostics.Stopwatch();
+
+				try {
+					oStopwatch.Start();
+                	yield return request.SendWebRequest();
+				} finally {
+					oStopwatch.Stop();
+					Debug.LogFormat("SpreadsheetManager.Read({0}): {1} ms", search.worksheetName, oStopwatch.ElapsedMilliseconds);
+				}
+				// FIXME: dante (시간 측정 구문 추가) }
 
                 if(string.IsNullOrEmpty(request.downloadHandler.text) || request.downloadHandler.text == "{}")
                 {
