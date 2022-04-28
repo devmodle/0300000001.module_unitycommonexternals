@@ -1083,6 +1083,13 @@
             Key to DataStruct Dictionary.
             </summary>
         </member>
+        <member name="M:OPS.AntiCheat.Prefs.ProtectedFileBasedPlayerPrefs.HasKey(System.String)">
+            <summary>
+            Returns true if key exists in the preferences.
+            </summary>
+            <param name="_Key"></param>
+            <returns></returns>
+        </member>
         <member name="M:OPS.AntiCheat.Prefs.ProtectedFileBasedPlayerPrefs.SetInt(System.String,System.Int32)">
             <summary>
               <para>Sets the _Value of the preference identified by _Key.</para>
@@ -1236,7 +1243,7 @@
             </summary>
             <param name="_Key"></param>
         </member>
-        <member name="M:OPS.AntiCheat.Prefs.ProtectedFileBasedPlayerPrefs.Remove(System.String)">
+        <member name="M:OPS.AntiCheat.Prefs.ProtectedFileBasedPlayerPrefs.DeleteKey(System.String)">
             <summary>
             Removes the PlayerPrefs at _Key.
             </summary>
@@ -1270,19 +1277,27 @@
             <summary>
             Read a string with length.
             </summary>
+            <param name="_Reader"></param>
             <returns></returns>
         </member>
         <member name="M:OPS.AntiCheat.Prefs.ProtectedFileBasedPlayerPrefs.WriteString(System.IO.BinaryWriter,System.String)">
             <summary>
             Write string and write the length.
             </summary>
-            <param name="_Stream"></param>
+            <param name="_Writer"></param>
             <param name="_String"></param>
         </member>
         <member name="T:OPS.AntiCheat.Prefs.ProtectedPlayerPrefs">
             <summary>
             Protected version of the unity PlayerPrefs. Contains also additional save and load able types.
             </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Prefs.ProtectedPlayerPrefs.HasKey(System.String)">
+            <summary>
+            Returns true if key exists in the preferences.
+            </summary>
+            <param name="_Key"></param>
+            <returns></returns>
         </member>
         <member name="M:OPS.AntiCheat.Prefs.ProtectedPlayerPrefs.SetInt(System.String,System.Int32)">
             <summary>
@@ -1436,6 +1451,21 @@
               <para>Returns the value corresponding to _Key in the preference file if it exists.</para>
             </summary>
             <param name="_Key"></param>
+        </member>
+        <member name="F:OPS.AntiCheat.Prefs.ProtectedPlayerPrefs.AutoSave">
+            <summary>
+            Activate or deactivate force autosaving of modified preferences to the disk.
+            </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Prefs.ProtectedPlayerPrefs.Save">
+            <summary>
+            Writes all modified preferences to disk.
+            </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Prefs.ProtectedPlayerPrefs.DeleteKey(System.String)">
+            <summary>
+            Removes key and its corresponding value from the preferences.
+            </summary>
         </member>
         <member name="T:OPS.AntiCheat.Random.IRandomProvider">
             <summary>

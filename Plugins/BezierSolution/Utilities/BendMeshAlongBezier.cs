@@ -2,9 +2,9 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
-#if UNITY_2018_3_OR_NEWER
-using PrefabStage = UnityEditor.SceneManagement.PrefabStage;
-using PrefabStageUtility = UnityEditor.SceneManagement.PrefabStageUtility;
+#if UNITY_2018_3_OR_NEWER && !UNITY_2021_2_OR_NEWER
+using PrefabStage = UnityEditor.Experimental.SceneManagement.PrefabStage;
+using PrefabStageUtility = UnityEditor.Experimental.SceneManagement.PrefabStageUtility;
 #endif
 #endif
 
@@ -390,7 +390,7 @@ namespace BezierSolution
 
 #if UNITY_2018_3_OR_NEWER
 			// Don't execute the script in prefab mode
-			UnityEditor.SceneManagement.PrefabStage openPrefabStage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+			PrefabStage openPrefabStage = PrefabStageUtility.GetCurrentPrefabStage();
 			if( openPrefabStage != null && openPrefabStage.IsPartOfPrefabContents( gameObject ) )
 				return;
 #endif

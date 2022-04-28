@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 namespace BezierSolution.Extras
@@ -370,6 +371,23 @@ namespace BezierSolution.Extras
 			}
 		}
 
+		private static QuickEditModePointPlacement? m_quickEditPointPlacement = null;
+		public static QuickEditModePointPlacement QuickEditPointPlacement
+		{
+			get
+			{
+				if( m_quickEditPointPlacement == null )
+					m_quickEditPointPlacement = (QuickEditModePointPlacement) EditorPrefs.GetInt( "BezierSolution_QuickEditPointPlacement", (int) QuickEditModePointPlacement.SceneGeometry );
+
+				return m_quickEditPointPlacement.Value;
+			}
+			set
+			{
+				m_quickEditPointPlacement = value;
+				EditorPrefs.SetInt( "BezierSolution_QuickEditPointPlacement", (int) value );
+			}
+		}
+
 		private static bool? m_quickEditSplineModifyNormals = null;
 		public static bool QuickEditSplineModifyNormals
 		{
@@ -519,14 +537,40 @@ namespace BezierSolution.Extras
 				keywords = new System.Collections.Generic.HashSet<string>() { "Bezier", "Spline", "Point", "Normals", "Color", "Size" }
 			};
 		}
+#endif
 
 		[MenuItem( "CONTEXT/BezierSpline/Open Settings" )]
 		[MenuItem( "CONTEXT/BezierPoint/Open Settings" )]
 		private static void OpenPreferencesWindow( MenuCommand command )
 		{
-			SettingsService.OpenProjectSettings( "yasirkula/Bezier Solution" );
-		}
+#if UNITY_2018_3_OR_NEWER
+			SettingsService.OpenProjectSettings( "Project/yasirkula/Bezier Solution" );
+#else
+			System.Type preferencesWindowType = typeof( EditorWindow ).Assembly.GetType( "UnityEditor.PreferencesWindow" );
+			preferencesWindowType.GetMethod( "ShowPreferencesWindow", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static ).Invoke( null, null );
+
+			EditorWindow preferencesWindow = EditorWindow.GetWindow( preferencesWindowType );
+			if( (bool) preferencesWindowType.GetField( "m_RefreshCustomPreferences", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance ).GetValue( preferencesWindow ) )
+			{
+				preferencesWindowType.GetMethod( "AddCustomSections", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance ).Invoke( preferencesWindow, null );
+				preferencesWindowType.GetField( "m_RefreshCustomPreferences", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance ).SetValue( preferencesWindow, false );
+			}
+
+			int targetSectionIndex = -1;
+			System.Collections.IList sections = (System.Collections.IList) preferencesWindowType.GetField( "m_Sections", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance ).GetValue( preferencesWindow );
+			for( int i = 0; i < sections.Count; i++ )
+			{
+				if( ( (GUIContent) sections[i].GetType().GetField( "content", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance ).GetValue( sections[i] ) ).text == "Bezier Solution" )
+				{
+					targetSectionIndex = i;
+					break;
+				}
+			}
+
+			if( targetSectionIndex >= 0 )
+				preferencesWindowType.GetProperty( "selectedSectionIndex", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance ).SetValue( preferencesWindow, targetSectionIndex, null );
 #endif
+		}
 
 #if !UNITY_2018_3_OR_NEWER
 		[PreferenceItem( "Bezier Solution" )]

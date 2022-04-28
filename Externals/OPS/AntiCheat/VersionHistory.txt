@@ -1,3 +1,9 @@
+3.1:
+- Add: Added HasKey to the ProtectedPlayerPrefs and ProtectedFileBasedPlayerPrefs.
+- Add: Auto save option for ProtectedPlayerPrefs.
+- Add: Added DeleteKey to the ProtectedPlayerPrefs and ProtectedFileBasedPlayerPrefs. 
+- Change: Renamed ProtectedFileBasedPlayerPrefs.Remove to DeleteKey, to be equals to ProtectedPlayerPrefs.
+
 3.0:
 
 == AntiCheat 3.0 Introduction ==

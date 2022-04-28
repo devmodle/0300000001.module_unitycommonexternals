@@ -19,6 +19,29 @@ namespace OPS.AntiCheat.Tests
     /// </summary>
     public class TestProtectedPlayerPrefs
     {
+        // HasKey
+        #region HasKey
+
+        [UnityTest]
+        public IEnumerator Test_ProtectedPlayerPrefsHasKey()
+        {
+            String var_Key = "OPS_AntiCheat_Test";
+
+            Assert.AreEqual(false, ProtectedPlayerPrefs.HasKey(var_Key));
+
+            ProtectedPlayerPrefs.SetInt(var_Key, 1234);
+
+            Assert.AreEqual(1234, ProtectedPlayerPrefs.GetInt(var_Key));
+
+            Assert.AreEqual(true, ProtectedPlayerPrefs.HasKey(var_Key));
+
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
+
+            yield return null;
+        }
+
+        #endregion
+
         // Int
         #region Int
 
@@ -35,7 +58,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedPlayerPrefs.GetInt(var_Key), 123456);
 
-            PlayerPrefs.DeleteKey(var_Key);
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -58,7 +81,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedPlayerPrefs.GetFloat(var_Key), 123456.12345f);
 
-            PlayerPrefs.DeleteKey(var_Key);
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -81,7 +104,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedPlayerPrefs.GetString(var_Key), "Hello World, nice to meet you!");
 
-            PlayerPrefs.DeleteKey(var_Key);
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -104,7 +127,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedPlayerPrefs.GetBool(var_Key), true);
 
-            PlayerPrefs.DeleteKey(var_Key);
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -127,7 +150,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedPlayerPrefs.GetVector2(var_Key).ToString(), new Vector2(1, 2).ToString());
 
-            PlayerPrefs.DeleteKey(var_Key);
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -145,7 +168,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedPlayerPrefs.GetVector3(var_Key).ToString(), new Vector3(1, 2, 3).ToString());
 
-            PlayerPrefs.DeleteKey(var_Key);
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -163,7 +186,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedPlayerPrefs.GetVector4(var_Key).ToString(), new Vector4(1, 2, 3, 4).ToString());
 
-            PlayerPrefs.DeleteKey(var_Key);
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -186,7 +209,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedPlayerPrefs.GetQuaternion(var_Key).ToString(), new Quaternion(1, 2, 3, 4).ToString());
 
-            PlayerPrefs.DeleteKey(var_Key);
+            ProtectedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }

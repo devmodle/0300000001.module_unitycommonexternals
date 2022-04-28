@@ -35,6 +35,29 @@ namespace OPS.AntiCheat.Tests
             ProtectedFileBasedPlayerPrefs.FilePath = playerFilePath;
         }
 
+        // HasKey
+        #region HasKey
+
+        [UnityTest]
+        public IEnumerator Test_ProtectedPlayerPrefsHasKey()
+        {
+            String var_Key = "OPS_AntiCheat_Test";
+            
+            Assert.AreEqual(false, ProtectedFileBasedPlayerPrefs.HasKey(var_Key));
+
+            ProtectedFileBasedPlayerPrefs.SetInt(var_Key, 1234);
+
+            Assert.AreEqual(1234, ProtectedFileBasedPlayerPrefs.GetInt(var_Key));
+
+            Assert.AreEqual(true, ProtectedFileBasedPlayerPrefs.HasKey(var_Key));
+
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
+
+            yield return null;
+        }
+
+        #endregion
+
         // Int
         #region Int
 
@@ -51,7 +74,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedFileBasedPlayerPrefs.GetInt(var_Key), 123456);
 
-            ProtectedFileBasedPlayerPrefs.Remove(var_Key);
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -74,7 +97,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedFileBasedPlayerPrefs.GetFloat(var_Key), 123456.12345f);
 
-            ProtectedFileBasedPlayerPrefs.Remove(var_Key);
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -97,7 +120,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedFileBasedPlayerPrefs.GetString(var_Key), "Hello World, nice to meet you!");
 
-            ProtectedFileBasedPlayerPrefs.Remove(var_Key);
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -120,7 +143,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedFileBasedPlayerPrefs.GetBool(var_Key), true);
 
-            ProtectedFileBasedPlayerPrefs.Remove(var_Key);
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -143,7 +166,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedFileBasedPlayerPrefs.GetVector2(var_Key).ToString(), new Vector2(1, 2).ToString());
 
-            ProtectedFileBasedPlayerPrefs.Remove(var_Key);
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -161,7 +184,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedFileBasedPlayerPrefs.GetVector3(var_Key).ToString(), new Vector3(1, 2, 3).ToString());
 
-            ProtectedFileBasedPlayerPrefs.Remove(var_Key);
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -179,7 +202,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedFileBasedPlayerPrefs.GetVector4(var_Key).ToString(), new Vector4(1, 2, 3, 4).ToString());
 
-            ProtectedFileBasedPlayerPrefs.Remove(var_Key);
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
@@ -202,7 +225,7 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(ProtectedFileBasedPlayerPrefs.GetQuaternion(var_Key).ToString(), new Quaternion(1, 2, 3, 4).ToString());
 
-            ProtectedFileBasedPlayerPrefs.Remove(var_Key);
+            ProtectedFileBasedPlayerPrefs.DeleteKey(var_Key);
 
             yield return null;
         }
