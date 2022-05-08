@@ -1,3 +1,7 @@
+3.1.1:
+- Fix: Move the on game start genuine check from Awake to the Start method. So it is easier to attach custom events.
+- Add: Info window for current version.
+
 3.1:
 - Add: Added HasKey to the ProtectedPlayerPrefs and ProtectedFileBasedPlayerPrefs.
 - Add: Auto save option for ProtectedPlayerPrefs.

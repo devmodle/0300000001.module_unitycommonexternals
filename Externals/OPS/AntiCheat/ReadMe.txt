@@ -1,3 +1,8 @@
+
+!!!! Attention !!!!
+Special offer for the moment: Write a review for AntiCheat Free and write a mail to guardingpearsoftware@gmail.com and win AntiCheat Pro.
+!!!! Attention !!!!
+
 Introduction
 -------------------
 
