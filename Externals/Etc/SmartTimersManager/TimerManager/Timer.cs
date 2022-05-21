@@ -81,8 +81,8 @@ namespace Timers
             }
         }
 
-		// FIXME: dante (타이머 모드 추가) {
-        public Timer(float Interval, uint LoopsCount, UnityAction UnityAction, TimerMode TimerMode = TimerMode.NORM)
+		// FIXME: dante (타이머 모드 설정 로직 추가) {
+		public Timer(float Interval, uint LoopsCount, UnityAction UnityAction, TimerMode TimerMode = TimerMode.NORM)
         {
             if (m_Interval < 0)
                 m_Interval = 0;
@@ -93,7 +93,19 @@ namespace Timers
 
 			m_TimerMode = TimerMode;
         }
-		// FIXME: dante (타이머 모드 추가) }
+
+		/* 기존 로직
+        public Timer(float Interval, uint LoopsCount, UnityAction UnityAction)
+        {
+            if (m_Interval < 0)
+                m_Interval = 0;
+
+            m_Interval = Interval;
+            m_LoopsCount = System.Math.Max(LoopsCount, 1);
+            m_Delegate = UnityAction;
+        }
+		*/
+		// FIXME: dante (타이머 모드 설정 로직 추가) }
 
         ~Timer()
         {

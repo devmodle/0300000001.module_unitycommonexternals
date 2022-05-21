@@ -344,6 +344,52 @@ namespace GoogleSheetsToUnity
 				{
 					int currentColumn = startColumnAsInt;
 
+					// FIXME: dante (데이터 처리 로직 수정) {
+					for(int i = 0; i < dataValue.Count; ++i)
+					{
+						string realColumn = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(currentColumn);
+						string cellID = realColumn + currentRow;
+
+						GSTU_Cell cell = null;
+						if (mergeCellRedirect.ContainsKey(cellID) && Cells.ContainsKey(mergeCellRedirect[cellID]))
+						{
+							cell = Cells[mergeCellRedirect[cellID]];
+						}
+						else
+						{
+							cell = new GSTU_Cell(dataValue[i], realColumn, currentRow);
+
+							//check the title row and column exist, if not create them
+							if (!rows.ContainsKey(currentRow))
+							{
+								rows.Add(currentRow, new List<GSTU_Cell>());
+							}
+							if (!columns.ContainsPrimaryKey(realColumn))
+							{
+								columns.Add(realColumn, new List<GSTU_Cell>());
+							}
+
+							rows[currentRow].Add(cell);
+							columns[realColumn].Add(cell);
+
+
+							//build a series of seconard keys for the rows and columns
+							if (realColumn == titleColumn)
+							{
+								rows.LinkSecondaryKey(currentRow, cell.value);
+							}
+							if (currentRow == titleRow)
+							{
+								columns.LinkSecondaryKey(realColumn, cell.value);
+							}
+						}
+
+						Cells.Add(cellID, cell);
+
+						currentColumn++;
+					}
+
+					/* 기존 로직
 					foreach (string entry in dataValue)
 					{
 						string realColumn = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(currentColumn);
@@ -387,6 +433,8 @@ namespace GoogleSheetsToUnity
 
 						currentColumn++;
 					}
+					*/
+					// FIXME: dante (데이터 처리 로직 수정) }
 
 					currentRow++;
 				}
