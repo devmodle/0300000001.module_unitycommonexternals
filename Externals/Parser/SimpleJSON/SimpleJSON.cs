@@ -631,7 +631,8 @@ namespace SimpleJSON
             result.Append("]");
             return result.ToString();
 
-			/* 기존 로직
+#if NEVER_USE_THIS
+			// 기존 로직
             string result = "[ ";
             foreach (JSONNode N in m_List)
             {
@@ -641,7 +642,7 @@ namespace SimpleJSON
             }
             result += " ]";
             return result;
-			*/
+#endif			// #if NEVER_USE_THIS
 			// FIXME: dante (문자열 생성 로직 수정) }
         }
         public override string ToString(string aPrefix)
@@ -780,7 +781,8 @@ namespace SimpleJSON
             result.Append("}");
             return result.ToString();
 
-			/* 기존 로직
+#if NEVER_USE_THIS
+			// 기존 로직
             string result = "{";
             foreach (KeyValuePair<string, JSONNode> N in m_Dict)
             {
@@ -790,7 +792,7 @@ namespace SimpleJSON
             }
             result += "}";
             return result;
-			*/
+#endif			// #if NEVER_USE_THIS
 			// FIXME: dante (문자열 생성 로직 수정) }
         }
         public override string ToString(string aPrefix)

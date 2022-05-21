@@ -389,7 +389,8 @@ namespace GoogleSheetsToUnity
 						currentColumn++;
 					}
 
-					/* 기존 로직
+#if NEVER_USE_THIS
+					// 기존 로직
 					foreach (string entry in dataValue)
 					{
 						string realColumn = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(currentColumn);
@@ -433,7 +434,7 @@ namespace GoogleSheetsToUnity
 
 						currentColumn++;
 					}
-					*/
+#endif			// #if NEVER_USE_THIS
 					// FIXME: dante (데이터 처리 로직 수정) }
 
 					currentRow++;

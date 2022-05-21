@@ -94,7 +94,8 @@ namespace Timers
 			m_TimerMode = TimerMode;
         }
 
-		/* 기존 로직
+#if NEVER_USE_THIS
+		// 기존 로직
         public Timer(float Interval, uint LoopsCount, UnityAction UnityAction)
         {
             if (m_Interval < 0)
@@ -104,7 +105,7 @@ namespace Timers
             m_LoopsCount = System.Math.Max(LoopsCount, 1);
             m_Delegate = UnityAction;
         }
-		*/
+#endif			// #if NEVER_USE_THIS
 		// FIXME: dante (타이머 모드 설정 로직 추가) }
 
         ~Timer()
