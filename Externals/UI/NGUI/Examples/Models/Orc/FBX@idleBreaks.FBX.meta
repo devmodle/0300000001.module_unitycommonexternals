@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: d9a637e69b9f0a7449ee6b6e158ddd5b
 ModelImporter:
-  serializedVersion: 21202
+  serializedVersion: 22102
   internalIDToNameTable:
   - first:
       1: 100000
@@ -340,6 +340,7 @@ ModelImporter:
     secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 0
+    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -372,6 +373,7 @@ ModelImporter:
   humanoidOversampling: 1
   avatarSetup: 0
   addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
   additionalBone: 0
   userData: 
   assetBundleName: 
