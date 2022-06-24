@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 // FIXME: dante (기초 효과 클래스 추가) {
 namespace Coffee.UIExtensions {
