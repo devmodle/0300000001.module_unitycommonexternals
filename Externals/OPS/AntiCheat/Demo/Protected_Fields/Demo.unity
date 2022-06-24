@@ -1681,6 +1681,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5fcad0225f804a43bce983df381589b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ProtectedBool:
+    fakeValue: 1
+  ProtectedDouble:
+    fakeValue: 0
+  ProtectedFloat:
+    fakeValue: 1
+  ProtectedDecimal:
+    fakeValue: 2
+  ProtectedInt32:
+    fakeValue: 3
+  ProtectedInt64:
+    fakeValue: 4
+  ProtectedUInt32:
+    fakeValue: 5
+  ProtectedUInt64:
+    fakeValue: 6
+  ProtectedString:
+    fakeValue: Hello World!
+  ProtectedVector2:
+    fakeValue: {x: 1, y: 2}
+  ProtectedVector2Int:
+    fakeValue: {x: 1, y: 2}
+  ProtectedVector3:
+    fakeValue: {x: 1, y: 2, z: 3}
+  ProtectedVector3Int:
+    fakeValue: {x: 1, y: 2, z: 3}
+  ProtectedVector4:
+    fakeValue: {x: 1, y: 2, z: 3, w: 4}
+  ProtectedQuaternion:
+    fakeValue: {x: 1, y: 2, z: 3, w: 4}
 --- !u!1 &2004625870
 GameObject:
   m_ObjectHideFlags: 0

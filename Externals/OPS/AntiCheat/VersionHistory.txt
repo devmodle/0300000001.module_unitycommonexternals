@@ -1,3 +1,10 @@
+3.1.3:
+- Add: Support of Vector2Int and Vector3Int
+- Fix: Using protected fields / types in ScriptAbleObjects.
+
+3.1.2:
+- Fix: The <= comparing of protected values was not correct.
+
 3.1.1:
 - Fix: Move the on game start genuine check from Awake to the Start method. So it is easier to attach custom events.
 - Add: Info window for current version.

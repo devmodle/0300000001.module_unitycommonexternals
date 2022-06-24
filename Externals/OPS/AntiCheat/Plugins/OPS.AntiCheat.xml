@@ -823,6 +823,137 @@
             Set and access the real unencrypted field value.
             </summary>
         </member>
+        <member name="T:OPS.AntiCheat.Field.ProtectedVector3Int">
+            <summary>
+            Represents a protected vector3 int. In almost all cases you can just replace your default type with the protected one.
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector3Int.securedValueX">
+            <summary>
+            The encrypted true value x.
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector3Int.securedValueY">
+            <summary>
+            The encrypted true value y.
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector3Int.securedValueZ">
+            <summary>
+            The encrypted true value z.
+            </summary>
+        </member>
+        <member name="P:OPS.AntiCheat.Field.ProtectedVector3Int.SecuredValue">
+            <summary>
+            Get and set the encrypted true value.
+            MOSTLY YOU DO NOT WANT TO USE THIS. USE THE 'Value' PROPERTY!
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector3Int.randomSecret">
+            <summary>
+            A secret key the true value gets encypted with.
+            </summary>
+        </member>
+        <member name="P:OPS.AntiCheat.Field.ProtectedVector3Int.RandomSecret">
+            <summary>
+            A secret key the true value gets encypted with.
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector3Int.fakeValue">
+            <summary>
+            A honeypot pretending to be the orignal value. If some user tried to change this value via a cheat / hack engine, you will get notified.
+            The protected value will keep its true value.
+            </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Field.ProtectedVector3Int.OnBeforeSerialize">
+            <summary>
+            Unity serialization hook. So the right values will be serialized.
+            </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Field.ProtectedVector3Int.OnAfterDeserialize">
+            <summary>
+            Unity deserialization hook. So the right values will be deserialized.
+            </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Field.ProtectedVector3Int.#ctor(UnityEngine.Vector3Int)">
+            <summary>
+            Create a new protected Vector3Int with _Value.
+            </summary>
+            <param name="_Value"></param>
+        </member>
+        <member name="P:OPS.AntiCheat.Field.ProtectedVector3Int.Value">
+            <summary>
+            Set and access the real unencrypted field value.
+            </summary>
+        </member>
+        <member name="P:OPS.AntiCheat.Field.ProtectedVector3Int.Value_WithoutCheck">
+            <summary>
+            Return the value without any possible cheat checking. Is used for the player prefs.
+            </summary>
+        </member>
+        <member name="T:OPS.AntiCheat.Field.ProtectedVector2Int">
+            <summary>
+            Represents a protected vector2 int. In almost all cases you can just replace your default type with the protected one.
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector2Int.securedValueX">
+            <summary>
+            The encrypted true value x.
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector2Int.securedValueY">
+            <summary>
+            The encrypted true value y.
+            </summary>
+        </member>
+        <member name="P:OPS.AntiCheat.Field.ProtectedVector2Int.SecuredValue">
+            <summary>
+            Get and set the encrypted true value.
+            MOSTLY YOU DO NOT WANT TO USE THIS. USE THE 'Value' PROPERTY!
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector2Int.randomSecret">
+            <summary>
+            A secret key the true value gets encypted with.
+            </summary>
+        </member>
+        <member name="P:OPS.AntiCheat.Field.ProtectedVector2Int.RandomSecret">
+            <summary>
+            A secret key the true value gets encypted with.
+            </summary>
+        </member>
+        <member name="F:OPS.AntiCheat.Field.ProtectedVector2Int.fakeValue">
+            <summary>
+            A honeypot pretending to be the orignal value. If some user tried to change this value via a cheat / hack engine, you will get notified.
+            The protected value will keep its true value.
+            </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Field.ProtectedVector2Int.OnBeforeSerialize">
+            <summary>
+            Unity serialization hook. So the right values will be serialized.
+            </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Field.ProtectedVector2Int.OnAfterDeserialize">
+            <summary>
+            Unity deserialization hook. So the right values will be deserialized.
+            </summary>
+        </member>
+        <member name="M:OPS.AntiCheat.Field.ProtectedVector2Int.#ctor(UnityEngine.Vector2Int)">
+            <summary>
+            Create a new protected Vector2Int with _Value.
+            </summary>
+            <param name="_Value"></param>
+        </member>
+        <member name="P:OPS.AntiCheat.Field.ProtectedVector2Int.Value">
+            <summary>
+            Set and access the real unencrypted field value.
+            </summary>
+        </member>
+        <member name="P:OPS.AntiCheat.Field.ProtectedVector2Int.Value_WithoutCheck">
+            <summary>
+            Return the value without any possible cheat checking. Is used for the player prefs.
+            </summary>
+        </member>
         <member name="T:OPS.AntiCheat.Field.ProtectedVector2">
             <summary>
             Represents a protected vector2. In almost all cases you can just replace your default type with the protected one.

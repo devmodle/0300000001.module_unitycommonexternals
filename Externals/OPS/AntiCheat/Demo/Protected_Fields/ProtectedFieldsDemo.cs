@@ -10,7 +10,27 @@ namespace OPS.AntiCheat.Demo.Field
 {
     public class ProtectedFieldsDemo : MonoBehaviour
     {
-        void Start()
+        // Inspector
+        public ProtectedBool ProtectedBool;
+        public ProtectedDouble ProtectedDouble;
+        public ProtectedFloat ProtectedFloat;
+        public ProtectedDecimal ProtectedDecimal;
+        public ProtectedInt32 ProtectedInt32;
+        public ProtectedInt64 ProtectedInt64;
+        public ProtectedUInt32 ProtectedUInt32;
+        public ProtectedUInt64 ProtectedUInt64;
+        public ProtectedString ProtectedString;
+        public ProtectedVector2 ProtectedVector2;
+        public ProtectedVector2Int ProtectedVector2Int;
+        public ProtectedVector3 ProtectedVector3;
+        public ProtectedVector3Int ProtectedVector3Int;
+        public ProtectedVector4 ProtectedVector4;
+        public ProtectedQuaternion ProtectedQuaternion;
+
+        /// <summary>
+        /// Logging example over all protected types.
+        /// </summary>
+        private void Start()
         {
             Debug.Log("------------------");
             Debug.Log("Protected Fields Demo");

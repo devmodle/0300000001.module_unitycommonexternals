@@ -50,7 +50,7 @@ namespace OPS.Obfuscator.Editor.Gui
                 boldStyle.fontSize = 15;
                 boldStyle.fontStyle = FontStyle.Bold;
 
-                GUILayout.Label("AntiCheat Free v3.1.1", boldStyle);
+                GUILayout.Label("AntiCheat Free v3.1.3", boldStyle);
 
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button((Texture)EditorGUIUtility.Load("Assets/OPS/AntiCheat/Editor/Gui/Resources/Rate.png"), var_TopBarButtonStyle, GUILayout.MaxWidth(100), GUILayout.MaxHeight(26)))

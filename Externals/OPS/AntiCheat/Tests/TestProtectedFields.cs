@@ -40,6 +40,12 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(var_Protected, (Int16)7);
 
+            // Compare Test
+            Assert.Greater(new ProtectedInt16(2), new ProtectedInt16(1));
+            Assert.GreaterOrEqual(new ProtectedInt16(2), new ProtectedInt16(2));
+            Assert.Less(new ProtectedInt16(1), new ProtectedInt16(2));
+            Assert.LessOrEqual(new ProtectedInt16(2), new ProtectedInt16(2));
+
             yield return null;
         }
 
@@ -60,6 +66,12 @@ namespace OPS.AntiCheat.Tests
             var_Protected = 7;
 
             Assert.AreEqual(var_Protected, (Int32)7);
+
+            // Compare Test
+            Assert.Greater(new ProtectedInt32(2), new ProtectedInt32(1));
+            Assert.GreaterOrEqual(new ProtectedInt32(2), new ProtectedInt32(2));
+            Assert.Less(new ProtectedInt32(1), new ProtectedInt32(2));
+            Assert.LessOrEqual(new ProtectedInt32(2), new ProtectedInt32(2));
 
             yield return null;
         }
@@ -82,6 +94,12 @@ namespace OPS.AntiCheat.Tests
             var_Protected = 7;
 
             Assert.AreEqual(var_Protected, (Int64)7);
+
+            // Compare Test
+            Assert.Greater(new ProtectedInt64(2), new ProtectedInt64(1));
+            Assert.GreaterOrEqual(new ProtectedInt64(2), new ProtectedInt64(2));
+            Assert.Less(new ProtectedInt64(1), new ProtectedInt64(2));
+            Assert.LessOrEqual(new ProtectedInt64(2), new ProtectedInt64(2));
 
             yield return null;
         }
@@ -109,6 +127,12 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(var_Protected, (UInt16)7);
 
+            // Compare Test
+            Assert.Greater(new ProtectedUInt16(2), new ProtectedUInt16(1));
+            Assert.GreaterOrEqual(new ProtectedUInt16(2), new ProtectedUInt16(2));
+            Assert.Less(new ProtectedUInt16(1), new ProtectedUInt16(2));
+            Assert.LessOrEqual(new ProtectedUInt16(2), new ProtectedUInt16(2));
+
             yield return null;
         }
 
@@ -129,6 +153,12 @@ namespace OPS.AntiCheat.Tests
             var_Protected = 7;
 
             Assert.AreEqual(var_Protected, (UInt32)7);
+
+            // Compare Test
+            Assert.Greater(new ProtectedUInt32(2), new ProtectedUInt32(1));
+            Assert.GreaterOrEqual(new ProtectedUInt32(2), new ProtectedUInt32(2));
+            Assert.Less(new ProtectedUInt32(1), new ProtectedUInt32(2));
+            Assert.LessOrEqual(new ProtectedUInt32(2), new ProtectedUInt32(2));
 
             yield return null;
         }
@@ -151,6 +181,12 @@ namespace OPS.AntiCheat.Tests
             var_Protected = 7;
 
             Assert.AreEqual(var_Protected, (UInt64)7);
+
+            // Compare Test
+            Assert.Greater(new ProtectedUInt64(2), new ProtectedUInt64(1));
+            Assert.GreaterOrEqual(new ProtectedUInt64(2), new ProtectedUInt64(2));
+            Assert.Less(new ProtectedUInt64(1), new ProtectedUInt64(2));
+            Assert.LessOrEqual(new ProtectedUInt64(2), new ProtectedUInt64(2));
 
             yield return null;
         }
@@ -204,6 +240,12 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(var_Protected, (float)7.1f);
 
+            // Compare Test
+            Assert.Greater(new ProtectedFloat(2), new ProtectedFloat(1));
+            Assert.GreaterOrEqual(new ProtectedFloat(2), new ProtectedFloat(2));
+            Assert.Less(new ProtectedFloat(1), new ProtectedFloat(2));
+            Assert.LessOrEqual(new ProtectedFloat(2), new ProtectedFloat(2));
+
             yield return null;
         }
 
@@ -230,6 +272,12 @@ namespace OPS.AntiCheat.Tests
 
             Assert.AreEqual(var_Protected, (double)7.1);
 
+            // Compare Test
+            Assert.Greater(new ProtectedDouble(2), new ProtectedDouble(1));
+            Assert.GreaterOrEqual(new ProtectedDouble(2), new ProtectedDouble(2));
+            Assert.Less(new ProtectedDouble(1), new ProtectedDouble(2));
+            Assert.LessOrEqual(new ProtectedDouble(2), new ProtectedDouble(2));
+
             yield return null;
         }
 
@@ -255,6 +303,12 @@ namespace OPS.AntiCheat.Tests
             var_Protected = 7.1M;
 
             Assert.AreEqual(var_Protected, (decimal)7.1M);
+
+            // Compare Test
+            Assert.Greater(new ProtectedDecimal(2), new ProtectedDecimal(1));
+            Assert.GreaterOrEqual(new ProtectedDecimal(2), new ProtectedDecimal(2));
+            Assert.Less(new ProtectedDecimal(1), new ProtectedDecimal(2));
+            Assert.LessOrEqual(new ProtectedDecimal(2), new ProtectedDecimal(2));
 
             yield return null;
         }
