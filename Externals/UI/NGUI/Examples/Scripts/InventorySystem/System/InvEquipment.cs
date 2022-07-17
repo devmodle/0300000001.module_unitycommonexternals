@@ -9,7 +9,7 @@ using System.Collections.Generic;
 public class InvEquipment : MonoBehaviour
 {
 	InvGameItem[] mItems;
-	InvAttachmentPoint[] mAttachments;
+	InvAttachmentPoint[] mAttach;
 
 	/// <summary>
 	/// List of equipped items (with a finite number of equipment slots).
@@ -42,12 +42,12 @@ public class InvEquipment : MonoBehaviour
 			mItems[(int)slot - 1] = item;
 
 			// Get the list of all attachment points
-			if (mAttachments == null) mAttachments = GetComponentsInChildren<InvAttachmentPoint>();
+			if (mAttach == null) mAttach = GetComponentsInChildren<InvAttachmentPoint>();
 
 			// Equip the item visually
-			for (int i = 0, imax = mAttachments.Length; i < imax; ++i)
+			for (int i = 0, imax = mAttach.Length; i < imax; ++i)
 			{
-				InvAttachmentPoint ip = mAttachments[i];
+				InvAttachmentPoint ip = mAttach[i];
 
 				if (ip.slot == slot)
 				{
