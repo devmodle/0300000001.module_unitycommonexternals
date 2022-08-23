@@ -226,6 +226,160 @@ namespace SimpleJSON
 
         public static JSONNode Parse(string aJSON)
         {
+			 Stack<JSONNode> stack = new Stack<JSONNode>();
+            JSONNode ctx = null;
+            int i = 0;
+            var Token = new System.Text.StringBuilder();
+            string TokenName = "";
+            bool QuoteMode = false;
+            while (i < aJSON.Length)
+            {
+                switch (aJSON[i])
+                {
+                    case '{':
+                        if (QuoteMode)
+                        {
+                            Token.Append(aJSON[i]);
+                            break;
+                        }
+                        stack.Push(new JSONClass());
+                        if (ctx != null)
+                        {
+                            TokenName = TokenName.Trim();
+                            if (ctx is JSONArray)
+                                ctx.Add(stack.Peek());
+                            else if (TokenName != "")
+                                ctx.Add(TokenName,stack.Peek());
+                        }
+                        TokenName = "";
+                        Token.Clear();
+                        ctx = stack.Peek();
+                    break;
+
+                    case '[':
+                        if (QuoteMode)
+                        {
+                            Token.Append(aJSON[i]);
+                            break;
+                        }
+
+                        stack.Push(new JSONArray());
+                        if (ctx != null)
+                        {
+                            TokenName = TokenName.Trim();
+                            if (ctx is JSONArray)
+                                ctx.Add(stack.Peek());
+                            else if (TokenName != "")
+                                ctx.Add(TokenName,stack.Peek());
+                        }
+                        TokenName = "";
+                        Token.Clear();
+                        ctx = stack.Peek();
+                    break;
+
+                    case '}':
+                    case ']':
+                        if (QuoteMode)
+                        {
+                            Token.Append(aJSON[i]);
+                            break;
+                        }
+                        if (stack.Count == 0)
+                            throw new Exception("JSON Parse: Too many closing brackets");
+
+                        stack.Pop();
+                        if (Token.ToString() != "")
+                        {
+                            TokenName = TokenName.Trim();
+                            if (ctx is JSONArray)
+                                ctx.Add(Token.ToString());
+                            else if (TokenName != "")
+                                ctx.Add(TokenName,Token.ToString());
+                        }
+                        TokenName = "";
+                        Token.Clear();
+                        if (stack.Count>0)
+                            ctx = stack.Peek();
+                    break;
+
+                    case ':':
+                        if (QuoteMode)
+                        {
+                            Token.Append(aJSON[i]);
+                            break;
+                        }
+                        TokenName = Token.ToString();
+                        Token.Clear();
+                    break;
+
+                    case '"':
+                        QuoteMode ^= true;
+                    break;
+
+                    case ',':
+                        if (QuoteMode)
+                        {
+                            Token.Append(aJSON[i]);
+                            break;
+                        }
+                        if (Token.ToString() != "")
+                        {
+                            if (ctx is JSONArray)
+                                ctx.Add(Token.ToString());
+                            else if (TokenName != "")
+                                ctx.Add(TokenName, Token.ToString());
+                        }
+                        TokenName = "";
+                        Token.Clear();
+                    break;
+
+                    case '\r':
+                    case '\n':
+                    break;
+
+                    case ' ':
+                    case '\t':
+                        if (QuoteMode)
+                            Token.Append(aJSON[i]);
+                    break;
+
+                    case '\\':
+                        ++i;
+                        if (QuoteMode)
+                        {
+                            char C = aJSON[i];
+                            switch (C)
+                            {
+                                case 't' : Token.Append('\t'); break;
+                                case 'r' : Token.Append('\r'); break;
+                                case 'n' : Token.Append('\n'); break;
+                                case 'b' : Token.Append('\b'); break;
+                                case 'f' : Token.Append('\f'); break;
+                                case 'u':
+                                {
+                                    string s = aJSON.Substring(i+1,4);
+                                    Token.Append((char)int.Parse(s, System.Globalization.NumberStyles.AllowHexSpecifier));
+                                    i += 4;
+                                    break;
+                                }
+                                default  : Token.Append(C); break;
+                            }
+                        }
+                    break;
+
+                    default:
+                        Token.Append(aJSON[i]);
+                    break;
+                }
+                ++i;
+            }
+            if (QuoteMode)
+            {
+                throw new Exception("JSON Parse: Quotation marks seems to be messed up.");
+            }
+
+#if NEVER_USE_THIS
+			// 기존 로직
             Stack<JSONNode> stack = new Stack<JSONNode>();
             JSONNode ctx = null;
             int i = 0;
@@ -377,6 +531,8 @@ namespace SimpleJSON
             {
                 throw new Exception("JSON Parse: Quotation marks seems to be messed up.");
             }
+#endif			// #if NEVER_USE_THIS
+
             return ctx;
         }
 		

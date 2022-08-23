@@ -462,6 +462,7 @@ namespace GoogleSheetsToUnity
 					}
 				}
 			} catch(System.Exception oException) {
+				SpreadsheetManager.IsError = true;
 				Debug.LogWarningFormat("Spreadsheet.GstuSpreadSheet Exception: {0}", oException.Message);
 			}
 			// FIXME: dante (tyr ~ catch 블럭 추가) }

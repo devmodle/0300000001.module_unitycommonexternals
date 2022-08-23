@@ -20,6 +20,11 @@ namespace GoogleSheetsToUnity
     /// </summary>
     public partial class SpreadsheetManager
     {   
+		// FIXME: dante (에러 여부 프로퍼티 추가) {
+		public static bool IsError { get; set; } = false;
+		// FIXME: dante (에러 여부 프로퍼티 추가) }
+
+
         /// <summary>
         /// Chekcs for a valid token and if its out of date attempt to refresh it
         /// </summary>
@@ -46,6 +51,10 @@ namespace GoogleSheetsToUnity
         /// <param name="containsMergedCells"> does the spreadsheet contain merged cells, will attempt to group these by titles</param>
         public static void Read(GSTU_Search search, UnityAction<GstuSpreadSheet> callback, bool containsMergedCells = false)
         {
+			// FIXME: dante (에러 여부 초기화) {
+			SpreadsheetManager.IsError = false;
+			// FIXME: dante (에러 여부 초기화) {
+
             StringBuilder sb = new StringBuilder();
             sb.Append("https://sheets.googleapis.com/v4/spreadsheets");
             sb.Append("/" + search.sheetId);
