@@ -21,7 +21,7 @@ namespace SimpleFolderIcon.Editor
 
             if (path == "" ||
                 Event.current.type != EventType.Repaint ||
-                !File.GetAttributes(path).HasFlag(FileAttributes.Directory) ||
+                !Directory.Exists(path) || !File.GetAttributes(path).HasFlag(FileAttributes.Directory) ||
                 !iconDictionary.ContainsKey(Path.GetFileName(path)))
             {
                 return;
