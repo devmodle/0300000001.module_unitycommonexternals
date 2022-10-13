@@ -218,6 +218,7 @@ namespace TextToTMPNamespace.Instance{0}";
 
 #if UNITY_2017_3_OR_NEWER
 		private string textMeshProAssemblyDefinitionName;
+		private string textMeshProAssemblyDefinitionFilePath;
 #endif
 
 		private ObjectsToUpgradeList scriptsToUpgrade = new ObjectsToUpgradeList();
@@ -228,13 +229,19 @@ namespace TextToTMPNamespace.Instance{0}";
 		private void UpgradeScripts()
 		{
 #if UNITY_2017_3_OR_NEWER
-			if( !string.IsNullOrEmpty( CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName( "Unity.TextMeshPro" ) ) )
+			textMeshProAssemblyDefinitionFilePath = CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName( "Unity.TextMeshPro" );
+			if( !string.IsNullOrEmpty( textMeshProAssemblyDefinitionFilePath ) )
 				textMeshProAssemblyDefinitionName = "Unity.TextMeshPro";
 			else
 			{
 				string[] tmpScriptGuid = AssetDatabase.FindAssets( "TextMeshProUGUI t:MonoScript" );
 				if( tmpScriptGuid != null && tmpScriptGuid.Length > 0 )
+				{
 					textMeshProAssemblyDefinitionName = CompilationPipeline.GetAssemblyNameFromScriptPath( AssetDatabase.GUIDToAssetPath( tmpScriptGuid[0] ) );
+
+					if( !string.IsNullOrEmpty( textMeshProAssemblyDefinitionName ) )
+						textMeshProAssemblyDefinitionFilePath = CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName( textMeshProAssemblyDefinitionName );
+				}
 			}
 #endif
 
@@ -377,14 +384,14 @@ namespace TextToTMPNamespace.Instance{0}";
 
 			if( scriptModified != script )
 			{
-				stringBuilder.AppendLine( "Upgrading script: " + scriptPath );
+				stringBuilder.Append( "Upgrading script: " ).AppendLine( scriptPath );
 				File.WriteAllText( scriptPath, scriptModified );
 			}
 		}
 
 		private void AddExtensionFunctionsToScript( string scriptPath, ref string scriptContents )
 		{
-			stringBuilder.AppendLine( "Adding TextToTMP extension functions to script: " + scriptPath );
+			stringBuilder.Append( "Adding TextToTMP extension functions to script: " ).AppendLine( scriptPath );
 
 			int extensionFunctionsInsertIndex = scriptContents.LastIndexOf( "using " );
 			if( extensionFunctionsInsertIndex >= 0 )
@@ -416,7 +423,7 @@ namespace TextToTMPNamespace.Instance{0}";
 					string assemblyPath = CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName( asmFile.references[i] );
 #endif
 
-					if( assemblyPath == textMeshProAssemblyDefinitionName )
+					if( assemblyPath == textMeshProAssemblyDefinitionFilePath )
 						return;
 				}
 			}
@@ -429,7 +436,7 @@ namespace TextToTMPNamespace.Instance{0}";
 				asmFile.references[asmFile.references.Length - 1] = textMeshProAssemblyDefinitionName;
 			}
 
-			stringBuilder.AppendLine( "Upgrading Assembly Definition File: " + path );
+			stringBuilder.Append( "Upgrading Assembly Definition File: " ).AppendLine( path );
 			File.WriteAllText( path, JsonUtility.ToJson( asmFile, true ) );
 		}
 #endif

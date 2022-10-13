@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using TMPro;
 using UnityEditor;
@@ -15,7 +16,7 @@ using PrefabStageUtility = UnityEditor.SceneManagement.PrefabStageUtility;
 
 namespace TextToTMPNamespace
 {
-	public partial class TextToTMPWindow : EditorWindow
+	public partial class TextToTMPWindow : EditorWindow, IHasCustomMenu
 	{
 		private enum UpgradeStage { InitializeAndCollectReferences, UpgradeScripts, PendingUpgradeScriptsCompletion, UpgradeComponents, UpdateReferences, Finished };
 
@@ -29,6 +30,16 @@ namespace TextToTMPNamespace
 			public Material tmpFontMaterialShadow;
 			public Material tmpFontMaterialOutline;
 			public Material tmpFontMaterialShadowAndOutline;
+		}
+
+		[Serializable]
+		private class SaveData
+		{
+			public List<Object> upgradeTargets;
+			public List<FontUpgrade> fontUpgrades;
+			public bool upgradeScenes;
+			public bool alwaysUseOverflowForNonWrappingTexts;
+			public bool saveDataValidityCheck;
 		}
 		#endregion
 
@@ -53,7 +64,7 @@ namespace TextToTMPNamespace
 		private ObjectsToUpgradeList assetsToUpgrade = new ObjectsToUpgradeList();
 		private ObjectsToUpgradeList scenesToUpgrade = new ObjectsToUpgradeList();
 
-		private StringBuilder stringBuilder = new StringBuilder( 1024 );
+		private readonly StringBuilder stringBuilder = new StringBuilder( 8192 );
 		private Vector2 scrollPos;
 
 		[MenuItem( "Window/Upgrade Text to TMP" )]
@@ -86,6 +97,49 @@ namespace TextToTMPNamespace
 					defaultFontUpgrade.tmpFontMaterialOutline = defaultFontUpgrade.tmpFontMaterialDefault;
 					defaultFontUpgrade.tmpFontMaterialShadowAndOutline = defaultFontUpgrade.tmpFontMaterialDefault;
 				}
+			}
+		}
+
+		void IHasCustomMenu.AddItemsToMenu( GenericMenu menu )
+		{
+			if( stage == UpgradeStage.InitializeAndCollectReferences )
+			{
+				menu.AddItem( new GUIContent( "Save Settings" ), false, () =>
+				{
+					string savePath = EditorUtility.SaveFilePanel( "Save Settings To", "Library", "TextToTMP Settings", "json" );
+					if( !string.IsNullOrEmpty( savePath ) )
+					{
+						File.WriteAllText( savePath, EditorJsonUtility.ToJson( new SaveData()
+						{
+							upgradeTargets = upgradeTargets,
+							fontUpgrades = fontUpgrades,
+							upgradeScenes = upgradeScenes,
+							alwaysUseOverflowForNonWrappingTexts = alwaysUseOverflowForNonWrappingTexts,
+							saveDataValidityCheck = true
+						}, true ) );
+					}
+				} );
+
+				menu.AddItem( new GUIContent( "Load Settings" ), false, () =>
+				{
+					string loadPath = EditorUtility.OpenFilePanel( "Load Settings From", "Library", "json" );
+					if( !string.IsNullOrEmpty( loadPath ) )
+					{
+						SaveData saveData = new SaveData();
+						EditorJsonUtility.FromJsonOverwrite( File.ReadAllText( loadPath ), saveData );
+						if( !saveData.saveDataValidityCheck ) // If a random JSON file is loaded, it won't overwrite all the settings by mistake
+							Debug.LogWarning( "Selected an invalid save data JSON file!" );
+						else
+						{
+							upgradeTargets = saveData.upgradeTargets;
+							fontUpgrades = saveData.fontUpgrades;
+							upgradeScenes = saveData.upgradeScenes;
+							alwaysUseOverflowForNonWrappingTexts = saveData.alwaysUseOverflowForNonWrappingTexts;
+
+							Repaint();
+						}
+					}
+				} );
 			}
 		}
 
@@ -523,10 +577,6 @@ namespace TextToTMPNamespace
 
 		private TMP_FontAsset GetCorrespondingTMPFontAsset( Font font, Component source, out Material fontMaterial )
 		{
-			fontMaterial = null;
-			if( !font )
-				return null;
-
 			FontUpgrade fontUpgrade = fontUpgrades[0];
 			for( int i = 1; i < fontUpgrades.Count; i++ )
 			{
@@ -564,7 +614,7 @@ namespace TextToTMPNamespace
 				{
 					if( modifierComponents[i] && ( modifierComponents[i].GetType() == typeof( Shadow ) || modifierComponents[i].GetType() == typeof( Outline ) ) )
 					{
-						stringBuilder.AppendLine( "Removing " + modifierComponents[i].GetType().Name + " component from " + GetPathOfObject( source.transform ) );
+						stringBuilder.Append( "Removing " ).Append( modifierComponents[i].GetType().Name ).Append( " component from " ).AppendLine( GetPathOfObject( source.transform ) );
 						DestroyImmediate( modifierComponents[i], true );
 					}
 				}

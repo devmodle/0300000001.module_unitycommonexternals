@@ -166,6 +166,43 @@ namespace TextToTMPNamespace
 			return null;
 		}
 
+		private bool ComponentHasAnyPrefabInstanceModifications( Object component )
+		{
+#if UNITY_2018_3_OR_NEWER
+			if( PrefabUtility.IsPartOfPrefabInstance( component ) )
+#else
+			if( PrefabUtility.GetPrefabType( component ) == PrefabType.PrefabInstance )
+#endif
+			{
+				SerializedProperty iterator = new SerializedObject( component ).GetIterator();
+				while( iterator.Next( true ) )
+				{
+					if( iterator.prefabOverride )
+						return true;
+				}
+			}
+
+			return false;
+		}
+
+#if !UNITY_2018_3_OR_NEWER
+		private RemovedComponentLegacy[] GetRemovedComponentsFromPrefabInstance( Transform instance )
+		{
+			Component[] instanceComponents = instance.GetComponents<Component>();
+			List<Component> prefabComponents = new List<Component>( instanceComponents.Length );
+			( (Transform) PrefabUtility.GetPrefabParent( instance ) ).GetComponents( prefabComponents );
+
+			for( int i = 0; i < instanceComponents.Length; i++ )
+				prefabComponents.Remove( (Component) PrefabUtility.GetPrefabParent( instanceComponents[i] ) );
+
+			RemovedComponentLegacy[] result = new RemovedComponentLegacy[prefabComponents.Count];
+			for( int i = 0; i < prefabComponents.Count; i++ )
+				result[i] = new RemovedComponentLegacy( prefabComponents[i], instance.gameObject );
+
+			return result;
+		}
+#endif
+
 		private string GetPathOfObject( Transform obj )
 		{
 			string result = obj.name;
