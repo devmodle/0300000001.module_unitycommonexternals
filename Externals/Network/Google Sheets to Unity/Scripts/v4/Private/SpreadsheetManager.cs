@@ -94,10 +94,15 @@ namespace GoogleSheetsToUnity {
 					oStopwatch.Start();
 					yield return request.SendWebRequest();
 
-					Debug.LogFormat("SpreadsheetManager.Request({0}): {1} ms", search.worksheetName, oStopwatch.ElapsedMilliseconds);
+					Debug.LogFormat("SpreadsheetManager.Read({0}): {1} ms", search.worksheetName, oStopwatch.ElapsedMilliseconds);
 				} finally {
 					oStopwatch.Restart();
 				}
+
+#if NEVER_USE_THIS
+				// 기존 로직
+				yield return request.SendWebRequest();
+#endif         // #if NEVER_USE_THIS                               
 				// FIXME: dante (시간 측정 로직 추가) }
 
 				if(string.IsNullOrEmpty(request.downloadHandler.text) || request.downloadHandler.text == "{}") {
@@ -105,22 +110,8 @@ namespace GoogleSheetsToUnity {
 					yield break;
 				}
 
-				// FIXME: dante (시간 측정 로직 추가) {
 				ValueRange rawData = JSON.Load(request.downloadHandler.text).Make<ValueRange>();
 				GSTU_SpreadsheetResponce responce = new GSTU_SpreadsheetResponce(rawData);
-
-				try {
-					Debug.LogFormat("SpreadsheetManager.Response({0}): {1} ms", search.worksheetName, oStopwatch.ElapsedMilliseconds);
-				} finally {
-					oStopwatch.Restart();
-				}
-
-#if NEVER_USE_THIS
-				// 기존 로직
-                ValueRange rawData = JSON.Load(request.downloadHandler.text).Make<ValueRange>();
-				GSTU_SpreadsheetResponce responce = new GSTU_SpreadsheetResponce(rawData);
-#endif          // #if NEVER_USE_THIS
-				// FIXME: dante (시간 측정 로직 추가) }
 
 				//if it contains merged cells then process a second set of json data to know what these cells are
 				if(containsMergedCells) {
