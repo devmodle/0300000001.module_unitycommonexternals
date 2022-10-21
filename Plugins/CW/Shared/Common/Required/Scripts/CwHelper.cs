@@ -521,11 +521,22 @@ namespace CW.Common
 					// Make event system?
 					if (EventSystem.current == null)
 					{
+						// FIXME: dante (입력 시스템 관련 구문 수정) {
 #if ENABLE_INPUT_SYSTEM && INPUT_SYSTEM_MODULE_ENABLE
 						new GameObject("EventSystem", typeof(EventSystem), typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule));
 #else
 						new GameObject("EventSystem", typeof(EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
 #endif
+
+#if NEVER_USE_THIS
+						// 기존 로직
+#if ENABLE_INPUT_SYSTEM
+						new GameObject("EventSystem", typeof(EventSystem), typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule));
+#else
+						new GameObject("EventSystem", typeof(EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
+#endif
+#endif          // NEVER_USE_THIS                           
+						// FIXME: dante (입력 시스템 관련 구문 수정) }
 					}
 				}
 
