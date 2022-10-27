@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using GoogleSheetsToUnity.ThirdPary;
@@ -87,7 +87,7 @@ namespace GoogleSheetsToUnity {
 #endif
 
 			using(request) {
-				// FIXME: dante (시간 측정 로직 추가) {
+				// FIXME: dante (시간 측정 구문 추가) {
 				var oStopwatch = new System.Diagnostics.Stopwatch();
 
 				try {
@@ -103,7 +103,7 @@ namespace GoogleSheetsToUnity {
 				// 기존 로직
 				yield return request.SendWebRequest();
 #endif         // #if NEVER_USE_THIS                               
-				// FIXME: dante (시간 측정 로직 추가) }
+				// FIXME: dante (시간 측정 구문 추가) }
 
 				if(string.IsNullOrEmpty(request.downloadHandler.text) || request.downloadHandler.text == "{}") {
 					Debug.LogWarning("Unable to Retreive data from google sheets");
@@ -131,6 +131,9 @@ namespace GoogleSheetsToUnity {
 				if(callback != null) {
 					callback(new GstuSpreadSheet(responce, search.titleColumn, search.titleRow));
 				}
+
+				// FIXME: dante (GC 구문 추가)
+				System.GC.Collect(System.GC.MaxGeneration, System.GCCollectionMode.Default, false, true);
 			}
 		}
 

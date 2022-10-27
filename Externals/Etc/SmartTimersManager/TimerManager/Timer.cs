@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Events;
 using System.Runtime.CompilerServices;
 
@@ -81,7 +81,7 @@ namespace Timers
             }
         }
 
-		// FIXME: dante (타이머 모드 설정 로직 추가) {
+		// FIXME: dante (타이머 모드 설정 구문 추가) {
 		public Timer(float Interval, uint LoopsCount, UnityAction UnityAction, TimerMode TimerMode = TimerMode.NORM)
         {
             if (m_Interval < 0)
@@ -106,7 +106,7 @@ namespace Timers
             m_Delegate = UnityAction;
         }
 #endif			// #if NEVER_USE_THIS
-		// FIXME: dante (타이머 모드 설정 로직 추가) }
+		// FIXME: dante (타이머 모드 설정 구문 추가) }
 
         ~Timer()
         {
