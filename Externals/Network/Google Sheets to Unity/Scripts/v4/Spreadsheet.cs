@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using GoogleSheetsToUnity.Utils;
@@ -278,9 +278,9 @@ namespace GoogleSheetsToUnity {
 
 		public GstuSpreadSheet(GSTU_SpreadsheetResponce data, string titleColumn, int titleRow) {
 			// FIXME: dante (tyr ~ catch 블럭 추가) {
-			try {
-				var oStopwatch = new System.Diagnostics.Stopwatch();
+			var oStopwatch = new System.Diagnostics.Stopwatch();
 
+			try {
 				string startColumn = Regex.Replace(data.StartCell(), "[^a-zA-Z]", "");
 				int startRow = int.Parse(Regex.Replace(data.StartCell(), "[^0-9]", ""));
 
@@ -289,70 +289,22 @@ namespace GoogleSheetsToUnity {
 
 				Dictionary<string, string> mergeCellRedirect = new Dictionary<string, string>();
 
-				try {
-					oStopwatch.Start();
+				if(data.sheetInfo != null) {
+					foreach(var merge in data.sheetInfo.merges) {
+						string cell = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(merge.startColumnIndex + 1) + (merge.startRowIndex + 1);
 
-					if(data.sheetInfo != null) {
-						foreach(var merge in data.sheetInfo.merges) {
-							string cell = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(merge.startColumnIndex + 1) + (merge.startRowIndex + 1);
-
-							for(int r = merge.startRowIndex; r < merge.endRowIndex; r++) {
-								for(int c = merge.startColumnIndex; c < merge.endColumnIndex; c++) {
-									string mergeCell = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(c + 1) + (r + 1);
-									mergeCellRedirect.Add(mergeCell, cell);
-								}
+						for(int r = merge.startRowIndex; r < merge.endRowIndex; r++) {
+							for(int c = merge.startColumnIndex; c < merge.endColumnIndex; c++) {
+								string mergeCell = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(c + 1) + (r + 1);
+								mergeCellRedirect.Add(mergeCell, cell);
 							}
 						}
 					}
-
-					Debug.LogFormat("Spreadsheet.GstuSpreadSheet01({0}): {1} ms", titleColumn, oStopwatch.ElapsedMilliseconds);
-				} finally {
-					oStopwatch.Restart();
 				}
 
-				try {
-					foreach(List<string> dataValue in data.valueRange.values) {
-						int currentColumn = startColumnAsInt;
+				foreach(List<string> dataValue in data.valueRange.values) {
+					int currentColumn = startColumnAsInt;
 
-						// FIXME: dante (데이터 처리 로직 수정) {
-						for(int i = 0; i < dataValue.Count; ++i) {
-							string realColumn = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(currentColumn);
-							string cellID = realColumn + currentRow;
-
-							GSTU_Cell cell = null;
-							if(mergeCellRedirect.ContainsKey(cellID) && Cells.ContainsKey(mergeCellRedirect[cellID])) {
-								cell = Cells[mergeCellRedirect[cellID]];
-							} else {
-								cell = new GSTU_Cell(dataValue[i], realColumn, currentRow);
-
-								//check the title row and column exist, if not create them
-								if(!rows.ContainsKey(currentRow)) {
-									rows.Add(currentRow, new List<GSTU_Cell>());
-								}
-								if(!columns.ContainsPrimaryKey(realColumn)) {
-									columns.Add(realColumn, new List<GSTU_Cell>());
-								}
-
-								rows[currentRow].Add(cell);
-								columns[realColumn].Add(cell);
-
-
-								//build a series of seconard keys for the rows and columns
-								if(realColumn == titleColumn) {
-									rows.LinkSecondaryKey(currentRow, cell.value);
-								}
-								if(currentRow == titleRow) {
-									columns.LinkSecondaryKey(realColumn, cell.value);
-								}
-							}
-
-							Cells.Add(cellID, cell);
-
-							currentColumn++;
-						}
-
-#if NEVER_USE_THIS
-					// 기존 로직
 					foreach (string entry in dataValue)
 					{
 						string realColumn = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(currentColumn);
@@ -396,42 +348,34 @@ namespace GoogleSheetsToUnity {
 
 						currentColumn++;
 					}
-#endif         // #if NEVER_USE_THIS                               
-						// FIXME: dante (데이터 처리 로직 수정) }
 
-						currentRow++;
-					}
-
-					Debug.LogFormat("Spreadsheet.GstuSpreadSheet02({0}): {1} ms", titleColumn, oStopwatch.ElapsedMilliseconds);
-				} finally {
-					oStopwatch.Restart();
+					currentRow++;
 				}
 
-				try {
-					//build the column and row string Id's from titles
-					foreach(GSTU_Cell cell in Cells.Values) {
-						cell.columnId = Cells[cell.Column() + titleRow].value;
-						cell.rowId = Cells[titleColumn + cell.Row()].value;
-					}
+				// FIXME: dante (셀 식별자 처리 구문 수정) {
+#if NEVER_USE_THIS
+				// 기존 구문
+				//build the column and row string Id's from titles
+				foreach(GSTU_Cell cell in Cells.Values) {
+					cell.columnId = Cells[cell.Column() + titleRow].value;
+					cell.rowId = Cells[titleColumn + cell.Row()].value;
+				}
 
-					//build all links to row and columns for cells that are handled by merged title fields.
-					foreach(GSTU_Cell cell in Cells.Values) {
-						foreach(KeyValuePair<string, GSTU_Cell> cell2 in Cells) {
-							if(cell.columnId == cell2.Value.columnId && cell.rowId == cell2.Value.rowId) {
-								if(!cell.titleConnectedCells.Contains(cell2.Key)) {
-									cell.titleConnectedCells.Add(cell2.Key);
-								}
+				//build all links to row and columns for cells that are handled by merged title fields.
+				foreach(GSTU_Cell cell in Cells.Values) {
+					foreach(KeyValuePair<string, GSTU_Cell> cell2 in Cells) {
+						if(cell.columnId == cell2.Value.columnId && cell.rowId == cell2.Value.rowId) {
+							if(!cell.titleConnectedCells.Contains(cell2.Key)) {
+								cell.titleConnectedCells.Add(cell2.Key);
 							}
 						}
 					}
-
-					Debug.LogFormat("Spreadsheet.GstuSpreadSheet03({0}): {1} ms", titleColumn, oStopwatch.ElapsedMilliseconds);
-				} finally {
-					oStopwatch.Stop();
 				}
+#endif         // #if NEVER_USE_THIS                               
+				// FIXME: dante (셀 식별자 처리 구문 수정) }
 			} catch(System.Exception oException) {
 				SpreadsheetManager.IsError = true;
-				Debug.LogWarningFormat("Spreadsheet.GstuSpreadSheet Exception: {0}", oException.Message);
+				Debug.LogWarningFormat("Spreadsheet.GstuSpreadSheet Exception: {0}, {1}", oException.Message, oException.GetType());
 			}
 			// FIXME: dante (tyr ~ catch 블럭 추가) }
 		}

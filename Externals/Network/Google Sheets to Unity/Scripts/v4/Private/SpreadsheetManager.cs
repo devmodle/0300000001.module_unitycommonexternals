@@ -100,7 +100,7 @@ namespace GoogleSheetsToUnity {
 				}
 
 #if NEVER_USE_THIS
-				// 기존 로직
+				// 기존 구문
 				yield return request.SendWebRequest();
 #endif         // #if NEVER_USE_THIS                               
 				// FIXME: dante (시간 측정 구문 추가) }
@@ -131,9 +131,6 @@ namespace GoogleSheetsToUnity {
 				if(callback != null) {
 					callback(new GstuSpreadSheet(responce, search.titleColumn, search.titleRow));
 				}
-
-				// FIXME: dante (GC 구문 추가)
-				System.GC.Collect(System.GC.MaxGeneration, System.GCCollectionMode.Default, false, true);
 			}
 		}
 
@@ -155,6 +152,10 @@ namespace GoogleSheetsToUnity {
 		/// <param name="inputData"></param>
 		/// <param name="callback"></param>
 		public static void Write(GSTU_Search search, ValueRange inputData, UnityAction callback) {
+			// FIXME: dante (에러 여부 초기화) {
+			SpreadsheetManager.IsError = false;
+			// FIXME: dante (에러 여부 초기화) {
+
 			StringBuilder sb = new StringBuilder();
 			sb.Append("https://sheets.googleapis.com/v4/spreadsheets");
 			sb.Append("/" + search.sheetId);
@@ -190,6 +191,10 @@ namespace GoogleSheetsToUnity {
 
 			using(request) {
 				yield return request.SendWebRequest();
+
+				// FIXME: dante (에러 여부 설정) {
+				SpreadsheetManager.IsError = request.isNetworkError;
+				// FIXME: dante (에러 여부 설정) }
 
 				if(callback != null) {
 					callback();

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,19 +45,6 @@ namespace GoogleSheetsToUnity.Utils {
 		/// <param name="column"></param>
 		/// <returns></returns>
 		public static string ExcelColumnFromNumber(int column) {
-			// FIXME: dante (데이터 처리 구문 수정) {
-			var columnString = new System.Text.StringBuilder();
-			decimal columnNumber = column;
-			while(columnNumber > 0) {
-				decimal currentLetterNumber = (columnNumber - 1) % 26;
-				char currentLetter = (char)(currentLetterNumber + 65);
-				columnString.Insert(0, currentLetter);
-				columnNumber = (columnNumber - (currentLetterNumber + 1)) / 26;
-			}
-			return columnString.ToString();
-
-#if NEVER_USE_THIS
-			// 기존 로직
             string columnString = "";
             decimal columnNumber = column;
             while (columnNumber > 0)
@@ -68,8 +55,6 @@ namespace GoogleSheetsToUnity.Utils {
                 columnNumber = (columnNumber - (currentLetterNumber + 1)) / 26;
             }
             return columnString;
-#endif          // #if NEVER_USE_THIS
-			// FIXME: dante (데이터 처리 구문 수정) }
 		}
 
 		/// <summary>

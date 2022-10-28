@@ -67,10 +67,11 @@ namespace Timers
             }
             else
             {
-				// FIXME: dante (타이머 모드 추가)
+				// FIXME: dante (타이머 모드 추가) {
 				m_ElapsedTime += (m_TimerMode == TimerMode.NORM) ? Mathf.Clamp01(Time.deltaTime) : Mathf.Clamp01(Time.unscaledDeltaTime);
+				// FIXME: dante (타이머 모드 추가) }
 
-                m_CurrentCycleElapsedTime = m_ElapsedTime - m_CurrentLoopsCount * m_Interval;
+				m_CurrentCycleElapsedTime = m_ElapsedTime - m_CurrentLoopsCount * m_Interval;
 
                 if (m_CurrentCycleElapsedTime > m_Interval)
                 {
@@ -95,7 +96,7 @@ namespace Timers
         }
 
 #if NEVER_USE_THIS
-		// 기존 로직
+		// 기존 구문
         public Timer(float Interval, uint LoopsCount, UnityAction UnityAction)
         {
             if (m_Interval < 0)

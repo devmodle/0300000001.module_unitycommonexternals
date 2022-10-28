@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using EventSystem = UnityEngine.EventSystems.EventSystem;
@@ -529,7 +529,7 @@ namespace CW.Common
 #endif
 
 #if NEVER_USE_THIS
-						// 기존 로직
+						// 기존 구문
 #if ENABLE_INPUT_SYSTEM
 						new GameObject("EventSystem", typeof(EventSystem), typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule));
 #else
