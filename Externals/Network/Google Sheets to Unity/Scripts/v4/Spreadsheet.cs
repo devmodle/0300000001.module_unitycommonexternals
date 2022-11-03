@@ -302,6 +302,53 @@ namespace GoogleSheetsToUnity {
 					}
 				}
 
+				// FIXME: dante (셀 값 처리 구문 수정) {
+				for(int i = 0; i < data.valueRange.values.Count; ++i) {
+					var dataValue = data.valueRange.values[i];
+					int currentColumn = startColumnAsInt;
+
+					for(int j = 0; j < dataValue.Count; ++j) {
+						string entry = dataValue[j];
+						string realColumn = GoogleSheetsToUnityUtilities.ExcelColumnFromNumber(currentColumn);
+						string cellID = realColumn + currentRow;
+
+						GSTU_Cell cell = null;
+						if(mergeCellRedirect.ContainsKey(cellID) && Cells.ContainsKey(mergeCellRedirect[cellID])) {
+							cell = Cells[mergeCellRedirect[cellID]];
+						} else {
+							cell = new GSTU_Cell(entry, realColumn, currentRow);
+
+							//check the title row and column exist, if not create them
+							if(!rows.ContainsKey(currentRow)) {
+								rows.Add(currentRow, new List<GSTU_Cell>());
+							}
+							if(!columns.ContainsPrimaryKey(realColumn)) {
+								columns.Add(realColumn, new List<GSTU_Cell>());
+							}
+
+							rows[currentRow].Add(cell);
+							columns[realColumn].Add(cell);
+
+
+							//build a series of seconard keys for the rows and columns
+							if(realColumn == titleColumn) {
+								rows.LinkSecondaryKey(currentRow, cell.value);
+							}
+							if(currentRow == titleRow) {
+								columns.LinkSecondaryKey(realColumn, cell.value);
+							}
+						}
+
+						Cells.Add(cellID, cell);
+
+						currentColumn++;
+					}
+
+					currentRow++;
+				}
+
+#if NEVER_USE_THIS
+				// 기존 구문
 				foreach(List<string> dataValue in data.valueRange.values) {
 					int currentColumn = startColumnAsInt;
 
@@ -352,9 +399,6 @@ namespace GoogleSheetsToUnity {
 					currentRow++;
 				}
 
-				// FIXME: dante (셀 식별자 처리 구문 수정) {
-#if NEVER_USE_THIS
-				// 기존 구문
 				//build the column and row string Id's from titles
 				foreach(GSTU_Cell cell in Cells.Values) {
 					cell.columnId = Cells[cell.Column() + titleRow].value;
@@ -372,7 +416,7 @@ namespace GoogleSheetsToUnity {
 					}
 				}
 #endif         // #if NEVER_USE_THIS                               
-				// FIXME: dante (셀 식별자 처리 구문 수정) }
+				// FIXME: dante (셀 값 처리 구문 수정) }
 			} catch(System.Exception oException) {
 				SpreadsheetManager.IsError = true;
 				Debug.LogWarningFormat("Spreadsheet.GstuSpreadSheet Exception: {0}, {1}", oException.Message, oException.GetType());
