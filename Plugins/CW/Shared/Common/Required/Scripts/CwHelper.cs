@@ -526,7 +526,7 @@ namespace CW.Common
 						new GameObject("EventSystem", typeof(EventSystem), typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule));
 #else
 						new GameObject("EventSystem", typeof(EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
-#endif
+#endif // #if ENABLE_INPUT_SYSTEM && INPUT_SYSTEM_MODULE_ENABLE
 
 #if NEVER_USE_THIS
 						// 기존 구문
@@ -535,7 +535,7 @@ namespace CW.Common
 #else
 						new GameObject("EventSystem", typeof(EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
 #endif
-#endif          // NEVER_USE_THIS                           
+#endif // #if NEVER_USE_THIS                           
 						// FIXME: dante (입력 시스템 관련 구문 수정) }
 					}
 				}

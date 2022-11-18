@@ -106,7 +106,7 @@ namespace Timers
             m_LoopsCount = System.Math.Max(LoopsCount, 1);
             m_Delegate = UnityAction;
         }
-#endif			// #if NEVER_USE_THIS
+#endif // #if NEVER_USE_THIS
 		// FIXME: dante (타이머 모드 설정 구문 추가) }
 
         ~Timer()

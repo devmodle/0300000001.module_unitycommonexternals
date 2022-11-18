@@ -415,7 +415,7 @@ namespace GoogleSheetsToUnity {
 						}
 					}
 				}
-#endif         // #if NEVER_USE_THIS                               
+#endif // #if NEVER_USE_THIS                               
 				// FIXME: dante (셀 값 처리 구문 수정) }
 			} catch(System.Exception oException) {
 				SpreadsheetManager.IsError = true;

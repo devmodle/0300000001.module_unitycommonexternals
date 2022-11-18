@@ -102,7 +102,7 @@ namespace GoogleSheetsToUnity {
 #if NEVER_USE_THIS
 				// 기존 구문
 				yield return request.SendWebRequest();
-#endif         // #if NEVER_USE_THIS                               
+#endif // #if NEVER_USE_THIS                               
 				// FIXME: dante (시간 측정 구문 추가) }
 
 				if(string.IsNullOrEmpty(request.downloadHandler.text) || request.downloadHandler.text == "{}") {
