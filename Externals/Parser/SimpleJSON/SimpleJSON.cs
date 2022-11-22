@@ -482,7 +482,7 @@ namespace SimpleJSON {
             {
                 throw new Exception("JSON Parse: Quotation marks seems to be messed up.");
             }
-#endif // #if NEVER_USE_THIS                               
+#endif // #if NEVER_USE_THIS
 
 			return ctx;
 		}
@@ -704,7 +704,7 @@ namespace SimpleJSON {
             }
             result += " ]";
             return result;
-#endif // #if NEVER_USE_THIS                               
+#endif // #if NEVER_USE_THIS
 			// FIXME: dante (문자열 생성 구문 수정) }
 		}
 		public override string ToString(string aPrefix) {
@@ -828,7 +828,7 @@ namespace SimpleJSON {
             }
             result += "}";
             return result;
-#endif // #if NEVER_USE_THIS                               
+#endif // #if NEVER_USE_THIS
 			// FIXME: dante (문자열 생성 구문 수정) }
 		}
 		public override string ToString(string aPrefix) {
