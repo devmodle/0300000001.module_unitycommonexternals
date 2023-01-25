@@ -1,16 +1,13 @@
 {
-    "name": "Module.UnityCommonExternals",
-    "rootNamespace": "",
-    "references": [
-        "SimpleScrollSnap",
-        "MessagePack",
-        "MessagePack.Annotations"
-    ],
+    "name": "EnhancedScroller_asmdef",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        ""
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
