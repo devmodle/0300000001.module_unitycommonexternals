@@ -1,3 +1,3 @@
 # 0300000001.Module_UnityCommonExternals
 
-Module - UnityCommonExternals 클라이언트 프로젝트
+Module - UnityCommonExternals 프로젝트
