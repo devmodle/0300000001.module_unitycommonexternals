@@ -1,8 +1,6 @@
 Particle Effect For UGUI (UI Particle)
 ===
 
-**:warning: NOTE: Do not use [the obsolete tags and branches](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/108) to reference the package. They will be removed in near future. :warning:**
-
 This plugin provide a component to render particle effect for uGUI in Unity 2018.2 or later.  
 The particle rendering is maskable and sortable, without Camera, RenderTexture or Canvas.
 
@@ -30,46 +28,62 @@ This plugin uses new APIs `MeshBake/MashTrailBake` (added with Unity 2018.2) to 
 You can mask and sort particles for uGUI without Camera, RenderTexture, Canvas.
 
 Compares this "Baking mesh" approach with the conventional approach:  
-(This scene is included in the package.)
+[Performance test results](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/193#issuecomment-1160028374)
 
 |Approach|Good|Bad|Screenshot|
 |-|-|-|-|
-|Baking mesh<br>**\(UIParticle\)**|Rendered as is.<br>Maskable.<br>Sortable.<br>Less objects.|**Requires Unity 2018.2 or later.**<br>Requires UI shaders to use Mask.|<img src="https://user-images.githubusercontent.com/12690315/41765089-0302b9a2-763e-11e8-88b3-b6ffa306bbb0.gif" width="500px">|
+|Baking mesh<br>**\(UIParticle\)**|Rendered as is.<br>Maskable.<br>Sortable.<br>Less objects.|[Not support `TEXCOORD*.zw` components for custom vertex stream](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/191#issuecomment-1043409186)|<img src="https://user-images.githubusercontent.com/12690315/41765089-0302b9a2-763e-11e8-88b3-b6ffa306bbb0.gif" width="500px">|
 |Do nothing|Rendered as is.|**Looks like a glitch.**<br>Not maskable.<br>Not sortable.|<img src="https://user-images.githubusercontent.com/12690315/41765090-0329828a-763e-11e8-8d8a-f1d269ea3bc7.gif" width="500px">|
 |Convert particle to UIVertex<br>[\(UIParticleSystem\)](https://forum.unity.com/threads/free-script-particle-systems-in-ui-screen-space-overlay.406862/)|Maskable.<br>Sortable.<br>Less objects.|**Adjustment is difficult.**<br>Requires UI shaders.<br>Difficult to adjust scale.<br>Force hierarchy scalling.<br>Simulation results are incorrect.<br>Trail, rotation of transform, time scaling are not supported.<br>Generate heavy GC every frame.|<img src="https://user-images.githubusercontent.com/12690315/41765088-02deb9c6-763e-11e8-98d0-9e0c1766ef39.gif" width="500px">|
 |Use Canvas to sort|Rendered as is.<br>Sortable.|**You must to manage sorting orders.**<br>Not maskable.<br>More batches.|<img src="https://user-images.githubusercontent.com/12690315/41765087-02b866ea-763e-11e8-8c33-081c9ad852f8.gif" width="500px">|
 |Use RenderTexture|Maskable.<br>Sortable.|**Requires Camera and RenderTexture.**<br>Difficult to adjust position and size.<br>Quality depends on the RenderTexture's setting.|<img src="https://user-images.githubusercontent.com/12690315/41765085-0291b3e2-763e-11e8-827b-72e5ee9bc556.gif" width="500px">|
 
+|Approach|FPS on Editor|FPS on iPhone6|FPS on Xperia XZ|
+|--|--|--|--|
+|Particle System|43|57|22|
+|UIParticleSystem|4|3|0 (unmeasurable)|
+|Sorting By Canvas|43|44|18|
+|UIParticle|17|12|4|
+|UIParticle with MeshSharing|44|45|30|
+
+<br><br>
 
 #### Features
 
 * Easy to use: the package is out-of-the-box
-* Sort particle effects with UI
+* Sort particle effects and UI by sibling index
 * No Camera, RenderTexture or Canvas are required
-* Masking with Mask or RectMask2D
+* Masking by Mask or RectMask2D
 * Support Trail module
-* Change alpha with CanvasGroup
-* No heavy allocation every frame
+* Support CanvasGroup alpha
+* No allocations
 * Support overlay, camera space and world space
 * Support changing material property with AnimationClip (AnimatableProperty)  
 ![](https://user-images.githubusercontent.com/12690315/53286323-2d94a980-37b0-11e9-8afb-c4a207805ff2.gif)
-
+* [4.0.0+] Support 8+ materials
+* [4.0.0+] Correct world space particle position when changing window size for standalone platforms (Windows, MacOSX and Linux)
+* [4.0.0+] Adaptive scaling for UI
+* [4.0.0+] Mesh sharing group to improve performance  
+![](https://user-images.githubusercontent.com/12690315/174311048-c882df81-6c34-4eba-b0aa-5645457692f1.gif)
+* [4.0.0+] Particle attractor component  
+![](https://user-images.githubusercontent.com/12690315/174311027-462929a4-13f0-4ec4-86ea-9c832f2eecf1.gif)
+* [4.1.0+] Relative/Absolute particle position mode  
+![](https://user-images.githubusercontent.com/12690315/175751579-5a2357e8-2ecf-4afd-83c8-66e9771bde39.gif)
 
 
 <br><br><br><br>
 
 ## Demo
 
-* [WebGL Demo](https://mob-sakai.github.io/Demos/ParticleEffectForUGUI)
+* [WebGL Demo](https://mob-sakai.github.io/demos/UIParticle_Demo/index.html)  
+> ![](https://user-images.githubusercontent.com/12690315/174311768-1843a5f2-f776-491b-aaa8-2a131a8b6a16.gif)
 * [WebGL Demo (Cartoon FX & War FX)](https://mob-sakai.github.io/Demos/ParticleEffectForUGUI_CFX)
   * [Cartoon FX Free][CFX] & [War FX][WFX] (by [Jean Moreno (JMO)][JMO]) with UIParticle
+> ![](https://user-images.githubusercontent.com/12690315/91664766-3e07ac00-eb2c-11ea-978b-ef723be80619.gif)
 
 [CFX]: https://assetstore.unity.com/packages/vfx/particles/cartoon-fx-free-109565
 [WFX]: https://assetstore.unity.com/packages/vfx/particles/war-fx-5669
 [JMO]: https://assetstore.unity.com/publishers/1669
-
-![](https://user-images.githubusercontent.com/12690315/91664766-3e07ac00-eb2c-11ea-978b-ef723be80619.gif)
-
 
 
 <br><br><br><br>
@@ -99,7 +113,7 @@ Find the manifest.json file in the Packages folder of your project and add a lin
 
 To update the package, change suffix `#{version}` to the target version.
 
-* `"com.coffee.ui-particle": "https://github.com/mob-sakai/ParticleEffectForUGUI.git#3.3.0",`
+* `"com.coffee.ui-particle": "https://github.com/mob-sakai/ParticleEffectForUGUI.git#4.0.0",`
 
 Or, use [UpmGitExtension](https://github.com/mob-sakai/UpmGitExtension) to install and update the package.
 
@@ -147,7 +161,7 @@ Unity 2018.2 supports embedded packages.
 
 `UIParticle` controls the ParticleSystems that is attached to its own game objects and child game objects.
 
-![](https://user-images.githubusercontent.com/12690315/99765566-af129a80-2b42-11eb-88f6-661182d0b619.png)
+![](https://user-images.githubusercontent.com/12690315/174413976-691eb38e-7f92-4fbe-9790-8771b9dc70b2.png)
 
 | Properties | Description |
 | -- | -- |
@@ -155,7 +169,8 @@ Unity 2018.2 supports embedded packages.
 | Ignore Canvas Scale | Ignore the scale of the root canvas.<br>This prevents it from displaying small even in hierarchy scaling mode of `ParticleSystem`. |
 | Scale | Scale the rendering.<br>When the `3D` toggle is enabled, 3D scale (x,y,z) is supported. |
 | Animatable Properties | If you want update material properties (e.g. `_MainTex_ST`, `_Color`) in AnimationClip, use this to mark the changes. |
-| Shrink By Material | Shrink rendering by material.<br>Performance will be improved, but in some cases the rendering is not correct. |
+| Mesh Sharing | Particle simulation results are shared within the same group.<br>A large number of the same effects can be displayed with a small load.<br>When the `Random` toggle is enabled, it will be grouped randomaly. |
+| Absolute Mode | The particles will be emitted at the ParticleSystem position.<br>Move the UIParticle/ParticleSystem to move the particle. |
 | Rendering Order | The ParticleSystems to be rendered.<br>You can change the rendering order and the materials. |
 
 NOTE: Press `Refresh` button to reconstruct rendering order based on children ParticleSystem's sorting order and z position.
@@ -171,7 +186,7 @@ NOTE: Press `Refresh` button to reconstruct rendering order based on children Pa
 
 <br><br>
 
-### With your ParticleSystem prefab
+### With your existing ParticleSystem prefab
 
 1. Select `Game Object/UI/ParticleSystem (Empty)` to create UIParticle.  
 ![empty](https://user-images.githubusercontent.com/12690315/95007362-cb697f00-0649-11eb-8a09-29b0a13791e4.png)
@@ -180,9 +195,10 @@ NOTE: Press `Refresh` button to reconstruct rendering order based on children Pa
 
 <br><br>
 
-### With `Mask` or `MaskRect2D` component
+### With `Mask` or `RectMask2D` component
 
 If you want to mask particles, set a stencil supported shader (such as `UI/UIAdditive`) to material for ParticleSystem.
+If you use some custom shaders, see [How to make a custom shader to support Mask/RectMask2D component](#how-to-make-a-custom-shader-to-support-maskrectmask2d-component) section.
 
 ![](https://user-images.githubusercontent.com/12690315/95017591-3b512700-0695-11eb-864e-04166ea1809a.png)
 
@@ -196,31 +212,151 @@ If you want to mask particles, set a stencil supported shader (such as `UI/UIAdd
 var go = GameObject.Instantiate(prefab);
 var uiParticle = go.AddComponent<UIParticle>();
 
-// Play/Stop the controled ParticleSystems.
+// Control by ParticleSystem.
+particleSystem.Play();
+particleSystem.Emit(10);
+
+// Control by UIParticle.
 uiParticle.Play();
 uiParticle.Stop();
 ```
+
+<br><br>
+
+### UIParticleAttractor component
+
+`UIParticleAttractor` attracts particles generated by the specified ParticleSystem.
+
+![](https://user-images.githubusercontent.com/12690315/174413982-b31c358a-8e1d-4b3e-a6d8-18b050b25d6f.png)
+![](https://user-images.githubusercontent.com/12690315/174311027-462929a4-13f0-4ec4-86ea-9c832f2eecf1.gif)
+
+| Properties | Description |
+| -- | -- |
+| Particle System | Attracts particles generated by the specified particle system. |
+| Distination Radius | Once the particle is within the radius, the particle lifetime will become 0 and `OnAttracted` will be called. |
+| Delay Rate | Delay to start attracting.<br>It is a percentage of the particle's start lifetime. |
+| Max Speed | Maximum speed of attracting.<br> If this value is too small, attracting may not be completed by the end of the lifetime and `OnAttracted` may not be called. |
+| Movement | Attracting movement type. (Linear, Smooth, Sphere) |
+| OnAttracted | An event called when attracting is complete (per particle). |
 
 <br><br><br><br>
 
 ## Development Note
 
-### Animatable material property
+### Shader Limitation
 
-![](https://user-images.githubusercontent.com/12690315/53286323-2d94a980-37b0-11e9-8afb-c4a207805ff2.gif)
+UIParticles are based on UIVertex.  
+Therefore, only xy components is available for each UV in the shader. (zw components will be ignored).  
+So unfortunately UIParticles will not work well with some shaders.  
+When using custom vertex streams, you can fill zw components with "unnecessary" data.  
+https://github.com/mob-sakai/ParticleEffectForUGUI/issues/191
 
-Animation clips can change the material properties of the Renderer, such as ParticleSystemRenderer.  
-It uses MaterialPropertyBlock so it does not create new material instances.  
-Using material properties, you can change UV animation, scale and color etc.
+- If you need a simple Additive shader, use the `UI/Additive` shader instead.
+- If you need a simple alpha-blend shader, use the `UI/Default` shader instead.
 
-Well, there is a component called CanvasRenderer.  
-It is used by all Graphic components for UI (Text, Image, Raw Image, etc.) including UIParticle.  
-However, It is **NOT** a Renderer.  
-Therefore, in UIParticle, changing ParticleSystemRenderer's MaterialPropertyBlock by animation clip is ignored.
+### Overheads
 
-To prevent this, Use "Animatable Material Property".  
-"Animatable Material Property" gets the necessary properties from ParticleSystemRenderer's MaterialPropertyBlock and sets them to the CanvasRenderer's material. 
+UIParticle has some overheads and the batching depends on uGUI.  
+When improving performance, keep the following in mind:
+- If you are displaying a large number of the same effect, consider `Mesh Sharing` feature in [UIParticle Component](#uiparticle-component).
+  - If you don't like the uniform output, consider `Random Group` feature.  
+![](https://user-images.githubusercontent.com/12690315/174311048-c882df81-6c34-4eba-b0aa-5645457692f1.gif)
+- If you are using multiple materials, you will have more draw calls.
+  - Consider single material, atlasing the sprites, and using `Sprite` mode in the `Texture Sheet Animation` module in ParticleSystem.
 
+### How to make a custom shader to support Mask/RectMask2D component
+
+<details>
+<summary>Shader tips</summary>
+
+```ShaderLab
+Shader "Your/Custom/Shader"
+{
+    Properties
+    {
+        // ...
+        // #### required for Mask ####
+        _StencilComp ("Stencil Comparison", Float) = 8
+        _Stencil ("Stencil ID", Float) = 0
+        _StencilOp ("Stencil Operation", Float) = 0
+        _StencilWriteMask ("Stencil Write Mask", Float) = 255
+        _StencilReadMask ("Stencil Read Mask", Float) = 255
+        _ColorMask ("Color Mask", Float) = 15
+        [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
+    }
+
+    SubShader
+    {
+        Tags
+        {
+            // ...
+        }
+
+        // #### required for Mask ####
+        Stencil
+        {
+            Ref [_Stencil]
+            Comp [_StencilComp]
+            Pass [_StencilOp]
+            ReadMask [_StencilReadMask]
+            WriteMask [_StencilWriteMask]
+        }
+        ColorMask [_ColorMask]
+        // ...
+
+        Pass
+        {
+            // ...
+            // #### required for RectMask2D ####
+            #include "UnityUI.cginc"
+            #pragma multi_compile __ UNITY_UI_CLIP_RECT
+            float4 _ClipRect;
+
+            // #### required for Mask ####
+            #pragma multi_compile __ UNITY_UI_ALPHACLIP
+
+            struct appdata_t
+            {
+                // ...
+            };
+
+            struct v2f
+            {
+                // ...
+                // #### required for RectMask2D ####
+                float4 worldPosition    : TEXCOORD1;
+            };
+            
+            v2f vert(appdata_t v)
+            {
+                v2f OUT;
+                // ...
+                // #### required for RectMask2D ####
+                OUT.worldPosition = v.vertex;
+                return OUT;
+            }
+
+            fixed4 frag(v2f IN) : SV_Target
+            {
+                // ...
+                // #### required for RectMask2D ####
+                #ifdef UNITY_UI_CLIP_RECT
+                    color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
+                #endif
+
+                // #### required for Mask ####
+                #ifdef UNITY_UI_ALPHACLIP
+                    clip (color.a - 0.001);
+                #endif
+
+                return color;
+            }
+            ENDCG
+        }
+    }
+}
+```
+</details>
 
 
 <br><br><br><br>

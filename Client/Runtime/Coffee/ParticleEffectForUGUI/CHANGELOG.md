@@ -1,3 +1,134 @@
+## [4.1.7](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.1.6...4.1.7) (2022-08-30)
+
+
+### Bug Fixes
+
+* the annoying empty black scene overlay box shown even when nothing is selected ([bdeeabb](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/bdeeabbbe140b0ba80fac7ac477874c2467d3a16))
+
+## [4.1.6](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.1.5...4.1.6) (2022-08-10)
+
+
+### Bug Fixes
+
+* fix abnormal mesh bounds error ([f60d6df](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/f60d6dfe6030ac89527a4265e414e9a0a20d56db)), closes [#213](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/213) [#218](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/218)
+
+## [4.1.5](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.1.4...4.1.5) (2022-08-10)
+
+
+### Bug Fixes
+
+* fix culling for RectMask2D ([9e2dbe7](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/9e2dbe7758eb28a4f6a7c11113d9169847880f96)), closes [#220](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/220)
+
+## [4.1.4](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.1.3...4.1.4) (2022-07-01)
+
+
+### Bug Fixes
+
+* add `Enabled` toggle in overlay window ([f97e619](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/f97e6195e62b5acfa8f3e97bfe3bc4a7dcadf38a))
+* if `m_Particles` contains null, an error will occur ([550d0c4](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/550d0c43be35cd07e390ffd5749557c89fee0332)), closes [#214](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/214)
+* ParticleSystem reordering and refreshing in inspector does not work for prefab asset ([7eb4112](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/7eb41124db06ea794db76788b35ce82a0af2c402))
+* refresh button does not works in prefab edit mode ([c1538a8](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/c1538a83998608a30dc90944b05f8b75e165cf05)), closes [#214](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/214)
+* when `UIParticlrRenderer` destroy manually, an error will occur ([a11d2d0](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/a11d2d01ce5f67e3f430bcb0bfdee1ad9abf7cfe))
+
+## [4.1.3](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.1.2...4.1.3) (2022-06-28)
+
+
+### Bug Fixes
+
+* error on drag prefab to scene ([fa2f867](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/fa2f867bcaff437bb9420da1abcef970cdb09ade)), closes [#211](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/211)
+
+## [4.1.2](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.1.1...4.1.2) (2022-06-27)
+
+
+### Bug Fixes
+
+* error on editor ([8034228](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/80342287137c07d58a7492875a401d80cb134073)), closes [#210](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/210)
+* incorrect position of world space trail particles ([fb7f308](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/fb7f308f092db8a1512383857b80110cd626ecf9)), closes [#209](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/209)
+
+## [4.1.1](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.1.0...4.1.1) (2022-06-25)
+
+
+### Bug Fixes
+
+* add absolute mode toggle to overlay window ([48d1994](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/48d1994f5f8751b707b6ef7695b552df731bece9))
+
+# [4.1.0](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.0.1...4.1.0) (2022-06-25)
+
+
+### Features
+
+* add relative/absolute particle position mode ([1879ac8](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/1879ac8c538778e386e68cfc989a6f4f974043ca)), closes [#205](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/205)
+
+## [4.0.1](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/4.0.0...4.0.1) (2022-06-24)
+
+
+### Bug Fixes
+
+* overlays do not exist in Unity 2019.2-2021.1 ([cd8e037](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/cd8e0372b63bb6feaaf053518013a641bc7e65ac)), closes [#207](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/207) [#208](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/208)
+
+# [4.0.0](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.12...4.0.0) (2022-06-21)
+
+
+### Bug Fixes
+
+* correct world space particle position when changing screen size ([c6644a2](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/c6644a213263375c7a35b5082ef4b71cc58964e6))
+* keep properly canvas batches ([d8e96e6](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/d8e96e69a62dff7a451eaed32c7a814e7e62dbb9))
+
+
+### Features
+
+* adaptive scaling for UI ([aa0d56f](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/aa0d56f9faa05e9679d4b476bcf135eafb1b8af9))
+* add overlay window for UIParticle ([7b21c50](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/7b21c500ef78103b605fdca71051d2357b09602f))
+* add particle attractor component ([386170c](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/386170cbf68ebf59d4510fe0a45cf83925ec9ba4))
+* display warning in inspector if using 'TEXCOORD*.zw' components as custom vertex stream ([59221d5](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/59221d58217a440b77d504e6428bf99f10246260))
+* mesh sharing group ([9afeebf](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/9afeebf67212cdf4d3ac9e9a3b78a7ced5c7ecfe))
+* random mesh sharing group ([4fa43ed](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/4fa43eda4bc70c9c827c4fad9d5ae1327bfbc322))
+* support 8+ materials ([b76bf5a](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/b76bf5a5ad378c3c4b16bcf08d21337757557101)), closes [#122](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/122) [#152](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/152) [#186](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/186)
+
+
+### BREAKING CHANGES
+
+* If you update to v4, you may be required to adjust your UIParticle.scale.
+
+# [4.0.0-preview.1](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.12...4.0.0-preview.1) (2022-06-18)
+
+
+### Bug Fixes
+
+* correct world space particle position when changing screen size ([c6644a2](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/c6644a213263375c7a35b5082ef4b71cc58964e6))
+* keep properly canvas batches ([d8e96e6](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/d8e96e69a62dff7a451eaed32c7a814e7e62dbb9))
+
+
+### Features
+
+* adaptive scaling for UI ([aa0d56f](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/aa0d56f9faa05e9679d4b476bcf135eafb1b8af9))
+* add overlay window for UIParticle ([7b21c50](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/7b21c500ef78103b605fdca71051d2357b09602f))
+* add particle attractor component ([386170c](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/386170cbf68ebf59d4510fe0a45cf83925ec9ba4))
+* mesh sharing group ([9afeebf](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/9afeebf67212cdf4d3ac9e9a3b78a7ced5c7ecfe))
+* random mesh sharing group ([4fa43ed](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/4fa43eda4bc70c9c827c4fad9d5ae1327bfbc322))
+* support 8+ materials ([b76bf5a](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/b76bf5a5ad378c3c4b16bcf08d21337757557101)), closes [#122](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/122) [#152](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/152) [#186](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/186)
+
+
+### BREAKING CHANGES
+
+* If you update to v4, you may be required to adjust your UIParticle.scale.
+
+## [3.3.12](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.11...3.3.12) (2022-06-10)
+
+
+### Bug Fixes
+
+* always display materials in inspector ([a10042d](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/a10042d989dea18ff010bdbe970aa434e2bdf117))
+* UNITY_UI_ALPHACLIP in UIAdditive shader is not working ([e817e8d](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/e817e8d3c75188f3243243855b135bd840699199))
+
+## [3.3.11](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.10...3.3.11) (2022-06-10)
+
+
+### Bug Fixes
+
+* sorting by layer does not work properly ([ccc09e6](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/ccc09e6aca2fa3d7bc887e6c733e66706e40ae0f))
+* when using linear color space, the particle colors are not output correctly ([11c3a7b](https://github.com/mob-sakai/ParticleEffectForUGUI/commit/11c3a7b37415d78e1b8ba3988a6e043c9f1861e0)), closes [#203](https://github.com/mob-sakai/ParticleEffectForUGUI/issues/203)
+
 ## [3.3.10](https://github.com/mob-sakai/ParticleEffectForUGUI/compare/3.3.9...3.3.10) (2022-02-17)
 
 
