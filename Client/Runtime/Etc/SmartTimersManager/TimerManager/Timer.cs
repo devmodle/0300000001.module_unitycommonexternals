@@ -69,6 +69,10 @@ namespace Timers
             {
 				// FIXME: dante (타이머 모드 추가) {
 				m_ElapsedTime += (m_TimerMode == TimerMode.NORM) ? Mathf.Clamp01(Time.deltaTime) : Mathf.Clamp01(Time.unscaledDeltaTime);
+
+#if NEVER_USE_THIS
+				m_ElapsedTime += Time.deltaTime;
+#endif // #if NEVER_USE_THIS
 				// FIXME: dante (타이머 모드 추가) }
 
 				m_CurrentCycleElapsedTime = m_ElapsedTime - m_CurrentLoopsCount * m_Interval;
