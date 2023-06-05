@@ -68,7 +68,7 @@ namespace EnhancedUI.EnhancedScroller
     /// power in your application.
     /// </summary>
     [RequireComponent(typeof(ScrollRect))]
-    public class EnhancedScroller : MonoBehaviour, IBeginDragHandler, IEndDragHandler
+    public class EnhancedScroller : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
     {
         #region Public
 
@@ -222,6 +222,23 @@ namespace EnhancedUI.EnhancedScroller
         /// While false, this will disable snapping until the dragging stops.
         /// </summary>
 		public bool snapWhileDragging;
+
+        /// <summary>
+        /// Will cause a snap to occur (if snapping is true) when the scroller stops
+        /// dragging. Useful if the touch has moved the scroller, but then is static
+        /// before releasing.
+        /// </summary>
+        public bool forceSnapOnEndDrag;
+
+        /// <summary>
+        /// Will stop the snap tweening if the touch re-engages the scroller
+        /// </summary>
+        public bool interruptTweeningOnDrag;
+
+        /// <summary>
+        /// If true, the tweening will not process. If false, tweening will resume.
+        /// </summary>
+        public bool tweenPaused;
 
         /// <summary>
         /// The amount of space to look ahead before the scroller position.
@@ -1146,6 +1163,28 @@ namespace EnhancedUI.EnhancedScroller
             return null;
         }
 
+
+        /// <summary>
+        /// Toggles the tween paused state.
+        /// Use this if you want to resume tweening from the current scroll position instead of
+        /// where the tween left off when paused.
+        /// </summary>
+        /// <param name="newTweenTime">Optional new tween time. -1 will use the remaining tween time left.</param>
+        public void ToggleTweenPaused(float newTweenTime = -1)
+        {
+            if (!tweenPaused)
+            {
+                tweenPaused = true;
+                _tweenPauseToggledOff = false;
+            }
+            else
+            {
+                tweenPaused = false;
+                _tweenPauseToggledOff = true;
+                _tweenPauseNewTweenTime = newTweenTime;
+            }
+        }
+
         #endregion
 
         #region Private
@@ -1359,6 +1398,18 @@ namespace EnhancedUI.EnhancedScroller
         /// Used in OnBeginDrag and OnEndDrag
         /// </summary>
         private int _dragFingerCount;
+
+        /// <summary>
+        /// Internal variable to disable tweening while in progress. This is set by
+        /// OnBeginDrag under certain conditions.
+        /// </summary>
+        private bool _interruptTween;
+
+        /// <summary>
+        /// Stores the last drag position in order to calculate if we need to
+        /// do a force snap on OnEndDrag.
+        /// </summary>
+        private Vector2 _dragPreviousPos;
 
         /// <summary>
         /// Where in the list we are
@@ -1929,14 +1980,29 @@ namespace EnhancedUI.EnhancedScroller
 			{
 				loop = false;
 			}
-		}
 
-		/// <summary>
-        /// This event is fired when the user ends dragging on the scroller.
-		/// We can re-enable looping or snapping while dragging if desired.
-		/// <param name="data">The event data for the drag</param>
+            if (IsTweening && interruptTweeningOnDrag)
+            {
+                _interruptTween = true;
+            }
+        }
+
+        /// <summary>
+        /// This event is fired while the user is dragging the ScrollRect.
+        /// We use it to capture the drag position that will later be used in the OnEndDrag method.
         /// </summary>
-		public void OnEndDrag(PointerEventData data)
+        /// <param name="data">The event data for the drag</param>
+        public void OnDrag(PointerEventData data)
+        {
+            _dragPreviousPos = data.position;
+        }
+
+        /// <summary>
+        /// This event is fired when the user ends dragging on the scroller.
+        /// We can re-enable looping or snapping while dragging if desired.
+        /// <param name="data">The event data for the drag</param>
+        /// </summary>
+        public void OnEndDrag(PointerEventData data)
 		{
             _dragFingerCount--;
             if (_dragFingerCount < 0) _dragFingerCount = 0;
@@ -1944,7 +2010,12 @@ namespace EnhancedUI.EnhancedScroller
 			// reset the snapping and looping to what it was before the drag
 			snapping = _snapBeforeDrag;
 			loop = _loopBeforeDrag;
-		}
+
+            if (forceSnapOnEndDrag && snapping && _dragPreviousPos == data.position)
+            {
+                Snap();
+            }
+        }
 
         void Update()
         {
@@ -2143,6 +2214,8 @@ namespace EnhancedUI.EnhancedScroller
         }
 
         private float _tweenTimeLeft;
+        private bool _tweenPauseToggledOff;
+        private float _tweenPauseNewTweenTime;
 
         /// <summary>
         /// Moves the scroll position over time between two points given an easing function. When the
@@ -2152,7 +2225,8 @@ namespace EnhancedUI.EnhancedScroller
         /// <param name="time">The amount of time to interpolate</param>
         /// <param name="start">The starting scroll position</param>
         /// <param name="end">The ending scroll position</param>
-        /// <param name="jumpComplete">The action to fire when the tween is complete</param>
+        /// <param name="tweenComplete">The action to fire when the tween is complete</param>
+        /// <param name="forceCalculateRange">Make the scroller calculate the active (visible) cells at the end of the tween. Useful if the scroller has not moved, but was reloaded.</param>
         /// <returns></returns>
         IEnumerator TweenPosition(TweenType tweenType, float time, float start, float end, Action tweenComplete, bool forceCalculateRange)
         {
@@ -2169,69 +2243,97 @@ namespace EnhancedUI.EnhancedScroller
                 var newPosition = 0f;
 
                 // while the tween has time left, use an easing function
-                while (_tweenTimeLeft < time)
+                while (_tweenTimeLeft < time && !_interruptTween)
                 {
-                    switch (tweenType)
+                    if (!tweenPaused)
                     {
-                        case TweenType.linear: newPosition = linear(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.spring: newPosition = spring(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInQuad: newPosition = easeInQuad(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutQuad: newPosition = easeOutQuad(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutQuad: newPosition = easeInOutQuad(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInCubic: newPosition = easeInCubic(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutCubic: newPosition = easeOutCubic(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutCubic: newPosition = easeInOutCubic(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInQuart: newPosition = easeInQuart(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutQuart: newPosition = easeOutQuart(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutQuart: newPosition = easeInOutQuart(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInQuint: newPosition = easeInQuint(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutQuint: newPosition = easeOutQuint(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutQuint: newPosition = easeInOutQuint(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInSine: newPosition = easeInSine(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutSine: newPosition = easeOutSine(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutSine: newPosition = easeInOutSine(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInExpo: newPosition = easeInExpo(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutExpo: newPosition = easeOutExpo(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutExpo: newPosition = easeInOutExpo(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInCirc: newPosition = easeInCirc(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutCirc: newPosition = easeOutCirc(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutCirc: newPosition = easeInOutCirc(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInBounce: newPosition = easeInBounce(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutBounce: newPosition = easeOutBounce(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutBounce: newPosition = easeInOutBounce(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInBack: newPosition = easeInBack(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutBack: newPosition = easeOutBack(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutBack: newPosition = easeInOutBack(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInElastic: newPosition = easeInElastic(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeOutElastic: newPosition = easeOutElastic(start, end, (_tweenTimeLeft / time)); break;
-                        case TweenType.easeInOutElastic: newPosition = easeInOutElastic(start, end, (_tweenTimeLeft / time)); break;
+                        if (_tweenPauseToggledOff)
+                        {
+                            _tweenPauseToggledOff = false;
+                            start = ScrollPosition;
+                            time = (_tweenPauseNewTweenTime < 0 ? _tweenTimeLeft : _tweenPauseNewTweenTime);
+                            _tweenTimeLeft = 0;
+                        }
+
+                        switch (tweenType)
+                        {
+                            case TweenType.linear: newPosition = linear(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.spring: newPosition = spring(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInQuad: newPosition = easeInQuad(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutQuad: newPosition = easeOutQuad(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutQuad: newPosition = easeInOutQuad(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInCubic: newPosition = easeInCubic(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutCubic: newPosition = easeOutCubic(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutCubic: newPosition = easeInOutCubic(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInQuart: newPosition = easeInQuart(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutQuart: newPosition = easeOutQuart(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutQuart: newPosition = easeInOutQuart(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInQuint: newPosition = easeInQuint(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutQuint: newPosition = easeOutQuint(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutQuint: newPosition = easeInOutQuint(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInSine: newPosition = easeInSine(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutSine: newPosition = easeOutSine(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutSine: newPosition = easeInOutSine(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInExpo: newPosition = easeInExpo(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutExpo: newPosition = easeOutExpo(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutExpo: newPosition = easeInOutExpo(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInCirc: newPosition = easeInCirc(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutCirc: newPosition = easeOutCirc(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutCirc: newPosition = easeInOutCirc(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInBounce: newPosition = easeInBounce(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutBounce: newPosition = easeOutBounce(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutBounce: newPosition = easeInOutBounce(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInBack: newPosition = easeInBack(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutBack: newPosition = easeOutBack(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutBack: newPosition = easeInOutBack(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInElastic: newPosition = easeInElastic(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeOutElastic: newPosition = easeOutElastic(start, end, (_tweenTimeLeft / time)); break;
+                            case TweenType.easeInOutElastic: newPosition = easeInOutElastic(start, end, (_tweenTimeLeft / time)); break;
+                        }
+
+                        // set the scroll position to the tweened position
+                        ScrollPosition = newPosition;
+
+                        // increase the time elapsed
+                        _tweenTimeLeft += Time.unscaledDeltaTime;
                     }
-
-                    // set the scroll position to the tweened position
-                    ScrollPosition = newPosition;
-
-                    // increase the time elapsed
-                    _tweenTimeLeft += Time.unscaledDeltaTime;
 
                     yield return null;
                 }
             }
 
-            // the time has expired, so we make sure the final scroll position
-            // is the actual end position.
-            ScrollPosition = end;
-
-            if (forceCalculateRange)
+            if (_interruptTween)
             {
-                _RefreshActive();
+                // the tween was interrupted so we need to set the flag and call the tweening changed delegate.
+                // note that we don't set the end position or call the tweenComplete delegate.
+
+                _interruptTween = false;
+
+                // reset the snapJumping and scroller inertia
+                _snapJumping = false;
+                _scrollRect.inertia = _snapInertia;
+
+                IsTweening = false;
+                if (scrollerTweeningChanged != null) scrollerTweeningChanged(this, false);
             }
+            else
+            {
+                // the time has expired, so we make sure the final scroll position
+                // is the actual end position.
+                ScrollPosition = end;
 
-            // the tween jump is complete, so we fire the delegate
-            if (tweenComplete != null) tweenComplete();
+                if (forceCalculateRange || tweenType == TweenType.immediate || time == 0)
+                {
+                    _RefreshActive();
+                }
 
-            // fire the delegate for the tween ending
-            IsTweening = false;
-            if (scrollerTweeningChanged != null) scrollerTweeningChanged(this, false);
+                // the tween jump is complete, so we fire the delegate
+                if (tweenComplete != null) tweenComplete();
+
+                // fire the delegate for the tween ending
+                IsTweening = false;
+                if (scrollerTweeningChanged != null) scrollerTweeningChanged(this, false);
+            }
         }
 
 

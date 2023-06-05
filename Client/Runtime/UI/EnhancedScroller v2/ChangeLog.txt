@@ -2,6 +2,51 @@ EnhancedScroller
 http://u3d.as/fXk
 
 
+Version 2.37.0
+16 May 2023
+Requires Unity 2019.4.4f1+
+
+    Features:
+        - Added ToggleTweenPaused method to allow pausing and resuming tween from the new position the scroller is in. Optional parameter of new tween time can be set (negative values will just restore the remaining tween time left).
+
+
+Version 2.36.0
+3 May 2023
+Requires Unity 2019.4.4f1+
+
+    Features:
+        - Added tweenPaused public member to EnhancedScroller.cs. When true, tweening will not process. When false, tweening will resume.
+
+
+Version 2.35.1
+20 April 2023
+Requires Unity 2019.4.4f1+
+
+    Fixes:
+        - Improvements to forceSnapOnEndDrag
+
+
+Version 2.35.0
+19 April 2023
+Requires Unity 2019.4.4f1+
+
+    Fixes:
+        - Added documentation to TweenPosition for parameter forceCalculateRange
+        - Changed documentation for TweenPosition parameter tweenComplete
+
+    Features:
+        - Added forceSnapOnEndDrag to call the Snapping method when the touch drag is completed (if snapping is enabled). Useful to start snap if the touch is moved, then halted before releasing
+        - Added interruptTweeningOnDrag to allow the touch to stop a snap tween while in progress, giving control back to the ScrollRect for dragging
+
+
+Version 2.34.0
+20 January 2023
+Requires Unity 2019.4.4f1+
+
+    Features:
+        - Added Assembly Definition file for faster compilation
+
+
 Version 2.33.0
 6 April 2022
 Requires Unity 2019.4.4f1+

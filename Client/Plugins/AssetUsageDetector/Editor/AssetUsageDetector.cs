@@ -985,9 +985,13 @@ namespace AssetUsageDetectorNamespace
 			if( obj == null || obj.Equals( null ) )
 				return null;
 
-			// Avoid recursion (which leads to stackoverflow exception) using a stack
-			if( callStack.ContainsFast( obj ) )
-				return null;
+			// Avoid recursion (which leads to stackoverflow exception) using a stack (initially, I was using callStack.ContainsFast
+			// here but it returned false for objects that do exist in the call stack if VFX Graph window was open)
+			for( int i = callStack.Count - 1; i >= 0; i-- )
+			{
+				if( callStack[i].Equals( obj ) )
+					return null;
+			}
 
 			bool searchingSourceAsset = searchingSourceAssets && ReferenceEquals( currentSearchedObject, obj );
 
@@ -1027,7 +1031,7 @@ namespace AssetUsageDetectorNamespace
 				callStack.Add( unityObject );
 
 				// Search the Object in detail
-				Func<Object, ReferenceNode> searchFunction;
+				Func<object, ReferenceNode> searchFunction;
 				if( assetPath != null && extensionToSearchFunction.TryGetValue( Utilities.GetFileExtension( assetPath ), out searchFunction ) && AssetDatabase.IsMainAsset( unityObject ) )
 					result = searchFunction( unityObject );
 				else if( typeToSearchFunction.TryGetValue( unityObject.GetType(), out searchFunction ) )

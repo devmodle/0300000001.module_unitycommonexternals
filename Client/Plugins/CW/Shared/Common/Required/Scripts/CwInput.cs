@@ -1,4 +1,4 @@
-#if ENABLE_INPUT_SYSTEM && __INPUTSYSTEM__
+﻿#if ENABLE_INPUT_SYSTEM && __INPUTSYSTEM__
 	#define USE_NEW_INPUT_SYSTEM
 	using NewCode = UnityEngine.InputSystem.Key;
 #endif
