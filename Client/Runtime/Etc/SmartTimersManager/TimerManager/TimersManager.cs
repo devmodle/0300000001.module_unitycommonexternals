@@ -10,8 +10,17 @@ namespace Timers
     [DefaultExecutionOrder(-9999999)]
     public class TimersManager : MonoBehaviour
     {
-        // Ensure we only have a single instance of the TimersManager loaded (singleton pattern).
-        private static TimersManager m_instance = null;
+		// FIXME: dante (소유자 기반 타이머 메서드 추가) {
+		public static void ClearTimer(object a_oOwner) {
+			Init();
+			KeyValuePair<int, Timer> item;
+			while((item = m_Timers.FirstOrDefault(x => x.Value.Owner == a_oOwner)).Value != null)
+				m_Timers.Remove(item.Key);
+		}
+		// FIXME: dante (소유자 기반 타이머 메서드 추가) }
+
+		// Ensure we only have a single instance of the TimersManager loaded (singleton pattern).
+		private static TimersManager m_instance = null;
 
         // A map of weak references. When an object is garbage collected, all its timers are automatically removed.
         private static IDictionary<int, Timer> m_Timers = new Dictionary<int, Timer>();
