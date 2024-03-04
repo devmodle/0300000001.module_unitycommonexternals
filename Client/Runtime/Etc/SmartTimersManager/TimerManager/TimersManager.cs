@@ -1,68 +1,39 @@
-using UnityEngine;
-using UnityEngine.Events;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Timers
 {
     // The TimerManager manages all scheduled timers. This includes both the regular execution of timers, as well as the cleanup of timers after garbage collection.
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(-9999999)]
     public class TimersManager : MonoBehaviour
     {
         // Ensure we only have a single instance of the TimersManager loaded (singleton pattern).
         private static TimersManager m_instance = null;
 
         // A map of weak references. When an object is garbage collected, all its timers are automatically removed.
-        private static IDictionary<WeakReference, Timer> m_Timers = new Dictionary<WeakReference, Timer>();
+        private static IDictionary<int, Timer> m_Timers = new Dictionary<int, Timer>();
 
         // Whether the game is paused
         private static bool m_bPaused = false;
 
-		// Key weak reference
-		private static List<WeakReference> Keys = new List<WeakReference>();
+        private List<int> cachedKeys = new List<int>(500);
 
-        void Awake()
+        private static void Init()
         {
-            if (m_instance != null)
+            if (!m_instance)
             {
-#if UNITY_EDITOR
-                Debug.LogWarning("An instance of Timer has already been loaded. Multiple instances are not necessary and will be destroyed.");
-#endif
-                Destroy(this);
+                m_instance = new GameObject("TimersManager").AddComponent<TimersManager>();
+                DontDestroyOnLoad(m_instance.gameObject);
             }
-
-            DontDestroyOnLoad(this);
-            DontDestroyOnLoad(gameObject);
-            m_instance = this;
         }
 
-		// FIXME: dante (컴포넌트 기반 타이머 제거 함수 추가) {
-		private static void FindAndRemove(WeakReference Owner) {
-			var oRemoveKeyList = new List<WeakReference>();
-
-            foreach(var stKeyVal in m_Timers) {
-				// 타겟이 동일 할 경우
-                if(stKeyVal.Key.Target == Owner.Target) {
-					oRemoveKeyList.Add(stKeyVal.Key);
-                }
-            }
-
-			for(int i = 0; i < oRemoveKeyList.Count; ++i) {
-				m_Timers.Remove(oRemoveKeyList[i]);
-			}
-        }
-		// FIXME: dante (컴포넌트 기반 타이머 제거 함수 추가) }
-
-        private static void FindAndRemove(UnityAction UnityAction)
+        private void Start()
         {
-            foreach (KeyValuePair<WeakReference, Timer> elem in m_Timers)
-            {
-                if (elem.Value.Delegate() == UnityAction)
-                {
-                    m_Timers.Remove(elem.Key);
-                    break;
-                }
-            }
+            if (m_instance != this)
+                DestroyImmediate(gameObject);
         }
 
         private void Update()
@@ -70,19 +41,23 @@ namespace Timers
             if (m_bPaused)
                 return;
 
-			Keys.Clear();
-			Keys.AddRange(m_Timers.Keys);
-			
-            foreach (WeakReference key in Keys)
+            int count = -1;
+            foreach (int id in m_Timers.Keys)
             {
-                Timer timer = null;
-                if (m_Timers.TryGetValue(key, out timer))
-                {
-                    if (key.Target != null && !key.Target.Equals(null))
-                        timer.UpdateTimer();
+                if (++count < cachedKeys.Count)
+                    cachedKeys[count] = id;
+                else
+                    cachedKeys.Add(id);
+            }
 
-                    if (key.Target == null || key.Target.Equals(null) || timer == null || timer.ShouldClear())
-                        m_Timers.Remove(key);
+            for (int i = 0; i <= count; ++i)
+            {
+                var id = cachedKeys[i];
+                if (m_Timers.TryGetValue(id, out var timer))
+                {
+                    timer.Update();
+                    if (timer.ShouldClear)
+                        m_Timers.Remove(id);
                 }
             }
         }
@@ -92,124 +67,157 @@ namespace Timers
             m_bPaused = pauseStatus;
         }
 
-
         /// <summary>
         /// Set timer
-        /// </summary>
-        /// <param name="Owner">The object that contains the timer. Required in order to remove the timer if the object is destroyed.</param>
+        /// </summary>owner
         /// <param name="timer">Timer to add</param>
-        public static void SetTimer(object Owner, Timer timer)
+        /// <param name="overrideOld">If true(default), then it overrides the previously set timer that points to the same action. Timers with the same ID (HashCode) will be overriden regardless.</param>
+        /// <return>The id of the timer</return>
+        public static int SetTimer(Timer timer, bool overrideOld = true)
         {
-            if (timer.Delegate() != null && timer.Interval() > 0f && Owner != null && timer.LoopsCount() > 0)
+            Init();
+            if (timer == null)
             {
-                ClearTimer(timer.Delegate());
-                m_Timers.Add(new WeakReference(Owner), timer);
+                Debug.LogException(new Exception("Trying to set an invalid null target"));
+                return 0;
             }
+
+            if (timer.Action != null && timer.Interval > 0f && timer.LoopsCount > 0)
+            {
+                ClearTimer(timer.Id);
+                if (overrideOld)
+                    ClearTimer(timer.Action);
+                m_Timers.Add(timer.Id, timer);
+                return timer.Id;
+            }
+            return 0;
         }
 
         /// <summary>
         /// Set a timer that loops LoopCount times
         /// </summary>
-        /// <param name="Owner">The object that contains the timer. Required in order to remove the timer if the object is destroyed.</param>
+        /// <param name="owner">The object that contains the timer. Required in order to remove the timer if the object is destroyed.</param>
         /// <param name="interval">Interval(in seconds) between loops</param>
-        /// <param name="LoopsCount">How many times to loop</param>
-        /// <param name="UnityAction">Delegate</param>
-        public static void SetTimer(object Owner, float interval, uint LoopsCount, UnityAction unityAction)
+        /// <param name="loopsCount">How many times to loop</param>
+        /// <param name="action">Delegate</param>
+        /// <param name="overrideOld">If true(default), then it overrides the previously set timer that points to the same action.</param>
+        /// <return>The id of the timer</return>
+        public static int SetTimer(object owner, float interval, uint loopsCount, Action action, bool unscaledTime = false, bool overrideOld = true)
         {
-            LoopsCount = System.Math.Max(LoopsCount, 1);
-            if (unityAction != null && interval > 0f && Owner != null && LoopsCount > 0)
-            {
-                ClearTimer(unityAction);
-                m_Timers.Add(new WeakReference(Owner), new Timer(interval, LoopsCount, unityAction));
-            }
+            loopsCount = System.Math.Max(loopsCount, 1);
+            var timer = new Timer(owner, interval, loopsCount, unscaledTime, action);
+            return SetTimer(timer, overrideOld);
         }
 
         /// <summary>
         /// Set a timer that activates only once.
         /// </summary>
-        /// <param name="Owner">The object that contains the timer. Required in order to remove the timer if the object is destroyed.</param>
+        /// <param name="owner">The object that contains the timer. Required in order to remove the timer if the object is destroyed.</param>
         /// <param name="interval">Interval(in seconds) between loops</param>
-        /// <param name="UnityAction">Delegate</param>
-        public static void SetTimer(object Owner, float interval, UnityAction unityAction)
+        /// <param name="action">Delegate</param>
+        /// <param name="overrideOld">If true(default), then it overrides the previously set timer that points to the same action.</param>
+        /// <return>The id of the timer</return>
+        public static int SetTimer(object owner, float interval, Action action, bool unscaledTime = false, bool overrideOld = true)
         {
-            if (unityAction != null && interval > 0f && Owner != null)
-            {
-                ClearTimer(unityAction);
-                m_Timers.Add(new WeakReference(Owner), new Timer(interval, 1, unityAction));
-            }
+            var timer = new Timer(owner, interval, 1, unscaledTime, action);
+            return SetTimer(timer, overrideOld);
         }
 
         /// <summary>
         /// Set an infinitely loopable timer
         /// </summary>
-        /// <param name="Owner">The object that contains the timer. Required in order to remove the timer if the object is destroyed.</param>
+        /// <param name="owner">The object that contains the timer. Required in order to remove the timer if the object is destroyed.</param>
         /// <param name="interval">Interval(in seconds)</param>
         /// <param name="unityAction">Delegate</param>
-        public static void SetLoopableTimer(object Owner, float interval, UnityAction unityAction)
+        /// <param name="overrideOld">If true(default), then it overrides the previously set timer that points to the same action.</param>
+        /// <return>The id of the timer</return>
+        public static int SetLoopableTimer(object owner, float interval, Action action, bool unscaledTime = false, bool overrideOld = true)
         {
-            if (unityAction != null && interval > 0f && Owner != null)
+            var timer = new Timer(owner, interval, Timer.INFINITE_LOOPS, unscaledTime, action);
+            return SetTimer(timer, overrideOld: overrideOld);
+        }
+
+        /// <summary>
+        /// Add a list of timers. Works great with List<Timer> in inspector. See 'TimersList.cs' for an example.
+        /// </summary>
+        /// <param name="owner">Owner of timers. This should be the object that have these timers. Required in order to remove the timers if the object is destroyed.</param>
+        /// <param name="timers">Timers list</param>
+        /// <param name="overrideOld">If true(default), then it overrides the previously set timers that point to the same action. Timers with the same ID will be overriden regardless.</param>
+        /// <return>The ids of the timers</return>
+        public static IEnumerable<int> AddTimers(object owner, IEnumerable<Timer.Descriptor> timers, bool overrideOld = true)
+        {
+            foreach (var timerDescriptor in timers)
             {
-                ClearTimer(unityAction);
-                m_Timers.Add(new WeakReference(Owner), new Timer(interval, Timer.INFINITE, unityAction));
+                var timer = Timer.FromDescriptor(owner, timerDescriptor);
+                yield return SetTimer(timer, overrideOld);
             }
         }
 
         /// <summary>
         /// Add a list of timers. Works great with List<Timer> in inspector. See 'TimersList.cs' for an example.
         /// </summary>
-        /// <param name="Owner">Owner of timers. This should be the object that have these timers. Required in order to remove the timers if the object is destroyed.</param>
-        /// <param name="Timers">Timers list</param>
-        public static void AddTimers(object Owner, List<Timer> Timers)
+        /// <param name="owner">Owner of timers. This should be the object that have these timers. Required in order to remove the timers if the object is destroyed.</param>
+        /// <param name="timers">Timers list</param>
+        /// <param name="overrideOld">If true(default), then it overrides the previously set timers that point to the same action. Timers with the same ID (HashCode) will be overriden regardless.</param>
+        public static void AddTimers(IEnumerable<Timer> timers, bool overrideOld = true)
         {
-            if (Owner == null)
-            {
-#if UNITY_EDITOR
-                Debug.LogWarning("Owner is null. Aborted.");
-#endif
-                return;
-            }
-
-            foreach (Timer timer in Timers)
-            {
-                if (timer.Interval() > 0f && Owner != null && timer.LoopsCount() > 0)
-                {
-                    timer.UpdateActionFromEvent();
-                    m_Timers.Add(new WeakReference(Owner), timer);
-                }
-            }
+            foreach (Timer timer in timers)
+                SetTimer(timer, overrideOld);
         }
-
-		// FIXME: dante (컴포넌트 기반 타이머 제거 함수 추가) {
-		/// <summary>
-        /// Remove a certain timer
-        /// </summary>
-        /// <param name="UnityAction">Delegate name</param>
-        public static void ClearTimer(WeakReference Owner)
-        {
-            if (Owner != null)
-                FindAndRemove(Owner);
-        }
-		// FIXME: dante (컴포넌트 기반 타이머 제거 함수 추가) }
 
         /// <summary>
         /// Remove a certain timer
         /// </summary>
-        /// <param name="UnityAction">Delegate name</param>
-        public static void ClearTimer(UnityAction UnityAction)
+        /// <param name="action">Action</param>
+        public static void ClearTimer(Action action)
         {
-            if (UnityAction != null)
-                FindAndRemove(UnityAction);
+            Init();
+            KeyValuePair<int, Timer> item;
+            while ((item = m_Timers.FirstOrDefault(x => x.Value.Action == action)).Value != null)
+                m_Timers.Remove(item.Key);
+        }
+
+        /// <summary>
+        /// Remove a certain timer
+        /// </summary>
+        /// <param name="action">Action</param>
+        public static void ClearTimer(int id)
+        {
+            Init();
+            m_Timers.Remove(id);
+        }
+
+        /// <summary>
+        /// Get all timers that have the referenced owner
+        /// </summary>owner
+        /// <param name="owner">Owner reference</param>
+        public static IEnumerable<Timer> GetTimersByOwner(object owner)
+        {
+            Init();
+            foreach (var item in m_Timers.Where(x => x.Value.Owner == owner))
+                yield return item.Value;
         }
 
         /// <summary>
         /// Get timer by name (which is the delegate's name)
         /// </summary>
-        /// <param name="UnityAction">Delegate name</param>
-        public static Timer GetTimerByName(UnityAction UnityAction)
+        /// <param name="action">Action</param>
+        public static IEnumerable<Timer> GetTimersByAction(Action action)
         {
-            foreach (KeyValuePair<WeakReference, Timer> elem in m_Timers)
-                if (elem.Value.Delegate() == UnityAction)
-                    return elem.Value;
+            Init();
+            foreach (var item in m_Timers.Where(x => x.Value.Action == action))
+                yield return item.Value;
+        }
+
+        /// <summary>
+        /// Get timer by name (which is the delegate's name)
+        /// </summary>
+        /// <param name="id">Timer id</param>
+        public static Timer GetTimer(int id)
+        {
+            Init();
+            if (m_Timers.ContainsKey(id))
+                return m_Timers[id];
 
             return null;
         }
@@ -217,74 +225,74 @@ namespace Timers
         /// <summary>
         /// Get timer interval. Returns 0 if not found.
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static float Interval(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? 0f : timer.Interval(); }
+        /// <param name="id">Timer id</param>
+        public static float Interval(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? 0f : timer.Interval; }
 
         /// <summary>
         /// Get total loops count (INFINITE (which is uint.MaxValue) if is constantly looping) 
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static uint LoopsCount(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? 0 : timer.LoopsCount(); }
+        /// <param name="id">Timer id</param>
+        public static uint LoopsCount(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? 0 : timer.LoopsCount; }
 
         /// <summary>
         /// Get how many loops were completed
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static uint CurrentLoopsCount(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? 0 : timer.CurrentLoopsCount(); }
+        /// <param name="id">Timer id</param>
+        public static uint CurrentLoopsCount(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? 0 : timer.CurrentLoopsCount; }
 
         /// <summary>
         /// Get how many loops remained to completion
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static uint RemainingLoopsCount(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? 0 : timer.RemainingLoopsCount(); }
+        /// <param name="id">Timer id</param>
+        public static uint RemainingLoopsCount(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? 0 : timer.RemainingLoopsCount; }
 
         /// <summary>
         /// Get total remaining time
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static float RemainingTime(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? -1f : timer.RemainingTime(); }
+        /// <param name="id">Timer id</param>
+        public static float RemainingTime(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? -1f : timer.RemainingTime; }
 
         /// <summary>
         /// Get total elapsed time
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static float ElapsedTime(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? -1f : timer.ElapsedTime(); }
+        /// <param name="id">Timer id</param>
+        public static float ElapsedTime(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? -1f : timer.ElapsedTime; }
 
         /// <summary>
         /// Get elapsed time in current loop
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static float CurrentCycleElapsedTime(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? -1f : timer.CurrentCycleElapsedTime(); }
+        /// <param name="id">Timer id</param>
+        public static float CurrentCycleElapsedTime(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? -1f : timer.CurrentCycleElapsedTime; }
 
         /// <summary>
         /// Get remaining time in current loop
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static float CurrentCycleRemainingTime(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? -1f : timer.CurrentCycleRemainingTime(); }
+        /// <param name="id">Timer id</param>
+        public static float CurrentCycleRemainingTime(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? -1f : timer.CurrentCycleRemainingTime; }
 
         /// <summary>
         /// Verifies whether the timer exits
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static bool IsTimerActive(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer != null; }
+        /// <param name="id">Timer id</param>
+        public static bool IsTimerActive(int id) { Init(); Timer timer = GetTimer(id); return timer != null; }
 
         /// <summary>
         /// Checks if the timer is paused
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static bool IsTimerPaused(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? false : timer.IsPaused(); }
+        /// <param name="id">Timer id</param>
+        public static bool IsTimerPaused(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? false : timer.IsPaused; }
 
         /// <summary>
         /// Pause / Unpause timer
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        ///  <param name="bPause">true - pause, false - unpause</param>
-        public static void SetPaused(UnityAction unityAction, bool bPause) { Timer timer = GetTimerByName(unityAction); if (timer != null) timer.SetPaused(bPause); }
+        /// <param name="id">Timer id</param>
+        /// <param name="bPause">true - pause, false - unpause</param>
+        public static void SetPaused(int id, bool bPause) { Init(); Timer timer = GetTimer(id); if (timer != null) timer.SetPaused(bPause); }
 
         /// <summary>
         /// Get total duration, (INFINITE if it's constantly looping)
         /// </summary>
-        /// <param name="unityAction">Delegate name</param>
-        public static float Duration(UnityAction unityAction) { Timer timer = GetTimerByName(unityAction); return timer == null ? 0f : timer.Duration(); }
+        /// <param name="id">Timer id</param>
+        public static float Duration(int id) { Init(); Timer timer = GetTimer(id); return timer == null ? 0f : timer.Duration; }
     }
 }

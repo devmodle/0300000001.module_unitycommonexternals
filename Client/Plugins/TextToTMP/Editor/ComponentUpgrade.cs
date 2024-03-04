@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using TMPro;
@@ -24,7 +25,8 @@ namespace TextToTMPNamespace
 		private readonly HashSet<string> upgradedPrefabs = new HashSet<string>();
 		private readonly List<PrefabInstancesRemovedComponent> upgradedComponentsToRemoveInPrefabInstances = new List<PrefabInstancesRemovedComponent>();
 
-		private FieldInfo unityEventPersistentCallsField;
+		private FieldInfo unityEventPersistentCallsField, unityEventPersistentCallsListField, unityEventPersistentCallTargetField;
+		private FieldInfo inputFieldOnSubmitField;
 #if UNITY_2018_3_OR_NEWER
 		private MethodInfo prefabCyclicReferenceCheckerMethod;
 #endif
@@ -60,12 +62,28 @@ namespace TextToTMPNamespace
 				}
 
 #if UNITY_2018_3_OR_NEWER
-				// Upgrade base prefabs before their variant prefabs so that changes to the base prefabs are reflected to their
-				// variant prefabs before we start upgrading those variant prefabs
+				// Upgrade nested prefabs before their parent prefabs and base prefabs before their variant prefabs so that changes to
+				// the base prefabs are reflected to their variant prefabs before we start upgrading those variant prefabs
 				if( prefabCyclicReferenceCheckerMethod == null )
 					prefabCyclicReferenceCheckerMethod = typeof( PrefabUtility ).GetMethod( "CheckIfAddingPrefabWouldResultInCyclicNesting", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static );
 
-				prefabsToUpgrade.Sort( ( prefab1, prefab2 ) => (bool) prefabCyclicReferenceCheckerMethod.Invoke( null, new object[] { prefab1, prefab2 } ) ? -1 : 1 );
+				// Using selection sort instead of List.Sort because the latter requires a proper sort comparison function whereas ours
+				// is only transitive (which is sufficient for a partially ordered result using selection sort).
+				// About sort comparison functions: https://devblogs.microsoft.com/oldnewthing/20031023-00/?p=42063
+				for( int i = 0; i < prefabsToUpgrade.Count - 1; i++ )
+				{
+					int swapIndex = i;
+					for( int j = i + 1; j < prefabsToUpgrade.Count; j++ )
+					{
+						// If the prefab at index j is a nested/base prefab of the one at swapIndex, upgrade it first
+						if( (bool) prefabCyclicReferenceCheckerMethod.Invoke( null, new object[] { prefabsToUpgrade[j], prefabsToUpgrade[swapIndex] } ) )
+							swapIndex = j;
+					}
+
+					GameObject temp = prefabsToUpgrade[swapIndex];
+					prefabsToUpgrade[swapIndex] = prefabsToUpgrade[i];
+					prefabsToUpgrade[i] = temp;
+				}
 #endif
 
 				foreach( GameObject prefab in prefabsToUpgrade )
@@ -442,6 +460,9 @@ namespace TextToTMPNamespace
 			Color? caretColor = null;
 			try { caretColor = inputField.caretColor; } catch { }
 
+			if( inputFieldOnSubmitField == null )
+				inputFieldOnSubmitField = typeof( InputField ).GetField( "m_OnSubmit", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+
 			return new InputFieldProperties()
 			{
 				gameObject = inputField.gameObject,
@@ -471,6 +492,7 @@ namespace TextToTMPNamespace
 
 				// Copy UnityEvents
 				onEndEdit = CopyUnityEvent( inputField.onEndEdit ),
+				onSubmit = ( inputFieldOnSubmitField != null ) ? CopyUnityEvent( inputFieldOnSubmitField.GetValue( inputField ) as UnityEventBase ) : null,
 #if UNITY_5_3_OR_NEWER
 				onValueChanged = CopyUnityEvent( inputField.onValueChanged )
 #else
@@ -508,6 +530,24 @@ namespace TextToTMPNamespace
 			// Paste UnityEvents
 			PasteUnityEvent( tmp.onEndEdit, properties.onEndEdit );
 			PasteUnityEvent( tmp.onValueChanged, properties.onValueChanged );
+
+			/// <see cref="InputField.onSubmit"/> event isn't serialized in <see cref="TMP_InputField.onSubmit"/>, so its callbacks can't be copied directly.
+			/// A bridge component (<see cref="TMP_InputFieldOnSubmitEvent"/>) is used to serialize that event on TMPro.
+			if( properties.onSubmit != null && properties.onSubmit.persistentCalls != null )
+			{
+				stringBuilder.Append( "Upgrading InputField.OnSubmit event using " ).Append( typeof( TMP_InputFieldOnSubmitEvent ).Name ).Append( " component: " ).AppendLine( GetPathOfObject( tmp.transform ) );
+				TMP_InputFieldOnSubmitEvent bridgeComponent = tmp.GetComponent<TMP_InputFieldOnSubmitEvent>();
+				if( bridgeComponent == null && ( (IList) unityEventPersistentCallsListField.GetValue( properties.onSubmit.persistentCalls ) ).Count > 0 )
+					bridgeComponent = tmp.gameObject.AddComponent<TMP_InputFieldOnSubmitEvent>();
+
+				if( bridgeComponent != null )
+				{
+					PasteUnityEvent( bridgeComponent.onSubmit, properties.onSubmit );
+#if UNITY_2018_3_OR_NEWER
+					PrefabUtility.RecordPrefabInstancePropertyModifications( bridgeComponent );
+#endif
+				}
+			}
 		}
 
 		private TMP_Dropdown UpgradeDropdown( Dropdown dropdown, Dropdown prefabDropdown )
@@ -808,30 +848,91 @@ namespace TextToTMPNamespace
 			return verticalOverflow == VerticalWrapMode.Overflow ? TextOverflowModes.Overflow : TextOverflowModes.Truncate;
 		}
 
-		private object CopyUnityEvent( UnityEventBase target )
+		private UnityEventProperties CopyUnityEvent( UnityEventBase target )
 		{
+			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 			if( unityEventPersistentCallsField == null )
 			{
-				unityEventPersistentCallsField = typeof( UnityEventBase ).GetField( "m_PersistentCalls", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
-				if( unityEventPersistentCallsField == null )
+				Type type = typeof( UnityEventBase );
+				unityEventPersistentCallsField = type.GetField( "m_PersistentCalls", flags ) ?? type.GetField( "m_PersistentListeners", flags );
+				if( unityEventPersistentCallsField != null )
 				{
-					unityEventPersistentCallsField = typeof( UnityEventBase ).GetField( "m_PersistentListeners", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
-
-					if( unityEventPersistentCallsField == null )
+					type = unityEventPersistentCallsField.FieldType;
+					unityEventPersistentCallsListField = type.GetField( "m_Calls", flags ) ?? type.GetField( "m_Listeners", flags );
+					if( unityEventPersistentCallsListField != null )
 					{
-						stringBuilder.AppendLine( "<b>Couldn't copy UnityEvent</b>" );
-						return null;
+						type = unityEventPersistentCallsListField.FieldType.GetGenericArguments()[0];
+						unityEventPersistentCallTargetField = type.GetField( "m_Target", flags ) ?? type.GetField( "instance", flags );
 					}
+				}
+
+				if( unityEventPersistentCallTargetField == null )
+				{
+					stringBuilder.AppendLine( "<b>Couldn't copy UnityEvent</b>" );
+					return null;
 				}
 			}
 
-			return unityEventPersistentCallsField.GetValue( target );
+			// Duplicate the UnityEvent's persistentCalls because the original value is modified by Unity during the upgrade process and it affects this plugin
+			object persistentCalls = Activator.CreateInstance( unityEventPersistentCallsField.FieldType );
+			unityEventPersistentCallsListField.SetValue( persistentCalls, Activator.CreateInstance( unityEventPersistentCallsListField.FieldType, unityEventPersistentCallsListField.GetValue( unityEventPersistentCallsField.GetValue( target ) ) ) );
+
+			// If a listener's target object will be upgraded, its reference will be lost. In that case, keep track of the target GameObject to be able to restore the reference to the upgraded component later on
+			UnityEventProperties.TargetType[] targetTypes = new UnityEventProperties.TargetType[target.GetPersistentEventCount()];
+			GameObject[] targetGameObjects = new GameObject[target.GetPersistentEventCount()];
+			for( int i = 0; i < targetTypes.Length; i++ )
+			{
+				Component component = target.GetPersistentTarget( i ) as Component;
+				if( !component )
+					continue;
+
+				if( component is Text && WillUpgradeObject( component ) )
+					targetTypes[i] = UnityEventProperties.TargetType.Text;
+				else if( component is InputField && WillUpgradeObject( component ) )
+					targetTypes[i] = UnityEventProperties.TargetType.InputField;
+				else if( component is Dropdown && WillUpgradeObject( component ) )
+					targetTypes[i] = UnityEventProperties.TargetType.Dropdown;
+				else if( component is TextMesh && WillUpgradeObject( component ) )
+					targetTypes[i] = UnityEventProperties.TargetType.TextMesh;
+
+				if( targetTypes[i] != UnityEventProperties.TargetType.None )
+					targetGameObjects[i] = component.gameObject;
+			}
+
+			return new UnityEventProperties()
+			{
+				persistentCalls = persistentCalls,
+				targetTypes = targetTypes,
+				targetGameObjects = targetGameObjects,
+			};
 		}
 
-		private void PasteUnityEvent( UnityEventBase target, object unityEvent )
+		private void PasteUnityEvent( UnityEventBase target, UnityEventProperties unityEventProperties )
 		{
-			if( unityEvent != null )
-				unityEventPersistentCallsField.SetValue( target, unityEvent );
+			if( unityEventProperties != null && unityEventProperties.persistentCalls != null )
+			{
+				IList persistentCallsList = (IList) unityEventPersistentCallsListField.GetValue( unityEventProperties.persistentCalls );
+				for( int i = 0; i < unityEventProperties.targetTypes.Length; i++ )
+				{
+					GameObject gameObject = unityEventProperties.targetGameObjects[i];
+					if( !gameObject )
+						continue;
+
+					Component component = null;
+					switch( unityEventProperties.targetTypes[i] )
+					{
+						case UnityEventProperties.TargetType.Text: component = gameObject.GetComponent<TextMeshProUGUI>(); break;
+						case UnityEventProperties.TargetType.InputField: component = gameObject.GetComponent<TMP_InputField>(); break;
+						case UnityEventProperties.TargetType.Dropdown: component = gameObject.GetComponent<TMP_Dropdown>(); break;
+						case UnityEventProperties.TargetType.TextMesh: component = gameObject.GetComponent<TextMeshPro>(); break;
+					}
+
+					if( component )
+						unityEventPersistentCallTargetField.SetValue( persistentCallsList[i], component );
+				}
+
+				unityEventPersistentCallsField.SetValue( target, unityEventProperties.persistentCalls );
+			}
 			else
 				stringBuilder.AppendLine( "<b>Couldn't paste UnityEvent because it became null (it can happen on Unity 2019.2 or earlier if a script was modified during the upgrade process)</b>" );
 		}
