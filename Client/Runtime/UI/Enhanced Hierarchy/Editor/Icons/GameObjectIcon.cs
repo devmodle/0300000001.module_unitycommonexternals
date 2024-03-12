@@ -39,9 +39,9 @@ namespace EnhancedHierarchy.Icons {
                 if (!GUI.changed)
                     return;
 
-                var affectedObjList = GetSelectedObjectsAndCurrent();
-                var affectedObjsEnum = affectedObjList.AsEnumerable();
-                var changeMode = AskChangeModeIfNecessary(affectedObjList, Preferences.IconAskMode.Value, "Change Icons", "Do you want to change children icons as well?");
+                var affectedObjsList = GetSelectedObjectsAndCurrent();
+                var affectedObjsEnum = affectedObjsList.AsEnumerable();
+                var changeMode = AskChangeModeIfNecessary(affectedObjsList, Preferences.IconAskMode.Value, "Change Icons", "Do you want to change children icons as well?");
 
                 switch (changeMode) {
                     case ChildrenChangeMode.ObjectAndChildren:
