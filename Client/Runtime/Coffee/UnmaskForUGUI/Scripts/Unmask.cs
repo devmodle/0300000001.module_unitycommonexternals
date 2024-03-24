@@ -26,7 +26,7 @@ namespace Coffee.UIExtensions
         [SerializeField] private RectTransform m_FitTarget;
 
         [Tooltip("Fit graphic's transform to target transform on LateUpdate every frame.")]
-        [SerializeField] private bool m_FitOnLateUpdate;
+        [SerializeField] private bool m_FitOnUpdateLate;
 
         [Tooltip("Unmask affects only for children.")]
         [SerializeField] private bool m_OnlyForChildren = false;
@@ -64,7 +64,7 @@ namespace Coffee.UIExtensions
         /// <summary>
         /// Fit graphic's transform to target transform on LateUpdate every frame.
         /// </summary>
-        public bool fitOnLateUpdate { get { return m_FitOnLateUpdate; } set { m_FitOnLateUpdate = value; } }
+        public bool fitOnUpdateLate { get { return m_FitOnUpdateLate; } set { m_FitOnUpdateLate = value; } }
 
         /// <summary>
         /// Show the graphic that is associated with the unmask render area.
@@ -204,9 +204,9 @@ namespace Coffee.UIExtensions
         private void LateUpdate()
         {
 #if UNITY_EDITOR
-            if (m_FitTarget && (m_FitOnLateUpdate || !Application.isPlaying))
+            if (m_FitTarget && (m_FitOnUpdateLate || !Application.isPlaying))
 #else
-			if (m_FitTarget && m_FitOnLateUpdate)
+			if (m_FitTarget && m_FitOnUpdateLate)
 #endif
             {
                 FitTo(m_FitTarget);
