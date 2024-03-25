@@ -16,7 +16,7 @@ namespace Coffee.UIExtensions.Editors
             var unmaskedPanel = CreateUnmaskedPanel(AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd"), Image.Type.Sliced);
             var unmask = unmaskedPanel.GetComponentInChildren<Unmask>();
             unmask.fitTarget = button.transform as RectTransform;
-            unmask.fitOnUpdateLate = true;
+            unmask.fitOnLateUpdate = true;
 
             var screen = unmaskedPanel.transform.Find("Screen").GetComponent<Image>();
             screen.gameObject.AddComponent<UnmaskRaycastFilter>().targetUnmask = unmask;
