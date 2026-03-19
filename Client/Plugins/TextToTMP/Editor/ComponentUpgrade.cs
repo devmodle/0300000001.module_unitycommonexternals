@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -753,7 +753,7 @@ namespace TextToTMPNamespace
 
 			List<TMP_Dropdown.OptionData> result = new List<TMP_Dropdown.OptionData>( options.Count );
 			for( int i = 0; i < options.Count; i++ )
-				result.Add( new TMP_Dropdown.OptionData( options[i].text, options[i].image ) );
+				result.Add( new TMP_Dropdown.OptionData( options[i].text, options[i].image, Color.white ) );
 
 			return result;
 		}
